@@ -1,6 +1,8 @@
 export default {
-	testEnvironment: 'node',
-	transform: {},
-	// Remove extensionsToTreatAsEsm line and moduleNameMapper line if not needed
-	// If you had moduleNameMapper for some reason, keep it if it's essential, otherwise remove it.
+    testEnvironment: 'node',
+    transform: {},
+    // Tell Jest to allow processing of openai module as ESM
+    transformIgnorePatterns: [
+        "node_modules/(?!openai/)"
+    ]
 };
