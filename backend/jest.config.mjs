@@ -1,9 +1,7 @@
 export default {
     testEnvironment: 'node',
     transform: {
-        '^.+\\.js$': 'babel-jest'
+        '^.+\\.[tj]sx?$': 'babel-jest'
     },
-    transformIgnorePatterns: [
-        "node_modules/(?!openai/)"
-    ]
+    transformIgnorePatterns: [] // allow transforming everything
 };
