@@ -10,7 +10,7 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     env:
-      OPENAI_API_KEY: ${{ secrets.4uNYC4WF93jL2TwBQWtTKgcEJSgbub7OzJSxexejIAwdnW8pv5HzJQQJ99ALACYeBjFXJ3w3AAABACOGx3Rd }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
