@@ -1,8 +1,8 @@
-﻿require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const routes = require('./routes');
+﻿import 'dotenv/config'; // Replaces dotenv require + config call
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import routes from './routes.js'; // Make sure routes.js also uses ESM
 
 const app = express();
 app.use(cors());

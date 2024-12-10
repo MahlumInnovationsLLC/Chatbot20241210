@@ -1,14 +1,13 @@
-﻿const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const { generateChatResponse } = require('./openaiService');
-const { BlobServiceClient } = require('@azure/storage-blob');
+﻿import { Router } from 'express';
+import multer from 'multer';
+import { generateChatResponse } from './openaiService.js';
+import { BlobServiceClient } from '@azure/storage-blob';
 
+const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
-const containerName = process.env.AZURE_BLOB_CONTAINER;
-const containerClient = blobServiceClient.getContainerClient(containerName);
+const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_BLOB_CONTAINER);
 
 router.post('/chat', async (req, res) => {
     try {
@@ -23,7 +22,6 @@ router.post('/chat', async (req, res) => {
 
 router.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).send('No file uploaded.');
-
     const file = req.file;
     const blobName = `${Date.now()}-${file.originalname}`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);
@@ -39,4 +37,4 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

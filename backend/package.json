@@ -5,7 +5,7 @@
     "main": "src/app.js",
     "scripts": {
         "start": "node src/app.js",
-        "test": "jest"
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
     },
     "dependencies": {
         "axios": "^1.5.0",
