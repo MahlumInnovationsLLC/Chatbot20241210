@@ -40,6 +40,7 @@ jobs:
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
+        # (We build here just to verify it builds; final build happens in Docker)
 
   dockerize:
     needs: build-test
@@ -55,19 +56,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build and push backend image
-      - name: Build backend image
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/chatbot-backend:latest ./backend
+      # Build single image that contains both frontend and backend
+      - name: Build combined image
+        run: docker build -f backend/Dockerfile -t ghcr.io/${{ github.repository_owner }}/chatbot-app:latest .
 
-      - name: Push backend image
-        run: docker push ghcr.io/${{ github.repository_owner }}/chatbot-backend:latest
-
-      # Build and push frontend image
-      - name: Build frontend image
-        run: docker build -t ghcr.io/${{ github.repository_owner }}/chatbot-frontend:latest ./frontend
-
-      - name: Push frontend image
-        run: docker push ghcr.io/${{ github.repository_owner }}/chatbot-frontend:latest
+      - name: Push combined image
+        run: docker push ghcr.io/${{ github.repository_owner }}/chatbot-app:latest
 
   deploy:
     needs: dockerize
@@ -81,16 +75,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-      - name: Deploy backend to Azure WebApp
+      - name: Deploy to Azure WebApp
         uses: azure/webapps-container-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME_BACKEND }}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }} # single web app for both frontend & backend
           resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          docker-custom-image-name: "ghcr.io/${{ github.repository_owner }}/chatbot-backend:latest"
-
-      - name: Deploy frontend to Azure WebApp
-        uses: azure/webapps-container-deploy@v2
-        with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME_FRONTEND }}
-          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          docker-custom-image-name: "ghcr.io/${{ github.repository_owner }}/chatbot-frontend:latest"
+          docker-custom-image-name: "ghcr.io/${{ github.repository_owner }}/chatbot-app:latest"
