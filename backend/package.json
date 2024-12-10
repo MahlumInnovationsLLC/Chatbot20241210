@@ -17,7 +17,10 @@
         "@azure/storage-blob": "^12.11.0"
     },
     "devDependencies": {
-        "jest": "^29.5.0",
-        "supertest": "^6.3.3"
+        "@babel/core": "^7.x.x",
+        "@babel/preset-env": "^7.x.x",
+        "babel-jest": "^29.x.x",
+        "jest": "^29.x.x",
+        "supertest": "7.0.0"
     }
 }
