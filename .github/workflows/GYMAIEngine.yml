@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      AZURE_BLOB_CONTAINER: ${{ secrets.AZURE_BLOB_CONTAINER }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
