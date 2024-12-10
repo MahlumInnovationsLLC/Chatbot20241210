@@ -40,6 +40,10 @@ jobs:
         working-directory: ./backend
         run: ls -la node_modules/.bin
 
+      - name: Print env
+        working-directory: ./backend
+        run: env
+
       - name: Test backend
         working-directory: ./backend
         run: npm test
