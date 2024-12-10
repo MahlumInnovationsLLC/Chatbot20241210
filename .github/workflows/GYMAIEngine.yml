@@ -19,9 +19,16 @@ jobs:
           node-version: '18'
 
       # Backend Build & Test
+      - name: Clean
+        run: rm -rf node_modules
+
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm install
+
+      - name: List bin folder
+        working-directory: ./backend
+        run: ls -la node_modules/.bin
 
       - name: Test backend
         working-directory: ./backend
