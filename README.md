@@ -1,5 +1,5 @@
 # Futuristic Chatbot on Azure with Blob Storage
-
+git status
 This is a full-stack futuristic chatbot interface deployed on Azure. It consists of:
 
 - **Frontend**: React + Tailwind CSS
