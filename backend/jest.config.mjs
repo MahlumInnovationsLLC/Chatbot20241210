@@ -1,7 +1,8 @@
 export default {
     testEnvironment: 'node',
-    transform: {},
-    // Tell Jest to allow processing of openai module as ESM
+    transform: {
+        '^.+\\.js$': 'babel-jest'
+    },
     transformIgnorePatterns: [
         "node_modules/(?!openai/)"
     ]
