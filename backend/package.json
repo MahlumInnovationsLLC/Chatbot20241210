@@ -1,5 +1,4 @@
 {
-    {
         "dependencies": {
             "axios": "^1.5.0",
             "cors": "^2.8.5",
@@ -9,17 +8,11 @@
             "openai": "^4.0.0",
             "@azure/storage-blob": "^12.11.0"
         },
+    "description": "Backend for the futuristic chatbot interface deployed on Azure.",
         "devDependencies": {
             "jest": "^29.5.0",
             "supertest": "^6.3.3"
         },
-        "main": "src/app.js",
-        "name": "chatbot-backend",
-        "scripts": {
-            "start": "node src/app.js",
-            "test": "jest"
-        },
-        "version": "1.0.0"
-    }
-
+    "author": "Your Name",
+    "license": "ISC"
 }
