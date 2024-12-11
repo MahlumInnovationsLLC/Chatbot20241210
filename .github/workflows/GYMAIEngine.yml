@@ -59,6 +59,10 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
+      - name: Make vite executable
+        working-directory: ./frontend
+        run: chmod +x node_modules/.bin/vite
+
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build

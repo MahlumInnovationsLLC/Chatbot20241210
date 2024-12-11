@@ -11,12 +11,12 @@
         "eslint": "^9.16.0",
         "postcss": "^8.4.23",
         "tailwindcss": "^3.3.2",
-        "vite": "^4.5.5"
+        "vite": "^6.0.3"
     },
     "name": "chatbot-frontend",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "npx vite build",
         "preview": "vite preview",
         "test": "echo \"No tests specified\" && exit 0"
     },
