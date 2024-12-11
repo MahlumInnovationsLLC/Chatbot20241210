@@ -2,7 +2,7 @@
 FROM node:18-alpine AS frontend_builder
 WORKDIR /usr/src/frontend
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci
 COPY frontend/. .
 RUN npm run build
 
