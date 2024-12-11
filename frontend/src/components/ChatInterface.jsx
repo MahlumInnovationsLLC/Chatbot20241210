@@ -15,7 +15,8 @@ export default function ChatInterface() {
         setUserInput('');
 
         try {
-            const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080'}/chat`, {
+            // Use a relative URL: no localhost or external domain
+            const res = await axios.post('/chat', {
                 userMessage: userInput
             });
             setMessages(prev => [...prev, { role: 'assistant', content: res.data.reply }]);
@@ -26,7 +27,6 @@ export default function ChatInterface() {
     };
 
     return (
-        // Adjusted width classes: Removed max-w-md, added w-4/5 for about 80% width
         <div className="w-4/5 bg-gray-800 p-4 rounded-md">
             <div className="h-64 overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
                 {messages.map((m, i) => (
