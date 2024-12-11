@@ -22,7 +22,7 @@
 │  │  ├─ index.css
 │  │  └─ main.jsx
 │  ├─ public/
-│  │  └─ index.html
+│  │  └─index.html
 │  ├─ package.json
 │  ├─ Dockerfile
 │  ├─ tailwind.config.js
