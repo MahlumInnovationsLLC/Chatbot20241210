@@ -1,7 +1,7 @@
 # Stage 1: Build frontend
 FROM node:18-alpine AS frontend_builder
 
-#Install necessary compatability library for esbuild
+# Install necessary compatability library for esbuild
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /usr/src/frontend
@@ -9,8 +9,8 @@ COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/. .
 
-#Re-build Esbuild to ensure correct binary version
-RUN npm rebuild esbuild
+# Re-build Esbuild to ensure correct binary version
+# RUN npm rebuild esbuild
 
 # Make sure vite is executable
 RUN chmod +x node_modules/.bin/vite
