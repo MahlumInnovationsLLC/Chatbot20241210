@@ -98,8 +98,8 @@ jobs:
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Deploy to Azure WebApp
-        uses: azure/webapps-container-deploy@v2
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }} # single web app for both frontend & backend
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          docker-custom-image-name: "ghcr.io/${{ github.repository_owner }}/chatbot-app:latest"
+          images: "ghcr.io/mahluminnovationsllc/chatbot-app:latest"
