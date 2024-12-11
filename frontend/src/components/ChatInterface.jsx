@@ -28,7 +28,7 @@ export default function ChatInterface() {
 
     return (
         <div className="w-4/5 bg-gray-800 p-4 rounded-md">
-            <div className="h-64 overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
+            <div className="h-[80vh] overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
                 {messages.map((m, i) => (
                     <MessageBubble key={i} role={m.role} content={m.content} />
                 ))}
@@ -39,7 +39,7 @@ export default function ChatInterface() {
                     onChange={e => setUserInput(e.target.value)}
                     className="flex-1 p-2 rounded text-black"
                     type="text"
-                    placeholder="Ask me anything..."
+                    placeholder="I'm here to help! Ask me anything..."
                 />
                 <button onClick={sendMessage} className="bg-futuristic-accent text-white px-4 py-2 rounded">Send</button>
             </div>
