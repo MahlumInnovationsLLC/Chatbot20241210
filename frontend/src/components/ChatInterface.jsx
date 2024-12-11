@@ -9,7 +9,7 @@ export default function ChatInterface() {
 
     const sendMessage = async () => {
         if (!userInput.trim()) return;
-        setErrorMessage(''); // Clear any previous errors
+        setErrorMessage('');
         const userMsg = { role: 'user', content: userInput };
         setMessages([...messages, userMsg]);
         setUserInput('');
@@ -26,8 +26,8 @@ export default function ChatInterface() {
     };
 
     return (
-        {/* Adjusted width classes: Removed max-w-md, added w-4/5 for 80% width */ }
-        < div className = "w-4/5 bg-gray-800 p-4 rounded-md" >
+        // Adjusted width classes: Removed max-w-md, added w-4/5 for about 80% width
+        <div className="w-4/5 bg-gray-800 p-4 rounded-md">
             <div className="h-64 overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
                 {messages.map((m, i) => (
                     <MessageBubble key={i} role={m.role} content={m.content} />
@@ -43,13 +43,11 @@ export default function ChatInterface() {
                 />
                 <button onClick={sendMessage} className="bg-futuristic-accent text-white px-4 py-2 rounded">Send</button>
             </div>
-    {
-        errorMessage && (
-            <div className="text-red-500 mt-2 text-sm">
-                {errorMessage}
-            </div>
-        )
-    }
-        </div >
+            {errorMessage && (
+                <div className="text-red-500 mt-2 text-sm">
+                    {errorMessage}
+                </div>
+            )}
+        </div>
     );
 }
