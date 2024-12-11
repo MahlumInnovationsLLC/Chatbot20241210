@@ -80,7 +80,7 @@ jobs:
 
       # Build single image that contains both frontend and backend
       - name: Build combined image
-        run: docker build -f backend/Dockerfile -t ghcr.io/mahluminnovationsllc/chatbot-app:latest .
+        run: docker build -t ghcr.io/mahluminnovationsllc/chatbot-app:latest .
 
       - name: Push combined image
         run: docker push ghcr.io/mahluminnovationsllc/chatbot-app:latest
