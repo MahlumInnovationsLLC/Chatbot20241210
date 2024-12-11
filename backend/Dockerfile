@@ -25,4 +25,4 @@ COPY --from=frontend_builder /usr/src/frontend/dist src/public
 EXPOSE 8080
 
 # Use gunicorn to run the app. If relying on $PORT from Azure:
-CMD ["sh", "-c", "gunicorn -b 0.0.0.0:${PORT:-8000} app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
