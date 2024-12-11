@@ -10,6 +10,9 @@ RUN npm run build
 FROM python:3.11-slim AS backend_builder
 WORKDIR /usr/src/app
 
+# Install git if you need commit info or for some packages
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
 # Copy backend requirements and install
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -22,9 +25,7 @@ RUN mkdir -p src/public
 COPY --from=frontend_builder /usr/src/frontend/dist src/public
 
 # Expose a port for local testing (optional)
-# This won't affect Azure's mapping; it's good practice though.
 EXPOSE 8080
 
 # Use gunicorn and bind to $PORT, which Azure will set.
-# If you want to use 8080, make sure you set WEBSITES_PORT=8080 in Azure App Settings.
 CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "app:app"]
