@@ -4,6 +4,10 @@ WORKDIR /usr/src/frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/. .
+
+# Make sure vite is executable
+RUN chmod +x node_modules/.bin/vite
+
 RUN npm run build
 
 # Stage 2: Build and run backend (Python)
