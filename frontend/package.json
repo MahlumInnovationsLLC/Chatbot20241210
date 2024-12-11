@@ -20,4 +20,4 @@
             "test": "echo \"No tests specified\" && exit 0"
         },
         "version": "1.0.0"
-    }
+}
