@@ -28,4 +28,4 @@ COPY --from=frontend_builder /usr/src/frontend/dist src/public
 EXPOSE 8080
 
 # Use gunicorn and bind to $PORT, which Azure will set.
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:$PORT", "app:app"]
