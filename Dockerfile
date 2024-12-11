@@ -1,5 +1,9 @@
 # Stage 1: Build frontend
 FROM node:18-alpine AS frontend_builder
+
+#Install necessary compatability library for esbuild
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /usr/src/frontend
 COPY frontend/package*.json ./
 RUN npm install
