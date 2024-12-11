@@ -76,10 +76,10 @@ jobs:
 
       # Build single image that contains both frontend and backend
       - name: Build combined image
-        run: docker build -f backend/Dockerfile -t ghcr.io/${{ github.repository_owner }}/chatbot-app:latest .
+        run: docker build -f backend/Dockerfile -t ghcr.io/mahluminnovationsllc/chatbot-app:latest .
 
       - name: Push combined image
-        run: docker push ghcr.io/${{ github.repository_owner }}/chatbot-app:latest
+        run: docker push ghcr.io/mahluminnovationsllc/chatbot-app:latest
 
   deploy:
     needs: dockerize
