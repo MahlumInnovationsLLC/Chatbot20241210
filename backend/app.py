@@ -25,12 +25,10 @@ def chat_endpoint():
     user_input = data.get('userMessage', '')
 
     try:
-        # Use the new interface: client.chat.completions.create
         response = client.chat.completions.create(
             messages=[{"role": "user", "content": user_input}],
             model=AZURE_DEPLOYMENT_NAME
         )
-        # Access the response using the new response format
         assistant_reply = response.choices[0].message.content
     except Exception as e:
         print("Error calling Azure OpenAI:", e)
