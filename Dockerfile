@@ -9,9 +9,6 @@ COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/. .
 
-# Re-build Esbuild to ensure correct binary version
-# RUN npm rebuild esbuild
-
 # Make sure vite is executable
 RUN chmod +x node_modules/.bin/vite
 
