@@ -1,7 +1,7 @@
 # Stage 1: Build frontend
 FROM node:18-alpine AS frontend_builder
 
-# Install necessary compatability library for esbuild
+# Install necessary compatibility library for esbuild
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /usr/src/frontend
@@ -20,6 +20,9 @@ WORKDIR /usr/src/app
 
 # Install git if you need commit info or for some packages
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+# Upgrade openai before installing requirements
+RUN pip install --no-cache-dir --upgrade openai
 
 # Copy backend requirements and install
 COPY backend/requirements.txt .
