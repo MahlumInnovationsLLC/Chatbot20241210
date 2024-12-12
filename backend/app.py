@@ -12,8 +12,8 @@ client = AzureOpenAI(
     api_version="2023-05-15"
 )
 
-# The model parameter for AzureOpenAI calls should be your deployment name
-AZURE_DEPLOYMENT_NAME = "gpt-deployment"  # Replace with your actual Azure deployment name
+# Update the model (deployment) name to the one provided
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
 
 @app.route('/')
 def serve_frontend():
