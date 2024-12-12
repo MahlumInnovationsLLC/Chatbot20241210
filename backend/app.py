@@ -7,11 +7,11 @@ app = Flask(__name__, static_folder='src/public', static_url_path='')
 # Configure OpenAI for Azure
 openai.api_type = "azure"
 openai.api_base = os.environ.get("AZURE_OPENAI_ENDPOINT")  # e.g. "https://your-resource-name.openai.azure.com/"
-openai.api_version = "2023-05-15"  # or the version specified by Azure documentation
+openai.api_version = "2023-05-15"  # Check Azure docs for the correct api_version
 openai.api_key = os.environ.get("AZURE_OPENAI_KEY")
 
-# Set this to your Azure OpenAI deployment name
-AZURE_ENGINE = "gpt-deployment"  # Replace with the name of your deployed model
+# Replace with your Azure OpenAI deployment name
+AZURE_DEPLOYMENT_NAME = "gpt-deployment"
 
 @app.route('/')
 def serve_frontend():
@@ -24,13 +24,13 @@ def chat_endpoint():
 
     try:
         response = openai.ChatCompletion.create(
-            engine=AZURE_ENGINE,
+            deployment_id=AZURE_DEPLOYMENT_NAME,
             messages=[{"role": "user", "content": user_input}]
         )
         assistant_reply = response['choices'][0]['message']['content']
     except Exception as e:
         print("Error calling Azure OpenAI:", e)
-        assistant_reply = "I'm sorry, I encountered an error. Please try again."
+        assistant_reply = "Error occurred: {}".format(str(e))
 
     return jsonify({"reply": assistant_reply})
 
