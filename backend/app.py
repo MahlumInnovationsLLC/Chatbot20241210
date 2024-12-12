@@ -4,8 +4,14 @@ import openai
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
-# Set your OpenAI API key (ensure it's in your environment variables)
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+# Configure OpenAI for Azure
+openai.api_type = "azure"
+openai.api_base = os.environ.get("AZURE_OPENAI_ENDPOINT")  # e.g. "https://your-resource-name.openai.azure.com/"
+openai.api_version = "2023-05-15"  # or the version specified by Azure documentation
+openai.api_key = os.environ.get("AZURE_OPENAI_KEY")
+
+# Set this to your Azure OpenAI deployment name
+AZURE_ENGINE = "gpt-deployment"  # Replace with the name of your deployed model
 
 @app.route('/')
 def serve_frontend():
@@ -17,18 +23,20 @@ def chat_endpoint():
     data = request.get_json()
     user_input = data.get('userMessage', '')
 
-    # Call the OpenAI API (ChatCompletion) to get a GPT-3.5 response
+    # Call Azure OpenAI to get a response
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or whichever model you prefer
+            engine=AZURE_ENGINE,
             messages=[{"role": "user", "content": user_input}]
         )
-        reply = response.choices[0].message["content"].strip()
+        # Extract the assistant's message from the response
+        assistant_reply = response['choices'][0]['message']['content']
     except Exception as e:
-        # If there's an error, return a fallback message
-        reply = f"Error occurred: {str(e)}"
+        # If there's an error, log it and return a fallback message
+        print("Error calling Azure OpenAI:", e)
+        assistant_reply = "I'm sorry, I encountered an error. Please try again."
 
-    return jsonify({"reply": reply})
+    return jsonify({"reply": assistant_reply})
 
 @app.errorhandler(404)
 def not_found(e):
