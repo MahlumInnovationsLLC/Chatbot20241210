@@ -15,7 +15,6 @@ AZURE_ENGINE = "gpt-deployment"  # Replace with the name of your deployed model
 
 @app.route('/')
 def serve_frontend():
-    # Serve the main frontend file (index.html)
     return send_from_directory('src/public', 'index.html')
 
 @app.route('/chat', methods=['POST'])
@@ -23,16 +22,13 @@ def chat_endpoint():
     data = request.get_json()
     user_input = data.get('userMessage', '')
 
-    # Call Azure OpenAI to get a response
     try:
         response = openai.ChatCompletion.create(
             engine=AZURE_ENGINE,
             messages=[{"role": "user", "content": user_input}]
         )
-        # Extract the assistant's message from the response
         assistant_reply = response['choices'][0]['message']['content']
     except Exception as e:
-        # If there's an error, log it and return a fallback message
         print("Error calling Azure OpenAI:", e)
         assistant_reply = "I'm sorry, I encountered an error. Please try again."
 
@@ -40,10 +36,8 @@ def chat_endpoint():
 
 @app.errorhandler(404)
 def not_found(e):
-    # If using client-side routing, redirect unknown paths to index.html
     return send_from_directory('src/public', 'index.html')
 
 if __name__ == "__main__":
-    # If running locally, default to 8080. In Azure, PORT is set as an environment variable.
     port = int(os.environ.get('PORT', 8080))
     app.run(host="0.0.0.0", port=port)
