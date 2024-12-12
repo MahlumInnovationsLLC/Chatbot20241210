@@ -7,11 +7,11 @@ app = Flask(__name__, static_folder='src/public', static_url_path='')
 # Configure OpenAI for Azure
 openai.api_type = "azure"
 openai.api_base = os.environ.get("AZURE_OPENAI_ENDPOINT")  # e.g. "https://your-resource-name.openai.azure.com/"
-openai.api_version = "2023-05-15"  # Check Azure docs for the correct api_version
+openai.api_version = "2023-05-15"
 openai.api_key = os.environ.get("AZURE_OPENAI_KEY")
 
-# Replace with your Azure OpenAI deployment name
-AZURE_DEPLOYMENT_NAME = "gpt-deployment"
+# Replace with your Azure OpenAI deployment name (the "engine" name)
+AZURE_DEPLOYMENT_NAME = "gpt-deployment"  # This should match the name of your deployment in Azure OpenAI
 
 @app.route('/')
 def serve_frontend():
@@ -23,9 +23,14 @@ def chat_endpoint():
     user_input = data.get('userMessage', '')
 
     try:
+        # Using the new ChatCompletion API with Azure
+        # For Azure, use 'engine' parameter instead of 'model'
         response = openai.ChatCompletion.create(
-            deployment_id=AZURE_DEPLOYMENT_NAME,
-            messages=[{"role": "user", "content": user_input}]
+            engine=AZURE_DEPLOYMENT_NAME,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": user_input}
+            ]
         )
         assistant_reply = response['choices'][0]['message']['content']
     except Exception as e:
