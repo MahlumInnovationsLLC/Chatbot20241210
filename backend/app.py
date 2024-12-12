@@ -1,7 +1,11 @@
 from flask import Flask, send_from_directory, request, jsonify
 import os
+import openai
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
+
+# Set your OpenAI API key (ensure it's in your environment variables)
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 @app.route('/')
 def serve_frontend():
@@ -12,9 +16,18 @@ def serve_frontend():
 def chat_endpoint():
     data = request.get_json()
     user_input = data.get('userMessage', '')
-    # Here you'd normally call your model or logic to process user_input
-    # For now, we'll just return a placeholder response:
-    reply = f"This is a response to: {user_input}"
+
+    # Call the OpenAI API (ChatCompletion) to get a GPT-3.5 response
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",  # or whichever model you prefer
+            messages=[{"role": "user", "content": user_input}]
+        )
+        reply = response.choices[0].message["content"].strip()
+    except Exception as e:
+        # If there's an error, return a fallback message
+        reply = f"Error occurred: {str(e)}"
+
     return jsonify({"reply": reply})
 
 @app.errorhandler(404)
