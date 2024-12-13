@@ -5,15 +5,12 @@ from vision_api import analyze_image  # <-- Import the vision analyze function
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
-# Configure the AzureOpenAI client
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
-    # Verify the API version matches your model/deployment
     api_version="2023-05-15"
 )
 
-# Update the deployment name to your actual Azure deployment name
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
 
 @app.route('/')
@@ -25,14 +22,10 @@ def chat_endpoint():
     user_input = None
     uploaded_file = None
 
-    # Determine if the request is multipart (file + message) or JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
-        # Handle multipart form data
         user_input = request.form.get('userMessage', '')
         if 'file' in request.files:
             uploaded_file = request.files['file']
-            # You can process the image if needed before calling the model.
-            # For example, let's analyze the image using the Vision API if provided:
             image_data = uploaded_file.read()
             try:
                 vision_result = analyze_image(image_data)
@@ -42,7 +35,6 @@ def chat_endpoint():
                 print("Error analyzing image:", e)
                 user_input += "\n\n(Note: There was an error analyzing the image.)"
     else:
-        # Handle JSON data
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
 
