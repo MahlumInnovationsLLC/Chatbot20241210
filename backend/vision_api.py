@@ -1,12 +1,9 @@
-# vision_api.py
-
 import os
 import sys
 import logging
-from azure.core.credentials import AzureKeyCredential
-from azure.ai.vision.imageanalysis import ImageAnalysisClient, VisualFeatures
-from azure.ai.vision.imageanalysis.models import ImageAnalysisResult
-from azure.core.exceptions import HttpResponseError
+from msrest.authentication import CognitiveServicesCredentials
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
 
 logger = logging.getLogger("azure")
 logger.setLevel(logging.INFO)
@@ -16,97 +13,44 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 def get_client():
-    """
-    Create and return an ImageAnalysisClient using the endpoint and key
-    from environment variables: VISION_ENDPOINT and VISION_KEY.
-    """
-    try:
-        endpoint = os.environ["VISION_ENDPOINT"]
-        key = os.environ["VISION_KEY"]
-    except KeyError:
+    endpoint = os.environ.get("VISION_ENDPOINT")
+    key = os.environ.get("VISION_KEY")
+    if not endpoint or not key:
         raise ValueError("Missing 'VISION_ENDPOINT' or 'VISION_KEY' environment variables.")
+    
+    credentials = CognitiveServicesCredentials(key)
+    return ComputerVisionClient(endpoint, credentials)
 
-    client = ImageAnalysisClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
-        logging_enable=False  # Set True if you want non-redacted DEBUG logs
+def analyze_image_from_bytes(image_data):
+    client = get_client()
+    # Use a stable feature, for example: description
+    # VisualFeatureTypes has: Description, Tags, Objects, etc.
+    results = client.analyze_image_in_stream(
+        image_data,
+        visual_features=[VisualFeatureTypes.description, VisualFeatureTypes.tags]
     )
-    return client
+    return results
 
-def analyze_image_from_bytes(image_data, features=None):
-    """
-    Analyze an image provided as bytes. If no features are provided,
-    default to CAPTION and READ (OCR).
-    """
-    if features is None:
-        features = [VisualFeatures.CAPTION, VisualFeatures.READ]
-
+def analyze_image_from_url(image_url):
     client = get_client()
-    try:
-        result = client.analyze(
-            image_data=image_data,
-            visual_features=features,
-            gender_neutral_caption=True
-        )
-        return result
-    except HttpResponseError as e:
-        print(f"Status code: {e.status_code}")
-        print(f"Reason: {e.reason}")
-        if e.error:
-            print(f"Message: {e.error.message}")
-        raise
-    except Exception as e:
-        print("Unexpected error calling Vision API:", e)
-        raise
+    results = client.analyze_image(
+        image_url,
+        visual_features=[VisualFeatureTypes.description, VisualFeatureTypes.tags]
+    )
+    return results
 
-def analyze_image_from_url(image_url, features=None):
-    """
-    Analyze an image provided as a URL. If no features are provided,
-    default to CAPTION and READ (OCR).
-    """
-    if features is None:
-        features = [VisualFeatures.CAPTION, VisualFeatures.READ]
-
-    client = get_client()
-    try:
-        result = client.analyze_from_url(
-            image_url=image_url,
-            visual_features=features,
-            gender_neutral_caption=True
-        )
-        return result
-    except HttpResponseError as e:
-        print(f"Status code: {e.status_code}")
-        print(f"Reason: {e.reason}")
-        if e.error:
-            print(f"Message: {e.error.message}")
-        raise
-    except Exception as e:
-        print("Unexpected error calling Vision API:", e)
-        raise
-
-def print_analysis_results(result: ImageAnalysisResult):
-    """
-    Print out the analysis results in a readable format.
-    Demonstrates how to handle CAPTION and READ results.
-    """
+def print_analysis_results(results):
     print("Image analysis results:")
-
-    if result.caption is not None:
-        print(" Caption:")
-        print(f"   '{result.caption.text}', Confidence {result.caption.confidence:.4f}")
-
-    if result.read is not None and len(result.read.blocks) > 0:
-        print(" Read (OCR):")
-        for line in result.read.blocks[0].lines:
-            print(f"   Line: '{line.text}', Bounding box {line.bounding_polygon}")
-            for word in line.words:
-                print(f"     Word: '{word.text}', Confidence {word.confidence:.4f}")
-
-    # Add handling for other features (TAGS, OBJECTS, etc.) as needed.
+    if results.description and results.description.captions:
+        for caption in results.description.captions:
+            print(f"Caption: '{caption.text}' (confidence: {caption.confidence:.4f})")
+    if results.tags:
+        print("Tags:")
+        for tag in results.tags:
+            print(f"   {tag.name} (confidence: {tag.confidence:.4f})")
 
 if __name__ == "__main__":
-    # Example usage: analyzing a local image
+    # Example usage with a local image:
     try:
         with open("sample.jpg", "rb") as f:
             image_data = f.read()
@@ -115,9 +59,9 @@ if __name__ == "__main__":
     except Exception:
         pass
 
-    # Example usage: analyzing an image by URL
+    # Example usage with an image URL:
     try:
-        image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
+        image_url = "https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/faces.jpg"
         url_result = analyze_image_from_url(image_url)
         print_analysis_results(url_result)
     except Exception:

@@ -5,7 +5,7 @@ annotated-types==0.7.0
 anyio==4.6.2.post1
 asgiref==3.8.1
 attrs==24.2.0
-azure-ai-vision-imageanalysis
+azure-cognitiveservices-vision-computervision
 azure-common==1.1.28
 azure-core==1.32.0
 azure-cosmos==4.5.0
