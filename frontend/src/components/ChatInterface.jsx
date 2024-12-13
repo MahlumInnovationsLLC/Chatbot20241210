@@ -5,33 +5,41 @@ import MessageBubble from './MessageBubble';
 export default function ChatInterface() {
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const sendMessage = async () => {
         if (!userInput.trim()) return;
-        setErrorMessage('');
         const userMsg = { role: 'user', content: userInput };
-        setMessages([...messages, userMsg]);
+        setMessages(prev => [...prev, userMsg]);
         setUserInput('');
 
+        // Show loading state before API call
+        setIsLoading(true);
+
         try {
-            // Use a relative URL: no localhost or external domain
-            const res = await axios.post('/chat', {
-                userMessage: userInput
-            });
-            setMessages(prev => [...prev, { role: 'assistant', content: res.data.reply }]);
+            const res = await axios.post('/chat', { userMessage: userInput });
+            const botMsg = { role: 'assistant', content: res.data.reply };
+            setMessages(prev => [...prev, botMsg]);
         } catch (e) {
             console.error(e);
-            setErrorMessage('Something went wrong. Please try again.');
+            const errorMsg = { role: 'assistant', content: 'Error occurred: ' + e.message };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            // Hide loading state after response
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="w-4/5 bg-gray-800 p-4 rounded-md">
-            <div className="h-[80vh] overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
+        <div className="w-full max-w-md bg-gray-800 p-4 rounded-md flex flex-col">
+            <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
                 {messages.map((m, i) => (
                     <MessageBubble key={i} role={m.role} content={m.content} />
                 ))}
+                {/* If loading, show a "thinking" bubble */}
+                {isLoading && (
+                    <MessageBubble role="assistant" content="..." />
+                )}
             </div>
             <div className="flex space-x-2">
                 <input
@@ -39,15 +47,12 @@ export default function ChatInterface() {
                     onChange={e => setUserInput(e.target.value)}
                     className="flex-1 p-2 rounded text-black"
                     type="text"
-                    placeholder="I'm here to help! Ask me anything..."
+                    placeholder="Ask me anything..."
                 />
-                <button onClick={sendMessage} className="bg-futuristic-accent text-white px-4 py-2 rounded">Send</button>
+                <button onClick={sendMessage} className="bg-blue-600 text-white px-4 py-2 rounded">
+                    Send
+                </button>
             </div>
-            {errorMessage && (
-                <div className="text-red-500 mt-2 text-sm">
-                    {errorMessage}
-                </div>
-            )}
         </div>
     );
 }
