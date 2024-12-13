@@ -1,10 +1,7 @@
 import os
 import requests
 
-# Make sure you have your endpoint and key in environment variables
-# AZURE_VISION_ENDPOINT and AZURE_VISION_KEY
 def analyze_image(image_data, endpoint=None, key=None):
-    # If endpoint or key are not passed, try to get them from environment
     if endpoint is None:
         endpoint = os.environ.get("AZURE_VISION_ENDPOINT")
     if key is None:
