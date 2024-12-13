@@ -1,20 +1,19 @@
 ﻿import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 export default function MessageBubble({ role, content }) {
     const isUser = role === 'user';
 
-    // Custom component to render code blocks with syntax highlighting
-    const renderers = {
+    const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
+            return !inline ? (
                 <SyntaxHighlighter
-                    style={vscDarkPlus}
-                    language={match[1]}
+                    style={github}
+                    language={match ? match[1] : undefined}
                     PreTag="div"
                     {...props}
                 >
@@ -29,14 +28,15 @@ export default function MessageBubble({ role, content }) {
     };
 
     return (
-        <div className={`mb-2 p-2 rounded max-w-[80%] ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}>
-            <div className="text-sm mb-1">
-                <strong>{isUser ? 'You' : 'Bot'}</strong>:
-            </div>
+        <div
+            className={`mb-2 p-3 rounded-md whitespace-pre-wrap break-words ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'
+                }`}
+        >
+            <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'Bot'}:</p>
             <ReactMarkdown
-                className="prose prose-invert"
+                className="prose prose-invert max-w-none"
                 remarkPlugins={[remarkGfm]}
-                components={renderers}
+                components={components}
             >
                 {content}
             </ReactMarkdown>
