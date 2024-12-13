@@ -113,7 +113,6 @@ if __name__ == "__main__":
         print_analysis_results(local_result)
     except Exception:
         pass
-
     # Example usage: analyzing an image by URL
     try:
         image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
