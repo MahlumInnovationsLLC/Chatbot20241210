@@ -15,8 +15,8 @@ def analyze_image(image_data, endpoint=None, key=None):
 
     analyze_url = f"{endpoint}/vision/v3.2/analyze"
     params = {
-        'visualFeatures': 'Categories,Description,Color',
-        'details': 'Celebrities,Landmarks'
+        'visualFeatures': 'Categories,Description,Color'
+        # Removing details that are not supported without special permissions
     }
 
     headers = {
@@ -32,7 +32,7 @@ def analyze_image(image_data, endpoint=None, key=None):
         print("Vision API HTTPError:", http_err)
         print("Status Code:", response.status_code)
         print("Response Content:", response.text)
-    raise
+        raise
     except Exception as e:
         print("Unexpected error calling Vision API:", e)
         raise
