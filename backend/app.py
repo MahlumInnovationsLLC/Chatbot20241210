@@ -10,7 +10,6 @@ app = Flask(__name__, static_folder='src/public', static_url_path='')
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
-    # Verify the API version matches your model/deployment
     api_version="2023-05-15"
 )
 
@@ -60,7 +59,6 @@ def chat_endpoint():
     if image_data:
         try:
             vision_result = analyze_image(image_data)
-            # vision_result should contain the analysis. You can incorporate this into the prompt:
             description = vision_result.get('description', {}).get('captions', [])
             if description:
                 described_image = description[0]['text']
@@ -74,7 +72,6 @@ def chat_endpoint():
         except Exception as e:
             print("Vision analysis error:", e)
             traceback.print_exc()
-            # If an error occurs, just add a fallback message
             messages.append({
                 "role": "assistant",
                 "content": "It seems there was an error analyzing the image, so I don't have information about it. Could you please describe what's in the picture?"
