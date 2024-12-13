@@ -8,7 +8,6 @@ from azure.ai.vision.imageanalysis import ImageAnalysisClient, VisualFeatures
 from azure.ai.vision.imageanalysis.models import ImageAnalysisResult
 from azure.core.exceptions import HttpResponseError
 
-# Configure logging (optional)
 logger = logging.getLogger("azure")
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(stream=sys.stdout)
