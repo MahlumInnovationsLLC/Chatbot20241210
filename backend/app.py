@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify
 import os
 from openai import AzureOpenAI
-from vision_api import analyze_image  # <-- Import the vision analyze function
+from vision_api import analyze_image
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -20,33 +20,42 @@ def serve_frontend():
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     user_input = None
-    uploaded_file = None
+    vision_analysis_text = ""
 
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
         if 'file' in request.files:
             uploaded_file = request.files['file']
             image_data = uploaded_file.read()
-            try:
-                vision_result = analyze_image(image_data)
-                # You could append vision analysis result to user_input or include it in the conversation:
-                user_input += "\n\nImage Analysis Results:\n" + str(vision_result)
-            except Exception as e:
-                print("Error analyzing image:", e)
-                user_input += "\n\n(Note: There was an error analyzing the image.)"
+            if image_data:
+                try:
+                    vision_result = analyze_image(image_data)
+                    # Extract something meaningful from vision_result
+                    # For example, if vision_result['description']['captions'] is available:
+                    if 'description' in vision_result and 'captions' in vision_result['description'] and vision_result['description']['captions']:
+                        caption = vision_result['description']['captions'][0].get('text', '')
+                        vision_analysis_text = f"\n\n[Vision Analysis]: The image likely shows {caption}."
+                    else:
+                        # Fallback: convert entire JSON to string
+                        vision_analysis_text = f"\n\n[Vision Analysis]: {vision_result}"
+                except Exception as e:
+                    print("Error analyzing image:", e)
+                    vision_analysis_text = "\n\n[Vision Analysis]: (Error analyzing image.)"
     else:
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
 
-    # Add a system message that instructs the assistant on formatting.
+    # Append vision analysis if any
+    user_input += vision_analysis_text
+
+    # System message with instructions to use vision analysis if available
     messages = [
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant. When you respond, please use Markdown formatting. "
-                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
-                "when appropriate. Also, break down complex steps into bullet points or numbered lists "
-                "for clarity. End your responses with a friendly tone."
+                "You are a helpful assistant. Use Markdown formatting in responses. "
+                "If '[Vision Analysis]:' is provided in the user's message, use that info to describe the image. "
+                "If not, ask the user for a description. Be friendly and helpful."
             )
         },
         {
