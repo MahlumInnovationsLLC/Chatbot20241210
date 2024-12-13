@@ -8,7 +8,10 @@ def analyze_image(image_data, endpoint=None, key=None):
         key = os.environ.get("AZURE_VISION_KEY")
 
     if not endpoint or not key:
-        raise ValueError("Vision endpoint or key is missing.")
+        raise ValueError("Vision endpoint or key is missing. Please set AZURE_VISION_ENDPOINT and AZURE_VISION_KEY.")
+
+    # Remove trailing slash if present
+    endpoint = endpoint.rstrip('/')
 
     analyze_url = f"{endpoint}/vision/v3.2/analyze"
     params = {
@@ -18,9 +21,16 @@ def analyze_image(image_data, endpoint=None, key=None):
 
     headers = {
         'Ocp-Apim-Subscription-Key': key,
-        'Content-Type': 'application/octet-stream'  # Since we're sending image bytes
+        'Content-Type': 'application/octet-stream'
     }
 
-    response = requests.post(analyze_url, headers=headers, params=params, data=image_data)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = requests.post(analyze_url, headers=headers, params=params, data=image_data)
+        response.raise_for_status()
+        return response.json()
+    except requests.HTTPError as http_err:
+        print("Vision API Error:", http_err, response.text)
+        raise
+    except Exception as e:
+        print("Unexpected error calling Vision API:", e)
+        raise
