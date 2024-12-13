@@ -25,7 +25,6 @@ def get_client():
     except KeyError:
         raise ValueError("Missing 'VISION_ENDPOINT' or 'VISION_KEY' environment variables.")
 
-    # Create the Image Analysis client
     client = ImageAnalysisClient(
         endpoint=endpoint,
         credential=AzureKeyCredential(key),
@@ -39,7 +38,6 @@ def analyze_image_from_bytes(image_data, features=None):
     By default, if no features are provided, we analyze CAPTION and READ (OCR).
     """
     if features is None:
-        # Default to caption and OCR for demonstration
         features = [VisualFeatures.CAPTION, VisualFeatures.READ]
 
     client = get_client()
@@ -47,12 +45,10 @@ def analyze_image_from_bytes(image_data, features=None):
         result = client.analyze(
             image_data=image_data,
             visual_features=features,
-            # Set additional options as needed
             gender_neutral_caption=True
         )
         return result
     except HttpResponseError as e:
-        # Handle service errors gracefully
         print(f"Status code: {e.status_code}")
         print(f"Reason: {e.reason}")
         print(f"Message: {e.error.message}")
