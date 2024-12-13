@@ -16,7 +16,7 @@ RUN chmod +x node_modules/.bin/vite
 RUN npm run build
 
 # Stage 2: Build and run backend (Python)
-FROM python:3.11-slim AS backend_builder
+FROM python:3.9-slim AS backend_builder
 WORKDIR /usr/src/app
 
 # Install git if needed
@@ -24,7 +24,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements and install
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy backend source code (including app.py)
 COPY backend/. .
@@ -33,8 +34,9 @@ COPY backend/. .
 RUN mkdir -p src/public
 COPY --from=frontend_builder /usr/src/frontend/dist src/public
 
-# Expose a port for local testing (optional)
+# Expose a port for local testing; Azure sets PORT env var
 EXPOSE 8080
 
-# Use gunicorn and bind to $PORT (Azure sets $PORT=8080)
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
+# Use gunicorn and bind to $PORT.
+# Azure App Service sets PORT=8080 by default, but we use $PORT for flexibility.
+CMD ["sh", "-c", "gunicorn -b 0.0.0.0:${PORT:-8080} app:app --log-level debug"]
