@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify
 import os
 from openai import AzureOpenAI
+from vision_api import analyze_image  # <-- Import the vision analyze function
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -30,18 +31,25 @@ def chat_endpoint():
         user_input = request.form.get('userMessage', '')
         if 'file' in request.files:
             uploaded_file = request.files['file']
-            # If you need to handle the file (e.g., save or process it), do so here.
-            # Example: uploaded_file.save(os.path.join("uploads", uploaded_file.filename))
+            # You can process the image if needed before calling the model.
+            # For example, let's analyze the image using the Vision API if provided:
+            image_data = uploaded_file.read()
+            try:
+                vision_result = analyze_image(image_data)
+                # You could append vision analysis result to user_input or include it in the conversation:
+                user_input += "\n\nImage Analysis Results:\n" + str(vision_result)
+            except Exception as e:
+                print("Error analyzing image:", e)
+                user_input += "\n\n(Note: There was an error analyzing the image.)"
     else:
         # Handle JSON data
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
 
     # Add a system message that instructs the assistant on formatting.
-    # This message is never shown to the user but guides the assistant.
     messages = [
         {
-            "role": "system", 
+            "role": "system",
             "content": (
                 "You are a helpful assistant. When you respond, please use Markdown formatting. "
                 "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
