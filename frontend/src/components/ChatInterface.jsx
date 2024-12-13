@@ -29,6 +29,13 @@ export default function ChatInterface() {
         }
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
+
     return (
         <div className="w-[75vw] h-[75vh] bg-gray-800 p-4 rounded-md flex flex-col">
             <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
@@ -41,6 +48,7 @@ export default function ChatInterface() {
                 <input
                     value={userInput}
                     onChange={e => setUserInput(e.target.value)}
+                    onKeyDown={handleKeyDown} // Added keydown event to handle Enter
                     className="flex-1 p-2 rounded text-black"
                     type="text"
                     placeholder="I'm here to help! Ask me anything..."
