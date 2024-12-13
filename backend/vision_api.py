@@ -6,7 +6,7 @@ from azure.ai.vision.imageanalysis import ImageAnalysisClient, VisualFeatures
 from azure.ai.vision.imageanalysis.models import ImageAnalysisResult
 from azure.core.exceptions import HttpResponseError
 
-# Configure logging (optional, helpful for troubleshooting)
+# Configure logging (optional)
 logger = logging.getLogger("azure")
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler(stream=sys.stdout)
@@ -17,7 +17,7 @@ logger.addHandler(handler)
 def get_client():
     """
     Create and return an ImageAnalysisClient using the endpoint and key
-    from environment variables.
+    from environment variables: VISION_ENDPOINT and VISION_KEY.
     """
     try:
         endpoint = os.environ["VISION_ENDPOINT"]
@@ -34,8 +34,8 @@ def get_client():
 
 def analyze_image_from_bytes(image_data, features=None):
     """
-    Analyze an image provided as bytes using the specified visual features.
-    By default, if no features are provided, we analyze CAPTION and READ (OCR).
+    Analyze an image provided as bytes. If no features are provided,
+    default to CAPTION and READ (OCR).
     """
     if features is None:
         features = [VisualFeatures.CAPTION, VisualFeatures.READ]
@@ -51,7 +51,8 @@ def analyze_image_from_bytes(image_data, features=None):
     except HttpResponseError as e:
         print(f"Status code: {e.status_code}")
         print(f"Reason: {e.reason}")
-        print(f"Message: {e.error.message}")
+        if e.error:
+            print(f"Message: {e.error.message}")
         raise
     except Exception as e:
         print("Unexpected error calling Vision API:", e)
@@ -59,8 +60,8 @@ def analyze_image_from_bytes(image_data, features=None):
 
 def analyze_image_from_url(image_url, features=None):
     """
-    Analyze an image provided as a URL using the specified visual features.
-    By default, if no features are provided, we analyze CAPTION and READ (OCR).
+    Analyze an image provided as a URL. If no features are provided,
+    default to CAPTION and READ (OCR).
     """
     if features is None:
         features = [VisualFeatures.CAPTION, VisualFeatures.READ]
@@ -76,7 +77,8 @@ def analyze_image_from_url(image_url, features=None):
     except HttpResponseError as e:
         print(f"Status code: {e.status_code}")
         print(f"Reason: {e.reason}")
-        print(f"Message: {e.error.message}")
+        if e.error:
+            print(f"Message: {e.error.message}")
         raise
     except Exception as e:
         print("Unexpected error calling Vision API:", e)
@@ -85,7 +87,7 @@ def analyze_image_from_url(image_url, features=None):
 def print_analysis_results(result: ImageAnalysisResult):
     """
     Print out the analysis results in a readable format.
-    Demonstrates how to handle CAPTION and READ results, and can be expanded.
+    Demonstrates how to handle CAPTION and READ results.
     """
     print("Image analysis results:")
 
@@ -100,22 +102,10 @@ def print_analysis_results(result: ImageAnalysisResult):
             for word in line.words:
                 print(f"     Word: '{word.text}', Confidence {word.confidence:.4f}")
 
-    # You can add similar sections here for other features like TAGS, OBJECTS, PEOPLE, etc.
-    # if result.tags is not None:
-    #     print(" Tags:")
-    #     for tag in result.tags.list:
-    #         print(f"   '{tag.name}', Confidence {tag.confidence:.4f}")
-
-    # if result.objects is not None:
-    #     print(" Objects:")
-    #     for obj in result.objects.list:
-    #         print(f"   '{obj.tags[0].name}', {obj.bounding_box}, Confidence {obj.tags[0].confidence:.4f}")
-
-    # Add more features as needed.
+    # Add handling for other features if needed, e.g. TAGS, OBJECTS, PEOPLE, etc.
 
 if __name__ == "__main__":
-    # Example usage:
-    # Analyze a local image
+    # Example usage: analyzing a local image
     try:
         with open("sample.jpg", "rb") as f:
             image_data = f.read()
@@ -124,7 +114,7 @@ if __name__ == "__main__":
     except Exception:
         pass
 
-    # Analyze an image by URL
+    # Example usage: analyzing an image by URL
     try:
         image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
         url_result = analyze_image_from_url(image_url)
