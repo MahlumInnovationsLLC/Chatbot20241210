@@ -21,8 +21,21 @@ def serve_frontend():
 
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
-    data = request.get_json()
-    user_input = data.get('userMessage', '')
+    user_input = None
+    uploaded_file = None
+
+    # Determine if the request is multipart (file + message) or JSON
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        # Handle multipart form data
+        user_input = request.form.get('userMessage', '')
+        if 'file' in request.files:
+            uploaded_file = request.files['file']
+            # If you need to handle the file (e.g., save or process it), do so here.
+            # Example: uploaded_file.save(os.path.join("uploads", uploaded_file.filename))
+    else:
+        # Handle JSON data
+        data = request.get_json(force=True)
+        user_input = data.get('userMessage', '')
 
     # Add a system message that instructs the assistant on formatting.
     # This message is never shown to the user but guides the assistant.
@@ -48,10 +61,6 @@ def chat_endpoint():
             model=AZURE_DEPLOYMENT_NAME
         )
         assistant_reply = response.choices[0].message.content
-
-        # The assistant_reply should now contain Markdown. It's up to your frontend to render it.
-        # On the frontend, you can use a Markdown renderer to display this nicely.
-        
     except Exception as e:
         print("Error calling Azure OpenAI:", e)
         assistant_reply = f"Error occurred: {str(e)}"
