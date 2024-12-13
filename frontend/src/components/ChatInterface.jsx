@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
+import ThinkingBubble from './ThinkingBubble';
 
 export default function ChatInterface() {
     const [messages, setMessages] = useState([]);
@@ -14,6 +15,7 @@ export default function ChatInterface() {
         setUserInput('');
 
         setIsLoading(true);
+
         try {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
@@ -28,14 +30,12 @@ export default function ChatInterface() {
     };
 
     return (
-        <div className="w-full max-w-md bg-gray-800 p-4 rounded-md flex flex-col">
+        <div className="w-[75vw] h-[75vh] bg-gray-800 p-4 rounded-md flex flex-col">
             <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
                 {messages.map((m, i) => (
                     <MessageBubble key={i} role={m.role} content={m.content} />
                 ))}
-                {isLoading && (
-                    <MessageBubble role="assistant" content="..." />
-                )}
+                {isLoading && <ThinkingBubble />}
             </div>
             <div className="flex space-x-2">
                 <input
@@ -43,7 +43,7 @@ export default function ChatInterface() {
                     onChange={e => setUserInput(e.target.value)}
                     className="flex-1 p-2 rounded text-black"
                     type="text"
-                    placeholder="Ask me anything..."
+                    placeholder="I'm here to help! Ask me anything..."
                 />
                 <button onClick={sendMessage} className="bg-blue-600 text-white px-4 py-2 rounded">
                     Send

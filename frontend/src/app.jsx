@@ -8,12 +8,14 @@ export default function App() {
     }, []);
 
     return (
-        <div className="min-h-screen p-4 flex flex-col items-center justify-center relative">
-            {/* Logo positioned in the top-left corner */}
-            <div className="absolute top-4 left-4">
-                <img src={logoUrl} alt="Logo" className="h-10 w-auto" />
-            </div>
-            <h1 className="text-3xl mb-8 font-bold text-futuristic-accent mt-20">GYM AI Engine</h1>
+        <div className="min-h-screen p-4 flex flex-col items-center justify-center">
+            {/* Logo added above the title */}
+            <img
+                src="https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png"
+                alt="Logo"
+                className="mb-4 h-16 w-auto object-contain"
+            />
+            <h1 className="text-3xl mb-8 font-bold text-futuristic-accent">GYM AI Engine</h1>
             <ChatInterface />
             <div className="mt-8">
                 <FileUpload />
