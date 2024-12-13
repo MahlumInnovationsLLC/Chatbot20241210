@@ -7,8 +7,6 @@ export default function App() {
         document.title = "GYM AI Engine"; // Dynamically set page title
     }, []);
 
-    const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklenlogo.jpg";
-
     return (
         <div className="min-h-screen p-4 flex flex-col items-center justify-center relative">
             {/* Logo positioned in the top-left corner */}

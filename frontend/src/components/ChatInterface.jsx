@@ -13,9 +13,7 @@ export default function ChatInterface() {
         setMessages(prev => [...prev, userMsg]);
         setUserInput('');
 
-        // Show loading state before API call
         setIsLoading(true);
-
         try {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
@@ -25,7 +23,6 @@ export default function ChatInterface() {
             const errorMsg = { role: 'assistant', content: 'Error occurred: ' + e.message };
             setMessages(prev => [...prev, errorMsg]);
         } finally {
-            // Hide loading state after response
             setIsLoading(false);
         }
     };
@@ -36,7 +33,6 @@ export default function ChatInterface() {
                 {messages.map((m, i) => (
                     <MessageBubble key={i} role={m.role} content={m.content} />
                 ))}
-                {/* If loading, show a "thinking" bubble */}
                 {isLoading && (
                     <MessageBubble role="assistant" content="..." />
                 )}
