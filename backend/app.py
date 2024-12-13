@@ -1,16 +1,20 @@
 from flask import Flask, send_from_directory, request, jsonify
 import os
 from openai import AzureOpenAI
-from vision_api import analyze_image
+from vision_api import analyze_image  # Make sure this import is correct
+import traceback
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
+# Configure the AzureOpenAI client
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
+    # Verify the API version matches your model/deployment
     api_version="2023-05-15"
 )
 
+# Update the deployment name to your actual Azure deployment name
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
 
 @app.route('/')
@@ -20,42 +24,30 @@ def serve_frontend():
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     user_input = None
-    vision_analysis_text = ""
+    uploaded_file = None
 
+    # Check if multipart/form-data (if you have file upload in the input box)
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
-        if 'file' in request.files:
-            uploaded_file = request.files['file']
-            image_data = uploaded_file.read()
-            if image_data:
-                try:
-                    vision_result = analyze_image(image_data)
-                    # Extract something meaningful from vision_result
-                    # For example, if vision_result['description']['captions'] is available:
-                    if 'description' in vision_result and 'captions' in vision_result['description'] and vision_result['description']['captions']:
-                        caption = vision_result['description']['captions'][0].get('text', '')
-                        vision_analysis_text = f"\n\n[Vision Analysis]: The image likely shows {caption}."
-                    else:
-                        # Fallback: convert entire JSON to string
-                        vision_analysis_text = f"\n\n[Vision Analysis]: {vision_result}"
-                except Exception as e:
-                    print("Error analyzing image:", e)
-                    vision_analysis_text = "\n\n[Vision Analysis]: (Error analyzing image.)"
+        file = request.files.get('file')
+        if file:
+            image_data = file.read()
+        else:
+            image_data = None
     else:
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
+        image_data = None  # no file in this scenario
 
-    # Append vision analysis if any
-    user_input += vision_analysis_text
-
-    # System message with instructions to use vision analysis if available
+    # System message for formatting:
     messages = [
         {
-            "role": "system",
+            "role": "system", 
             "content": (
-                "You are a helpful assistant. Use Markdown formatting in responses. "
-                "If '[Vision Analysis]:' is provided in the user's message, use that info to describe the image. "
-                "If not, ask the user for a description. Be friendly and helpful."
+                "You are a helpful assistant. When you respond, please use Markdown formatting. "
+                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
+                "when appropriate. Also, break down complex steps into bullet points or numbered lists "
+                "for clarity. End your responses with a friendly tone."
             )
         },
         {
@@ -63,6 +55,30 @@ def chat_endpoint():
             "content": user_input
         }
     ]
+
+    # If we have image data, attempt to analyze it:
+    if image_data:
+        try:
+            vision_result = analyze_image(image_data)
+            # vision_result should contain the analysis. You can incorporate this into the prompt:
+            description = vision_result.get('description', {}).get('captions', [])
+            if description:
+                described_image = description[0]['text']
+            else:
+                described_image = "No description available."
+            
+            messages.append({
+                "role": "system",
+                "content": f"Here's what I see in the image: {described_image}"
+            })
+        except Exception as e:
+            print("Vision analysis error:", e)
+            traceback.print_exc()
+            # If an error occurs, just add a fallback message
+            messages.append({
+                "role": "assistant",
+                "content": "It seems there was an error analyzing the image, so I don't have information about it. Could you please describe what's in the picture?"
+            })
 
     try:
         response = client.chat.completions.create(
