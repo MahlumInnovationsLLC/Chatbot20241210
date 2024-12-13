@@ -1,3 +1,5 @@
+# vision_api.py
+
 import os
 import sys
 import logging
@@ -49,13 +51,13 @@ def analyze_image_from_bytes(image_data, features=None):
         )
         return result
     except HttpResponseError as e:
-        logger.error(f"Status code: {e.status_code}")
-        logger.error(f"Reason: {e.reason}")
+        print(f"Status code: {e.status_code}")
+        print(f"Reason: {e.reason}")
         if e.error:
-            logger.error(f"Message: {e.error.message}")
+            print(f"Message: {e.error.message}")
         raise
     except Exception as e:
-        logger.error("Unexpected error calling Vision API:", e)
+        print("Unexpected error calling Vision API:", e)
         raise
 
 def analyze_image_from_url(image_url, features=None):
@@ -75,13 +77,13 @@ def analyze_image_from_url(image_url, features=None):
         )
         return result
     except HttpResponseError as e:
-        logger.error(f"Status code: {e.status_code}")
-        logger.error(f"Reason: {e.reason}")
+        print(f"Status code: {e.status_code}")
+        print(f"Reason: {e.reason}")
         if e.error:
-            logger.error(f"Message: {e.error.message}")
+            print(f"Message: {e.error.message}")
         raise
     except Exception as e:
-        logger.error("Unexpected error calling Vision API:", e)
+        print("Unexpected error calling Vision API:", e)
         raise
 
 def print_analysis_results(result: ImageAnalysisResult):
@@ -102,7 +104,7 @@ def print_analysis_results(result: ImageAnalysisResult):
             for word in line.words:
                 print(f"     Word: '{word.text}', Confidence {word.confidence:.4f}")
 
-    # Add handling for other features if needed, e.g. TAGS, OBJECTS, PEOPLE, etc.
+    # Add handling for other features (TAGS, OBJECTS, etc.) as needed.
 
 if __name__ == "__main__":
     # Example usage: analyzing a local image
@@ -111,12 +113,13 @@ if __name__ == "__main__":
             image_data = f.read()
         local_result = analyze_image_from_bytes(image_data)
         print_analysis_results(local_result)
-    except Exception as e:
-        logger.error("Error analyzing local image:", e)
+    except Exception:
+        pass
+
     # Example usage: analyzing an image by URL
     try:
         image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
         url_result = analyze_image_from_url(image_url)
         print_analysis_results(url_result)
-    except Exception as e:
-        logger.error("Error analyzing image from URL:", e)
+    except Exception:
+        pass

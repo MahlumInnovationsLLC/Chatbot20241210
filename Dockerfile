@@ -12,6 +12,7 @@ COPY frontend/. .
 # Make sure vite is executable
 RUN chmod +x node_modules/.bin/vite
 
+# Build frontend
 RUN npm run build
 
 # Stage 2: Build and run backend (Python)
@@ -20,9 +21,6 @@ WORKDIR /usr/src/app
 
 # Install git if you need commit info or for some packages
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-# Upgrade openai before installing requirements
-RUN pip install --no-cache-dir --upgrade openai
 
 # Copy backend requirements and install
 COPY backend/requirements.txt .
@@ -36,7 +34,8 @@ RUN mkdir -p src/public
 COPY --from=frontend_builder /usr/src/frontend/dist src/public
 
 # Expose a port for local testing (optional)
+# Azure will map the port to 8080 internally
 EXPOSE 8080
 
-# Use gunicorn and bind to $PORT, which Azure will set.
+# Use gunicorn and bind to $PORT, which Azure sets.
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
