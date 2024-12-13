@@ -49,13 +49,13 @@ def analyze_image_from_bytes(image_data, features=None):
         )
         return result
     except HttpResponseError as e:
-        print(f"Status code: {e.status_code}")
-        print(f"Reason: {e.reason}")
+        logger.error(f"Status code: {e.status_code}")
+        logger.error(f"Reason: {e.reason}")
         if e.error:
-            print(f"Message: {e.error.message}")
+            logger.error(f"Message: {e.error.message}")
         raise
     except Exception as e:
-        print("Unexpected error calling Vision API:", e)
+        logger.error("Unexpected error calling Vision API:", e)
         raise
 
 def analyze_image_from_url(image_url, features=None):
@@ -75,13 +75,13 @@ def analyze_image_from_url(image_url, features=None):
         )
         return result
     except HttpResponseError as e:
-        print(f"Status code: {e.status_code}")
-        print(f"Reason: {e.reason}")
+        logger.error(f"Status code: {e.status_code}")
+        logger.error(f"Reason: {e.reason}")
         if e.error:
-            print(f"Message: {e.error.message}")
+            logger.error(f"Message: {e.error.message}")
         raise
     except Exception as e:
-        print("Unexpected error calling Vision API:", e)
+        logger.error("Unexpected error calling Vision API:", e)
         raise
 
 def print_analysis_results(result: ImageAnalysisResult):
@@ -111,12 +111,12 @@ if __name__ == "__main__":
             image_data = f.read()
         local_result = analyze_image_from_bytes(image_data)
         print_analysis_results(local_result)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error("Error analyzing local image:", e)
     # Example usage: analyzing an image by URL
     try:
         image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
         url_result = analyze_image_from_url(image_url)
         print_analysis_results(url_result)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error("Error analyzing image from URL:", e)
