@@ -12,13 +12,14 @@ COPY frontend/. .
 # Make sure vite is executable
 RUN chmod +x node_modules/.bin/vite
 
+# Build frontend
 RUN npm run build
 
 # Stage 2: Build and run backend (Python)
 FROM python:3.11-slim AS backend_builder
 WORKDIR /usr/src/app
 
-# Install git if you need commit info or for some packages
+# Install git if needed
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements and install
@@ -35,5 +36,5 @@ COPY --from=frontend_builder /usr/src/frontend/dist src/public
 # Expose a port for local testing (optional)
 EXPOSE 8080
 
-# Use gunicorn and bind to $PORT, which Azure will set.
+# Use gunicorn and bind to $PORT (Azure sets $PORT=8080)
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
