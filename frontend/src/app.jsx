@@ -1,25 +1,36 @@
-﻿import React, { useEffect } from 'react'
-import ChatInterface from './components/ChatInterface'
-import FileUpload from './components/FileUpload'
+﻿// App.jsx
+import React, { useEffect, useContext } from 'react';
+import ChatInterface from './components/ChatInterface';
+import FileUpload from './components/FileUpload';
+import { ThemeProvider, ThemeContext } from './ThemeContext';
 
 export default function App() {
-    useEffect(() => {
-        document.title = "GYM AI Engine"; // Dynamically set page title
-    }, []);
+    // Stub logout function:
+    const logout = () => {
+        console.log("Logged out of Microsoft credentials.");
+        // Implement your Microsoft logout logic here
+    };
 
     return (
-        <div className="min-h-screen p-4 flex flex-col items-center justify-center">
-            {/* Logo added above the title */}
-            <img
-                src="https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png"
-                alt="Logo"
-                className="mb-4 h-16 w-auto object-contain"
-            />
-            <h1 className="text-3xl mb-8 font-bold text-futuristic-accent">GYM AI Engine</h1>
-            <ChatInterface />
-            <div className="mt-8">
-                <FileUpload />
+        <ThemeProvider>
+            <AppContent onLogout={logout} />
+        </ThemeProvider>
+    );
+}
+
+function AppContent({ onLogout }) {
+    const { theme } = useContext(ThemeContext);
+
+    // Apply theme classes to the root container
+    return (
+        <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen' : 'bg-white text-black min-h-screen'}>
+            <div className="p-4 flex flex-col items-center justify-center relative">
+                <h1 className="text-3xl mb-8 font-bold">GYM AI Engine</h1>
+                <ChatInterface onLogout={onLogout} />
+                <div className="mt-8">
+                    <FileUpload />
+                </div>
             </div>
         </div>
-    )
+    );
 }

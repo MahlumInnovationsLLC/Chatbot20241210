@@ -1,19 +1,19 @@
-﻿import React, { useState, useRef } from 'react';
+﻿// ChatInterface.jsx
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
+import { ThemeContext } from '../ThemeContext';
 
-export default function ChatInterface() {
+export default function ChatInterface({ onLogout }) {
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [attachedFile, setAttachedFile] = useState(null);
-
-    const fileInputRef = useRef(null);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const { toggleTheme } = useContext(ThemeContext);
 
     const sendMessage = async () => {
-        if (!userInput.trim() && !attachedFile) return;
-
+        if (!userInput.trim()) return;
         const userMsg = { role: 'user', content: userInput };
         setMessages(prev => [...prev, userMsg]);
         setUserInput('');
@@ -21,23 +21,7 @@ export default function ChatInterface() {
         setIsLoading(true);
 
         try {
-            let res;
-            if (attachedFile) {
-                // Use FormData when a file is attached
-                const formData = new FormData();
-                formData.append('userMessage', userInput);
-                formData.append('file', attachedFile);
-
-                res = await axios.post('/chat', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-            } else {
-                // Send as JSON if no file is attached
-                res = await axios.post('/chat', { userMessage: userInput });
-            }
-
+            const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
             setMessages(prev => [...prev, botMsg]);
         } catch (e) {
@@ -46,7 +30,6 @@ export default function ChatInterface() {
             setMessages(prev => [...prev, errorMsg]);
         } finally {
             setIsLoading(false);
-            setAttachedFile(null); // clear file after send
         }
     };
 
@@ -57,49 +40,52 @@ export default function ChatInterface() {
         }
     };
 
-    const handleFileButtonClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setAttachedFile(e.target.files[0]);
-        }
+    const toggleMenu = () => {
+        setMenuOpen(!menuOpen);
     };
 
     return (
-        <div className="w-[75vw] h-[75vh] bg-gray-800 p-4 rounded-md flex flex-col">
-            <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700">
+        <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4">
+            {/* Top bar */}
+            <div className="flex items-center justify-end mb-4">
+                {/* Hamburger Menu Button */}
+                <button
+                    onClick={toggleMenu}
+                    className="relative z-50 focus:outline-none"
+                >
+                    <div className="w-6 h-6 flex flex-col justify-between">
+                        <span className={`block h-0.5 bg-current transform transition-transform duration-300 ease-in-out ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+                        <span className={`block h-0.5 bg-current transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                        <span className={`block h-0.5 bg-current transform transition-transform duration-300 ease-in-out ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+                    </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                {menuOpen && (
+                    <div className="absolute top-14 right-4 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn">
+                        <button
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                            onClick={onLogout}
+                        >
+                            LOGOUT
+                        </button>
+                        <button
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                            onClick={toggleTheme}
+                        >
+                            SETTINGS (Toggle Theme)
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500">
                 {messages.map((m, i) => (
                     <MessageBubble key={i} role={m.role} content={m.content} />
                 ))}
                 {isLoading && <ThinkingBubble />}
             </div>
-            <div className="flex items-center space-x-2">
-                {/* Hidden file input */}
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileChange}
-                />
-
-                {/* Show file name if attached */}
-                {attachedFile && (
-                    <div className="text-white text-sm truncate max-w-[100px]" title={attachedFile.name}>
-                        {attachedFile.name}
-                    </div>
-                )}
-
-                {/* File attach button */}
-                <button
-                    onClick={handleFileButtonClick}
-                    className="bg-gray-600 text-white px-3 py-2 rounded"
-                    title="Attach a file"
-                >
-                    📎
-                </button>
-
+            <div className="flex space-x-2">
                 <input
                     value={userInput}
                     onChange={e => setUserInput(e.target.value)}

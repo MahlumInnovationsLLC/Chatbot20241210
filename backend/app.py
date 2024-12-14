@@ -26,7 +26,7 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
-    # Determine request type and extract file (if any)
+    # Determine if the request includes a file (multipart/form-data) or just JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -35,12 +35,13 @@ def chat_endpoint():
             app.logger.info(f"Received file: {file.filename}")
             file_bytes = file.read()
             filename = file.filename.lower()
-            # Determine file extension to know how to process it
+            # Determine file extension for processing
             if filename.endswith('.pdf'):
                 file_ext = 'pdf'
             elif filename.endswith(('.png', '.jpg', '.jpeg')):
                 file_ext = 'image'
-            # You can add more conditions for docx or other formats if desired
+            else:
+                file_ext = None  # unrecognized file format
         else:
             app.logger.info("No file found in the request.")
     else:
@@ -49,6 +50,7 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
+    # Base system and user messages
     messages = [
         {
             "role": "system",
@@ -65,14 +67,15 @@ def chat_endpoint():
         }
     ]
 
-    # If we have a file, process it accordingly
+    # If a file is uploaded, process according to file type
     if file_bytes:
-        # If it's a PDF, use Form Recognizer to extract text
         if file_ext == 'pdf':
+            # Process PDF using Form Recognizer
             app.logger.info("Extracting text from PDF using Form Recognizer...")
             try:
                 extracted_text = extract_text_from_pdf(file_bytes)
                 app.logger.info("PDF text extracted successfully.")
+                # Add extracted text as system message for context
                 messages.append({
                     "role": "system",
                     "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
@@ -84,6 +87,7 @@ def chat_endpoint():
                     "content": "I encountered an error reading the PDF. Please try again."
                 })
         elif file_ext == 'image':
+            # Process image using Vision API
             app.logger.info("Analyzing image data...")
             app.logger.info(f"Debug: Received image of length {len(file_bytes)} bytes.")
             try:
@@ -94,7 +98,7 @@ def chat_endpoint():
                 else:
                     described_image = "No description available."
                     app.logger.info("No description returned by the vision API.")
-                
+
                 messages.append({
                     "role": "system",
                     "content": f"Here's what the image seems to show: {described_image}"
@@ -106,11 +110,12 @@ def chat_endpoint():
                     "content": "It seems there was an error analyzing the image."
                 })
         else:
-            app.logger.info("File format not recognized or not handled.")
+            # Unsupported file type
+            app.logger.info("File format not recognized or not handled. No action taken.")
     else:
         app.logger.info("No file data found, proceeding without file analysis.")
 
-    # Now call the Azure OpenAI model
+    # Call Azure OpenAI with the collected messages
     try:
         response = client.chat.completions.create(
             messages=messages,
