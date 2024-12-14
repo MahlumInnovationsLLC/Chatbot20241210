@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
+from document_processing import extract_text_from_pdf
 import traceback
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
@@ -22,23 +23,31 @@ def serve_frontend():
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     user_input = None
-    image_data = None
+    file_bytes = None
+    file_ext = None
 
-    # Check the content type to determine how to parse
+    # Determine request type and extract file (if any)
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
         file = request.files.get('file')
         if file:
             app.logger.info(f"Received file: {file.filename}")
-            image_data = file.read()
+            file_bytes = file.read()
+            filename = file.filename.lower()
+            # Determine file extension to know how to process it
+            if filename.endswith('.pdf'):
+                file_ext = 'pdf'
+            elif filename.endswith(('.png', '.jpg', '.jpeg')):
+                file_ext = 'image'
+            # You can add more conditions for docx or other formats if desired
         else:
             app.logger.info("No file found in the request.")
     else:
         app.logger.info("Received JSON request.")
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
-        image_data = None
+        file_bytes = None
 
     messages = [
         {
@@ -56,35 +65,52 @@ def chat_endpoint():
         }
     ]
 
-    # If we have image data, attempt to analyze it
-    if image_data:
-        app.logger.info("Analyzing image data...")
-        # Added debug logging before calling the analysis function
-        app.logger.info(f"Debug: Received image of length {len(image_data)} bytes.")
-
-        try:
-            vision_result = analyze_image_from_bytes(image_data)
-            # vision_result should have a description if requested
-            if vision_result.description and vision_result.description.captions:
-                described_image = vision_result.description.captions[0].text
-                app.logger.info(f"Image described as: {described_image}")
-            else:
-                described_image = "No description available."
-                app.logger.info("No description returned by the vision API.")
-            
-            messages.append({
-                "role": "system",
-                "content": f"Here's what the image seems to show: {described_image}"
-            })
-        except Exception as e:
-            app.logger.error("Error analyzing image:", exc_info=True)
-            messages.append({
-                "role": "assistant",
-                "content": "It seems there was an error analyzing the image, so I don't have information about it. Could you please describe what's in the picture?"
-            })
+    # If we have a file, process it accordingly
+    if file_bytes:
+        # If it's a PDF, use Form Recognizer to extract text
+        if file_ext == 'pdf':
+            app.logger.info("Extracting text from PDF using Form Recognizer...")
+            try:
+                extracted_text = extract_text_from_pdf(file_bytes)
+                app.logger.info("PDF text extracted successfully.")
+                messages.append({
+                    "role": "system",
+                    "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
+                })
+            except Exception as e:
+                app.logger.error("Error extracting text from PDF:", exc_info=True)
+                messages.append({
+                    "role": "assistant",
+                    "content": "I encountered an error reading the PDF. Please try again."
+                })
+        elif file_ext == 'image':
+            app.logger.info("Analyzing image data...")
+            app.logger.info(f"Debug: Received image of length {len(file_bytes)} bytes.")
+            try:
+                vision_result = analyze_image_from_bytes(file_bytes)
+                if vision_result.description and vision_result.description.captions:
+                    described_image = vision_result.description.captions[0].text
+                    app.logger.info(f"Image described as: {described_image}")
+                else:
+                    described_image = "No description available."
+                    app.logger.info("No description returned by the vision API.")
+                
+                messages.append({
+                    "role": "system",
+                    "content": f"Here's what the image seems to show: {described_image}"
+                })
+            except Exception as e:
+                app.logger.error("Error analyzing image:", exc_info=True)
+                messages.append({
+                    "role": "assistant",
+                    "content": "It seems there was an error analyzing the image."
+                })
+        else:
+            app.logger.info("File format not recognized or not handled.")
     else:
-        app.logger.info("No image data found, proceeding without image analysis.")
+        app.logger.info("No file data found, proceeding without file analysis.")
 
+    # Now call the Azure OpenAI model
     try:
         response = client.chat.completions.create(
             messages=messages,
