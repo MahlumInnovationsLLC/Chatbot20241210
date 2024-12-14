@@ -39,8 +39,15 @@ def analyze_image_from_bytes(image_data):
     with io.BytesIO(image_data) as stream:
         try:
             result = client.analyze_image_in_stream(stream, visual_features=features)
-            # Add debug log
             print("Debug: Vision API returned:", result)
+
+            # Step 5 addition: Check if we got a caption
+            if not result.description or not result.description.captions:
+                print("Debug: No description (caption) available from Vision API.")
+            else:
+                # Print the first caption for debugging
+                print(f"Debug: Caption found: {result.description.captions[0].text}")
+
             return result
         except Exception as e:
             logger.error(f"Error analyzing image from bytes: {e}", exc_info=True)
