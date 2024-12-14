@@ -59,6 +59,9 @@ def chat_endpoint():
     # If we have image data, attempt to analyze it
     if image_data:
         app.logger.info("Analyzing image data...")
+        # Added debug logging before calling the analysis function
+        app.logger.info(f"Debug: Received image of length {len(image_data)} bytes.")
+
         try:
             vision_result = analyze_image_from_bytes(image_data)
             # vision_result should have a description if requested

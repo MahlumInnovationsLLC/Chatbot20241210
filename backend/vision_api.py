@@ -39,6 +39,8 @@ def analyze_image_from_bytes(image_data):
     with io.BytesIO(image_data) as stream:
         try:
             result = client.analyze_image_in_stream(stream, visual_features=features)
+            # Add debug log
+            print("Debug: Vision API returned:", result)
             return result
         except Exception as e:
             logger.error(f"Error analyzing image from bytes: {e}", exc_info=True)
