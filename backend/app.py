@@ -36,7 +36,6 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         image_data = None
 
-    # System message for formatting
     messages = [
         {
             "role": "system",
@@ -64,7 +63,6 @@ def chat_endpoint():
             else:
                 described_image = "No description available."
 
-            # Add system message with image description
             messages.append({
                 "role": "system",
                 "content": f"Here's what the image seems to show: {described_image}"
