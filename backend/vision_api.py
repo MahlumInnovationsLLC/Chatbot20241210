@@ -44,12 +44,6 @@ def analyze_image_from_bytes(image_data):
             gender_neutral_caption=True
         )
         return result
-    except HttpResponseError as e:
-        print(f"Status code: {e.status_code}")
-        print(f"Reason: {e.reason}")
-        if e.error:
-            print(f"Message: {e.error.message}")
-        raise
     except Exception as e:
         print("Unexpected error calling Vision API:", e)
         raise
@@ -66,12 +60,6 @@ def analyze_image_from_url(image_url):
             gender_neutral_caption=True
         )
         return result
-    except HttpResponseError as e:
-        print(f"Status code: {e.status_code}")
-        print(f"Reason: {e.reason}")
-        if e.error:
-            print(f"Message: {e.error.message}")
-        raise
     except Exception as e:
         print("Unexpected error calling Vision API:", e)
         raise
