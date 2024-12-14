@@ -48,7 +48,6 @@ def analyze_image_from_url(image_url):
     """
     client = get_client()
     features = [VisualFeatureTypes.description, VisualFeatureTypes.tags]
-
     try:
         result = client.analyze_image(image_url, visual_features=features)
         return result
@@ -62,13 +61,11 @@ def print_analysis_results(result):
     """
     print("Image analysis results:")
 
-    # The 'description' feature returns captions
     if result.description and result.description.captions:
         print(" Caption(s):")
         for caption in result.description.captions:
             print(f"   '{caption.text}', Confidence {caption.confidence:.4f}")
 
-    # The 'tags' feature returns tags for the image
     if result.tags:
         print(" Tags:")
         for tag in result.tags:
