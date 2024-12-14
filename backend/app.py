@@ -53,14 +53,14 @@ def chat_endpoint():
         }
     ]
 
-    # If we have image data, attempt to analyze it using the azure-ai-vision approach
+    # If we have image data, attempt to analyze it using the Computer Vision client
     if image_data:
         try:
             vision_result = analyze_image_from_bytes(image_data)
-            # vision_result is an ImageAnalysisResult object, not a dict.
-            # If you requested CAPTION and TAGS in vision_api.py, you can access them like this:
-            if vision_result.caption is not None:
-                described_image = vision_result.caption.text
+            # vision_result should have a 'description' and 'tags' property (if requested)
+            # Example: if description and captions are available:
+            if vision_result.description and vision_result.description.captions:
+                described_image = vision_result.description.captions[0].text
             else:
                 described_image = "No description available."
 
@@ -95,6 +95,5 @@ def not_found(e):
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))
-    # Ensure your app listens on all interfaces and on the port specified by Azure
-    # If you're having trouble with port binding locally, you can also just run on 0.0.0.0:8080.
+    # Ensure the app listens on all interfaces and uses the Azure-specified PORT
     app.run(host="0.0.0.0", port=port)

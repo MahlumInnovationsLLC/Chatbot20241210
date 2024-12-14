@@ -1,9 +1,9 @@
 import os
 import sys
 import logging
-from azure.core.credentials import AzureKeyCredential
-from azure.ai.vision.imageanalysis import ImageAnalysisClient, VisualFeatures
-from azure.core.exceptions import HttpResponseError
+from msrest.authentication import CognitiveServicesCredentials
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
 
 # Configure logging (optional, helpful for troubleshooting)
 logger = logging.getLogger("azure")
@@ -15,72 +15,67 @@ logger.addHandler(handler)
 
 def get_client():
     """
-    Create and return an ImageAnalysisClient using the endpoint and key
+    Create and return a ComputerVisionClient using the endpoint and key
     from environment variables: VISION_ENDPOINT and VISION_KEY.
     """
-    try:
-        endpoint = os.environ["VISION_ENDPOINT"]
-        key = os.environ["VISION_KEY"]
-    except KeyError:
+    endpoint = os.environ.get("VISION_ENDPOINT")
+    key = os.environ.get("VISION_KEY")
+    if not endpoint or not key:
         raise ValueError("Missing 'VISION_ENDPOINT' or 'VISION_KEY' environment variables.")
 
-    client = ImageAnalysisClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(key),
-        logging_enable=False  # Set True for more detailed logs
-    )
-    return client
+    credentials = CognitiveServicesCredentials(key)
+    return ComputerVisionClient(endpoint, credentials)
 
 def analyze_image_from_bytes(image_data):
     """
-    Analyze an image provided as bytes. If no features are provided,
-    we default to CAPTION and TAGS for demonstration.
+    Analyze an image provided as bytes using the Computer Vision API.
+    We request CAPTION and TAGS features.
     """
     client = get_client()
+    features = [VisualFeatureTypes.description, VisualFeatureTypes.tags]
+
     try:
-        result = client.analyze(
-            image_data=image_data,
-            visual_features=[VisualFeatures.CAPTION, VisualFeatures.TAGS],
-            gender_neutral_caption=True
-        )
+        result = client.analyze_image_in_stream(image_data, visual_features=features)
         return result
     except Exception as e:
-        print("Unexpected error calling Vision API:", e)
+        logger.error("Error analyzing image from bytes: %s", e)
         raise
 
 def analyze_image_from_url(image_url):
     """
-    Analyze an image provided via URL.
+    Analyze an image provided via URL using the Computer Vision API.
+    We request CAPTION and TAGS features.
     """
     client = get_client()
+    features = [VisualFeatureTypes.description, VisualFeatureTypes.tags]
+
     try:
-        result = client.analyze_from_url(
-            image_url=image_url,
-            visual_features=[VisualFeatures.CAPTION, VisualFeatures.TAGS],
-            gender_neutral_caption=True
-        )
+        result = client.analyze_image(image_url, visual_features=features)
         return result
     except Exception as e:
-        print("Unexpected error calling Vision API:", e)
+        logger.error("Error analyzing image from URL: %s", e)
         raise
 
 def print_analysis_results(result):
     """
-    Print out analysis results. Demonstrates handling CAPTION and TAGS.
+    Print out the analysis results. Demonstrates handling CAPTION and TAGS.
     """
     print("Image analysis results:")
 
-    if result.caption is not None:
-        print(" Caption:")
-        print(f"   '{result.caption.text}', Confidence {result.caption.confidence:.4f}")
+    # The 'description' feature returns captions
+    if result.description and result.description.captions:
+        print(" Caption(s):")
+        for caption in result.description.captions:
+            print(f"   '{caption.text}', Confidence {caption.confidence:.4f}")
 
+    # The 'tags' feature returns tags for the image
     if result.tags:
         print(" Tags:")
-        for tag in result.tags.list:
+        for tag in result.tags:
             print(f"   {tag.name}, Confidence {tag.confidence:.4f}")
 
 if __name__ == "__main__":
-    # Example usage with a local image
+    # Example usage with a local image (if sample.jpg is present)
     try:
         with open("sample.jpg", "rb") as f:
             image_data = f.read()
@@ -91,7 +86,7 @@ if __name__ == "__main__":
 
     # Example usage with an image URL
     try:
-        image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
+        image_url = "https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/faces.jpg"
         url_result = analyze_image_from_url(image_url)
         print_analysis_results(url_result)
     except Exception:
