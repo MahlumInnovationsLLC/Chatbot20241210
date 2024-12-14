@@ -1,9 +1,10 @@
 import os
 import sys
 import logging
-from msrest.authentication import CognitiveServicesCredentials
+import io
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import VisualFeatureTypes
+from msrest.authentication import CognitiveServicesCredentials
 
 # Configure logging (optional, helpful for troubleshooting)
 logger = logging.getLogger("azure")
@@ -28,23 +29,24 @@ def get_client():
 
 def analyze_image_from_bytes(image_data):
     """
-    Analyze an image provided as bytes using the Computer Vision API.
-    We request CAPTION and TAGS features.
+    Analyze an image provided as bytes. We will request description and tags for demonstration.
+    Wrap the bytes in a BytesIO stream so analyze_image_in_stream can read it.
     """
     client = get_client()
     features = [VisualFeatureTypes.description, VisualFeatureTypes.tags]
 
-    try:
-        result = client.analyze_image_in_stream(image_data, visual_features=features)
-        return result
-    except Exception as e:
-        logger.error("Error analyzing image from bytes: %s", e)
-        raise
+    # Wrap the image_data bytes in a BytesIO to simulate a file-like object
+    with io.BytesIO(image_data) as stream:
+        try:
+            result = client.analyze_image_in_stream(stream, visual_features=features)
+            return result
+        except Exception as e:
+            logger.error(f"Error analyzing image from bytes: {e}", exc_info=True)
+            raise
 
 def analyze_image_from_url(image_url):
     """
-    Analyze an image provided via URL using the Computer Vision API.
-    We request CAPTION and TAGS features.
+    Analyze an image provided by URL.
     """
     client = get_client()
     features = [VisualFeatureTypes.description, VisualFeatureTypes.tags]
@@ -52,27 +54,32 @@ def analyze_image_from_url(image_url):
         result = client.analyze_image(image_url, visual_features=features)
         return result
     except Exception as e:
-        logger.error("Error analyzing image from URL: %s", e)
+        logger.error(f"Error analyzing image from URL: {e}", exc_info=True)
         raise
 
 def print_analysis_results(result):
     """
-    Print out the analysis results. Demonstrates handling CAPTION and TAGS.
+    Print out the analysis results.
+    If you requested description and tags, you can print them.
     """
     print("Image analysis results:")
 
     if result.description and result.description.captions:
-        print(" Caption(s):")
+        print("Captions:")
         for caption in result.description.captions:
-            print(f"   '{caption.text}', Confidence {caption.confidence:.4f}")
+            print(f"  '{caption.text}', Confidence: {caption.confidence:.4f}")
+    else:
+        print("No captions found.")
 
     if result.tags:
-        print(" Tags:")
+        print("Tags:")
         for tag in result.tags:
-            print(f"   {tag.name}, Confidence {tag.confidence:.4f}")
+            print(f"  {tag.name} (Confidence: {tag.confidence:.4f})")
+    else:
+        print("No tags found.")
 
 if __name__ == "__main__":
-    # Example usage with a local image (if sample.jpg is present)
+    # Example usage with a local image
     try:
         with open("sample.jpg", "rb") as f:
             image_data = f.read()
@@ -83,7 +90,7 @@ if __name__ == "__main__":
 
     # Example usage with an image URL
     try:
-        image_url = "https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/faces.jpg"
+        image_url = "https://aka.ms/azsdk/image-analysis/sample.jpg"
         url_result = analyze_image_from_url(image_url)
         print_analysis_results(url_result)
     except Exception:
