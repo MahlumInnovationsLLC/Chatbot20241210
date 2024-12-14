@@ -1,7 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify
 import os
 from openai import AzureOpenAI
-from vision_api import analyze_image  # Ensure vision_api.py does not have syntax issues and no unsupported details.
+from vision_api import analyze_image_from_bytes  # Import the correct function from vision_api.py
 import traceback
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
@@ -13,7 +13,7 @@ client = AzureOpenAI(
     api_version="2023-05-15"
 )
 
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this is your actual deployment name
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual Azure OpenAI deployment name
 
 @app.route('/')
 def serve_frontend():
@@ -53,16 +53,17 @@ def chat_endpoint():
         }
     ]
 
-    # If we have image data, attempt to analyze it
+    # If we have image data, attempt to analyze it using the azure-ai-vision approach
     if image_data:
         try:
-            vision_result = analyze_image(image_data)
-            description = vision_result.get('description', {}).get('captions', [])
-            if description:
-                described_image = description[0]['text']
+            vision_result = analyze_image_from_bytes(image_data)
+            # vision_result is an ImageAnalysisResult object, not a dict.
+            # If you requested CAPTION and TAGS in vision_api.py, you can access them like this:
+            if vision_result.caption is not None:
+                described_image = vision_result.caption.text
             else:
                 described_image = "No description available."
-            
+
             # Add system message with image description
             messages.append({
                 "role": "system",
@@ -94,4 +95,6 @@ def not_found(e):
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))
+    # Ensure your app listens on all interfaces and on the port specified by Azure
+    # If you're having trouble with port binding locally, you can also just run on 0.0.0.0:8080.
     app.run(host="0.0.0.0", port=port)
