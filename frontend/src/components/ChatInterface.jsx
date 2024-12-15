@@ -4,6 +4,7 @@ import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
+import FileUpload from './FileUpload'; // Ensure this import exists if you're using this component
 
 export default function ChatInterface({ onLogout }) {
     const [messages, setMessages] = useState([]);
@@ -45,9 +46,9 @@ export default function ChatInterface({ onLogout }) {
     };
 
     return (
-        <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4">
+        <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 overflow-visible"> {/* Ensuring overflow is visible */}
             {/* Top bar */}
-            <div className="flex items-center justify-end mb-4">
+            <div className="flex items-center justify-end mb-4 relative">
                 {/* Hamburger Menu Button */}
                 <button
                     onClick={toggleMenu}
@@ -62,7 +63,7 @@ export default function ChatInterface({ onLogout }) {
 
                 {/* Dropdown Menu */}
                 {menuOpen && (
-                    <div className="absolute top-14 right-4 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn">
+                    <div className="absolute top-14 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn">
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600"
                             onClick={onLogout}
@@ -85,7 +86,10 @@ export default function ChatInterface({ onLogout }) {
                 ))}
                 {isLoading && <ThinkingBubble />}
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 items-center">
+                {/* File upload button (reintroduced on the left side of the input) */}
+                <FileUpload />
+
                 <input
                     value={userInput}
                     onChange={e => setUserInput(e.target.value)}
