@@ -2,7 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
-from document_processing import extract_text_from_pdf
+from document_processing import extract_text_from_pdf, extract_text_from_docx
 import traceback
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
@@ -40,8 +40,10 @@ def chat_endpoint():
                 file_ext = 'pdf'
             elif filename.endswith(('.png', '.jpg', '.jpeg')):
                 file_ext = 'image'
+            elif filename.endswith('.docx'):
+                file_ext = 'docx'
             else:
-                file_ext = None  # unrecognized file format
+                file_ext = None  # Unrecognized file format
         else:
             app.logger.info("No file found in the request.")
     else:
@@ -75,7 +77,7 @@ def chat_endpoint():
             try:
                 extracted_text = extract_text_from_pdf(file_bytes)
                 app.logger.info("PDF text extracted successfully.")
-                # Add extracted text as system message for context
+                # Add extracted text as a system message for context
                 messages.append({
                     "role": "system",
                     "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
@@ -86,6 +88,7 @@ def chat_endpoint():
                     "role": "assistant",
                     "content": "I encountered an error reading the PDF. Please try again."
                 })
+
         elif file_ext == 'image':
             # Process image using Vision API
             app.logger.info("Analyzing image data...")
@@ -108,6 +111,23 @@ def chat_endpoint():
                 messages.append({
                     "role": "assistant",
                     "content": "It seems there was an error analyzing the image."
+                })
+
+        elif file_ext == 'docx':
+            # Process DOCX locally
+            app.logger.info("Extracting text from DOCX file...")
+            try:
+                extracted_text = extract_text_from_docx(file_bytes)
+                app.logger.info("DOCX text extracted successfully.")
+                messages.append({
+                    "role": "system",
+                    "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
+                })
+            except Exception as e:
+                app.logger.error("Error extracting text from DOCX:", exc_info=True)
+                messages.append({
+                    "role": "assistant",
+                    "content": "I encountered an error reading the DOCX file. Please try again."
                 })
         else:
             # Unsupported file type
