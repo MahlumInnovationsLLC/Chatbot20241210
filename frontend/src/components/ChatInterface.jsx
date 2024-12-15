@@ -63,7 +63,7 @@ export default function ChatInterface({ onLogout }) {
     return (
         <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 overflow-visible">
             {/* Top bar */}
-            <div className="flex items-center justify-end mb-4 relative overflow-visible pr-4">
+            <div className="flex items-center justify-end mb-4 relative overflow-visible pr-8">
                 {/* Hamburger Menu Button */}
                 <button
                     onClick={toggleMenu}
