@@ -29,5 +29,7 @@ def extract_text_from_docx(file_bytes):
     doc = Document(io.BytesIO(file_bytes))
     full_text = []
     for para in doc.paragraphs:
-        full_text.append(para.text)
+        text = para.text.strip()
+        if text:
+            full_text.append(text)
     return "\n".join(full_text)

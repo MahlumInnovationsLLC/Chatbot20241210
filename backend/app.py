@@ -119,6 +119,7 @@ def chat_endpoint():
             try:
                 extracted_text = extract_text_from_docx(file_bytes)
                 app.logger.info("DOCX text extracted successfully.")
+                if extracted_text.strip():
                 messages.append({
                     "role": "system",
                     "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
