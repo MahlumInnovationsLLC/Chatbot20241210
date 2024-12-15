@@ -1,10 +1,9 @@
 ﻿// ChatInterface.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
-import FileUpload from './FileUpload'; // Ensure this import exists if you're using this component
 
 export default function ChatInterface({ onLogout }) {
     const [messages, setMessages] = useState([]);
@@ -12,6 +11,8 @@ export default function ChatInterface({ onLogout }) {
     const [isLoading, setIsLoading] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const { toggleTheme } = useContext(ThemeContext);
+
+    const fileInputRef = useRef(null);
 
     const sendMessage = async () => {
         if (!userInput.trim()) return;
@@ -45,14 +46,28 @@ export default function ChatInterface({ onLogout }) {
         setMenuOpen(!menuOpen);
     };
 
+    const handlePaperclipClick = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            console.log("Selected file:", file);
+            // Implement file upload logic here if needed
+        }
+    };
+
     return (
-        <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 overflow-visible"> {/* Ensuring overflow is visible */}
+        <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 overflow-visible">
             {/* Top bar */}
-            <div className="flex items-center justify-end mb-4 relative">
+            <div className="flex items-center justify-end mb-4 relative overflow-visible">
                 {/* Hamburger Menu Button */}
                 <button
                     onClick={toggleMenu}
-                    className="relative z-50 focus:outline-none"
+                    className="relative z-50 focus:outline-none w-8 h-8 flex items-center justify-center"
                 >
                     <div className="w-6 h-6 flex flex-col justify-between">
                         <span className={`block h-0.5 bg-current transform transition-transform duration-300 ease-in-out ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
@@ -87,8 +102,24 @@ export default function ChatInterface({ onLogout }) {
                 {isLoading && <ThinkingBubble />}
             </div>
             <div className="flex space-x-2 items-center">
-                {/* File upload button (reintroduced on the left side of the input) */}
-                <FileUpload />
+                {/* Paperclip button for file upload */}
+                <button
+                    onClick={handlePaperclipClick}
+                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-500 focus:outline-none"
+                    title="Upload a file"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round"
+                            d="M14.828 10.172a4 4 0 010 5.656l-4.243 4.243a4 4 0 01-5.656-5.656l5.657-5.657a2 2 0 112.828 2.828l-5.657 5.657" />
+                    </svg>
+                </button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={handleFileChange}
+                />
 
                 <input
                     value={userInput}
