@@ -120,10 +120,15 @@ def chat_endpoint():
                 extracted_text = extract_text_from_docx(file_bytes)
                 app.logger.info("DOCX text extracted successfully.")
                 if extracted_text.strip():
-                messages.append({
-                    "role": "system",
-                    "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
-                })
+                    messages.append({
+                        "role": "system",
+                        "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
+                    })
+                else:
+                    messages.append({
+                        "role": "assistant",
+                        "content": "The DOCX file seems empty or unreadable."
+                    })
             except Exception as e:
                 app.logger.error("Error extracting text from DOCX:", exc_info=True)
                 messages.append({
