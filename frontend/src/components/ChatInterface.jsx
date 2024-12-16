@@ -83,23 +83,24 @@ export default function ChatInterface({ onLogout }) {
         }
     };
 
+    // Determine if we should show the "start chatting" content
+    const showStartContent = messages.length === 0 && !isLoading;
+
     return (
-        <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 overflow-visible">
-            {/* Top bar */}
-            <div className="flex items-center justify-end mb-4 relative overflow-visible">
-                {/* Hamburger Menu Button */}
+        <div className="w-full h-full flex flex-col relative overflow-visible">
+            {/* Top bar inside the chat box (Hamburger menu on the right), with padding on right side */}
+            <div className="flex items-center justify-end mb-4 relative pr-4">
                 <button
                     onClick={toggleMenu}
                     className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
                 >
                     <div className="w-6 h-6 flex flex-col justify-between items-center">
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-[2] translate-y-1.5' : 'scale-x-[1]'}`}></span>
+                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-[2.5] translate-y-1.5' : 'scale-x-100'}`}></span>
                         <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-[2] -translate-y-1.5' : 'scale-x-[1]'}`}></span>
+                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-[2.5] -translate-y-1.5' : 'scale-x-100'}`}></span>
                     </div>
                 </button>
 
-                {/* Dropdown Menu */}
                 {menuOpen && (
                     <div className="absolute top-14 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn z-50">
                         <button
@@ -118,13 +119,27 @@ export default function ChatInterface({ onLogout }) {
                 )}
             </div>
 
-            <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500">
-                {messages.map((m, i) => (
-                    <MessageBubble key={i} role={m.role} content={m.content} />
-                ))}
-                {isLoading && <ThinkingBubble />}
+            <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
+                {showStartContent && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        {/* Centered middle image and Start Chatting text */}
+                        <img src="https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png" alt="Center Logo" className="h-16 w-auto mb-4" />
+                        <h2 className="text-3xl mb-2 font-bold">Start chatting</h2>
+                        <p className="text-sm text-gray-300">
+                            I am here to help! How can I support you today?
+                        </p>
+                    </div>
+                )}
+                {!showStartContent && (
+                    <>
+                        {messages.map((m, i) => (
+                            <MessageBubble key={i} role={m.role} content={m.content} />
+                        ))}
+                        {isLoading && <ThinkingBubble />}
+                    </>
+                )}
             </div>
-            <div className="flex space-x-2 items-center">
+            <div className="flex space-x-2 items-center px-4 pb-4">
                 {/* Paperclip icon for file upload */}
                 <div className="relative flex items-center space-x-2">
                     <button
@@ -163,7 +178,7 @@ export default function ChatInterface({ onLogout }) {
                     type="text"
                     placeholder="I'm here to help! Ask me anything..."
                 />
-                <button onClick={sendMessage} className="bg-blue-600 text-white px-4 py-2 rounded">
+                <button onClick={sendMessage} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                     Send
                 </button>
             </div>
@@ -171,8 +186,7 @@ export default function ChatInterface({ onLogout }) {
             {/* Settings Popup */}
             {settingsOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'
-                        } w-1/2 h-1/2 rounded p-4 flex flex-col`}>
+                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col`}>
                         {/* Title */}
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
                         {/* Radio buttons for Light/Dark mode */}
@@ -202,7 +216,7 @@ export default function ChatInterface({ onLogout }) {
                         <div className="flex justify-end">
                             <button
                                 onClick={saveSettings}
-                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                             >
                                 Save
                             </button>
