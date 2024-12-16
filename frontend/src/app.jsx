@@ -45,6 +45,15 @@ function AppContent({ onLogout }) {
                 <div className="mt-8">
                     <FileUpload />
                 </div>
+
+                {/* Bottom-right branding */}
+                <div className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
+                    style={{ backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)', border: theme === 'dark' ? '1px solid #374151' : '1px solid #ccc' }}>
+                    <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
+                    <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                        Powered by Mahlum Innovations, LLC
+                    </span>
+                </div>
             </div>
         </div>
     );
