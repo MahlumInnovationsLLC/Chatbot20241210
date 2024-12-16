@@ -93,9 +93,9 @@ export default function ChatInterface({ onLogout }) {
                     className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
                 >
                     <div className="w-6 h-6 flex flex-col justify-between items-center">
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-250 translate-y-1.5' : 'scale-x-100'}`}></span>
+                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-[2] translate-y-1.5' : 'scale-x-[1]'}`}></span>
                         <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-250 -translate-y-1.5' : 'scale-x-100'}`}></span>
+                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-[2] -translate-y-1.5' : 'scale-x-[1]'}`}></span>
                     </div>
                 </button>
 
