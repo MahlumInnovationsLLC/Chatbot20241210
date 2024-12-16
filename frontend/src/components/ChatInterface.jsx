@@ -96,7 +96,7 @@ export default function ChatInterface({ onLogout }) {
                 >
                     <div className="w-6 h-6 flex flex-col justify-between items-center">
                         <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 translate-y-[0.45rem]' : ''}`}></span>
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}><</span>
+                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
                         <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-y-[0.45rem]' : ''}`}></span>
                     </div>
                 </button>
