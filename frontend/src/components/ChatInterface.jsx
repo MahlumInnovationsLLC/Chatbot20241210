@@ -93,9 +93,9 @@ export default function ChatInterface({ onLogout }) {
                     className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
                 >
                     <div className="w-6 h-6 flex flex-col justify-between items-center">
-                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-150 translate-y-1.5' : 'scale-x-100'}`}></span>
+                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-10 translate-y-1.5' : 'scale-x-100'}`}></span>
                         <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-150 -translate-y-1.5' : 'scale-x-100'}`}></span>
+                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-10 -translate-y-1.5' : 'scale-x-100'}`}></span>
                     </div>
                 </button>
 
@@ -159,7 +159,7 @@ export default function ChatInterface({ onLogout }) {
                     value={userInput}
                     onChange={e => setUserInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 p-2 rounded text-black"
+                    className={`flex-1 p-2 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'}`}
                     type="text"
                     placeholder="I'm here to help! Ask me anything..."
                 />
