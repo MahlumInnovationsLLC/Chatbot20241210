@@ -23,7 +23,7 @@ export default function App() {
 function AppContent({ onLogout }) {
     const { theme } = useContext(ThemeContext);
     const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png";
-    const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/Blue%20MILLC%20long%20logo.png"; // Define the bottom logo URL
+    const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png"; // Define the bottom logo URL
 
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
