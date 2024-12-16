@@ -1,14 +1,17 @@
-﻿// App.jsx
+﻿// app.jsx
 import React, { useContext } from 'react';
 import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
+import { useMsal } from '@azure/msal-react';
 
 export default function App() {
-    // Stub logout function:
-    const logout = () => {
-        console.log("Logged out of Microsoft credentials.");
-        // Implement your Microsoft logout logic here
+    const { instance } = useMsal();
+
+    const logout = async () => {
+        // Use MSAL's logoutRedirect to log out user from Microsoft credentials
+        await instance.logoutRedirect();
+        console.log("Logged out of Microsoft credentials via MSAL.");
     };
 
     return (
