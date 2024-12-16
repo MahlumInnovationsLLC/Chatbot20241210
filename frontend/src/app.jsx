@@ -46,6 +46,5 @@ function AppContent({ onLogout }) {
                     <FileUpload />
                 </div>
             </div>
-        </div>
     );
 }
