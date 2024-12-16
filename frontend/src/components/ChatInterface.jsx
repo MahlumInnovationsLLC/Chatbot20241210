@@ -26,8 +26,6 @@ export default function ChatInterface({ onLogout }) {
         setIsLoading(true);
 
         try {
-            // No file handling here since user input is separate.
-            // If file was to be submitted along with message, we'd do multipart/form-data here.
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
             setMessages(prev => [...prev, botMsg]);
@@ -53,7 +51,6 @@ export default function ChatInterface({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
-        // Initialize radio buttons according to current theme
         setSelectedTheme(theme === 'dark' ? 'dark' : 'light');
         setSettingsOpen(true);
     };
@@ -63,7 +60,6 @@ export default function ChatInterface({ onLogout }) {
     };
 
     const saveSettings = () => {
-        // If user selected dark mode and current theme isn't dark, toggle it
         if (selectedTheme === 'dark' && theme !== 'dark') {
             toggleTheme();
         } else if (selectedTheme === 'light' && theme === 'dark') {
@@ -73,7 +69,6 @@ export default function ChatInterface({ onLogout }) {
     };
 
     const handleFileClick = () => {
-        // Trigger hidden file input
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
@@ -83,7 +78,6 @@ export default function ChatInterface({ onLogout }) {
         const file = e.target.files[0];
         if (file) {
             setFileName(file.name);
-            // If you need to submit file to server, you'd do that here or on sendMessage.
         } else {
             setFileName('');
         }
@@ -112,7 +106,7 @@ export default function ChatInterface({ onLogout }) {
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600"
                             onClick={onLogout}
                         >
-                            LOGOUT
+                            Logout
                         </button>
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600"
@@ -141,7 +135,8 @@ export default function ChatInterface({ onLogout }) {
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                            stroke="currentColor" className="w-5 h-5 text-white"
+                            stroke="currentColor"
+                            className={`w-5 h-5 ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                         >
                             <path strokeLinecap="round" strokeLinejoin="round"
                                 d="M21 12.75v3.375A4.125 4.125 0 0116.875 20.25h-9A4.125 4.125 0 013.75 16.125v-7.5A4.125 4.125 0 017.875 4.5h4.875" />
@@ -154,7 +149,7 @@ export default function ChatInterface({ onLogout }) {
                         onChange={handleFileChange}
                     />
                     {fileName && (
-                        <span className="text-sm text-white truncate max-w-xs">
+                        <span className={`text-sm truncate max-w-xs ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                             {fileName}
                         </span>
                     )}
@@ -176,7 +171,8 @@ export default function ChatInterface({ onLogout }) {
             {/* Settings Popup */}
             {settingsOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-gray-800 text-white w-1/2 h-1/2 rounded p-4 flex flex-col">
+                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                        } w-1/2 h-1/2 rounded p-4 flex flex-col`}>
                         {/* Title */}
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
                         {/* Radio buttons for Light/Dark mode */}
