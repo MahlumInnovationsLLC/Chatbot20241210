@@ -36,15 +36,6 @@ function AppContent({ onLogout }) {
                 </div>
             </div>
 
-            {/* Main content: Centered larger logo, "Start chatting", and subtitle */}
-            <div className="p-4 flex flex-col items-center justify-center flex-grow">
-                {/* Centered larger logo */}
-                <img src={logoUrl} alt="Center Logo" className="h-16 w-auto mb-4" />
-                <h2 className="text-3xl mb-2 font-bold">Start chatting</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-8">
-                    I am here to help! How can I support you today?
-                </p>
-
                 {/* Chat Interface section with border to distinguish the area */}
                 <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 border border-gray-300 dark:border-gray-700">
                     <ChatInterface onLogout={onLogout} />
