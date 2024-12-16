@@ -1,18 +1,19 @@
 ﻿// ChatInterface.jsx
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
+import FileUpload from './FileUpload';
 
 export default function ChatInterface({ onLogout }) {
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
-    const { toggleTheme } = useContext(ThemeContext);
-
-    const fileInputRef = useRef(null);
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [settingsDarkMode, setSettingsDarkMode] = useState(false);
+    const { toggleTheme, theme } = useContext(ThemeContext);
 
     const sendMessage = async () => {
         if (!userInput.trim()) return;
@@ -46,39 +47,55 @@ export default function ChatInterface({ onLogout }) {
         setMenuOpen(!menuOpen);
     };
 
-    const handlePaperclipClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
+    const openSettings = () => {
+        setMenuOpen(false);
+        // Initialize the checkbox according to current theme
+        setSettingsDarkMode(theme === 'dark');
+        setSettingsOpen(true);
     };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            console.log("Selected file:", file);
-            // Implement file upload logic here if needed
+    const closeSettings = () => {
+        setSettingsOpen(false);
+    };
+
+    const saveSettings = () => {
+        // If user selected dark mode and current theme isn't dark, toggle it
+        if (settingsDarkMode && theme !== 'dark') {
+            toggleTheme();
+        } else if (!settingsDarkMode && theme === 'dark') {
+            toggleTheme();
         }
+        closeSettings();
     };
 
     return (
         <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 overflow-visible">
             {/* Top bar */}
-            <div className="flex items-center justify-end mb-4 relative overflow-visible pr-8">
+            <div className="flex items-center justify-end mb-4 relative overflow-visible">
                 {/* Hamburger Menu Button */}
                 <button
                     onClick={toggleMenu}
-                    className="relative z-50 focus:outline-none w-8 h-8 flex items-center justify-center"
+                    className="relative z-50 focus:outline-none"
                 >
-                    <div className="w-6 h-6 flex flex-col justify-between">
-                        <span className={`block h-0.5 bg-current transform transition-transform duration-300 ease-in-out ${menuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                        <span className={`block h-0.5 bg-current transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                        <span className={`block h-0.5 bg-current transform transition-transform duration-300 ease-in-out ${menuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+                    <div className="w-6 h-6 flex flex-col justify-between items-center">
+                        <span
+                            className={`block h-0.5 bg-current transform transition-all duration-300 ease-in-out origin-center
+                                ${menuOpen ? 'rotate-45 scale-x-150 translate-y-1.5' : 'scale-x-100'}`}
+                        ></span>
+                        <span
+                            className={`block h-0.5 bg-current transition-opacity duration-300 ease-in-out
+                                ${menuOpen ? 'opacity-0' : 'opacity-100'}`}
+                        ></span>
+                        <span
+                            className={`block h-0.5 bg-current transform transition-all duration-300 ease-in-out origin-center
+                                ${menuOpen ? '-rotate-45 scale-x-150 -translate-y-1.5' : 'scale-x-100'}`}
+                        ></span>
                     </div>
                 </button>
 
                 {/* Dropdown Menu */}
                 {menuOpen && (
-                    <div className="absolute top-14 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn">
+                    <div className="absolute top-14 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn z-50">
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600"
                             onClick={onLogout}
@@ -87,9 +104,9 @@ export default function ChatInterface({ onLogout }) {
                         </button>
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600"
-                            onClick={toggleTheme}
+                            onClick={openSettings}
                         >
-                            SETTINGS (Toggle Theme)
+                            Settings
                         </button>
                     </div>
                 )}
@@ -102,24 +119,8 @@ export default function ChatInterface({ onLogout }) {
                 {isLoading && <ThinkingBubble />}
             </div>
             <div className="flex space-x-2 items-center">
-                {/* Paperclip button for file upload */}
-                <button
-                    onClick={handlePaperclipClick}
-                    className="p-2 bg-gray-600 text-white rounded hover:bg-gray-500 focus:outline-none"
-                    title="Upload a file"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round"
-                            d="M14.828 10.172a4 4 0 010 5.656l-4.243 4.243a4 4 0 01-5.656-5.656l5.657-5.657a2 2 0 112.828 2.828l-5.657 5.657" />
-                    </svg>
-                </button>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileChange}
-                />
+                {/* File upload button (just a paperclip icon now) */}
+                <FileUpload />
 
                 <input
                     value={userInput}
@@ -133,6 +134,45 @@ export default function ChatInterface({ onLogout }) {
                     Send
                 </button>
             </div>
+
+            {/* Settings Popup */}
+            {settingsOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-gray-800 text-white w-1/2 h-1/2 rounded p-4 flex flex-col">
+                        {/* Title */}
+                        <h2 className="text-3xl mb-4 font-bold">Settings</h2>
+                        {/* Content: Checkbox for Dark/Light Mode */}
+                        <div className="flex-1 flex flex-col justify-center items-start space-y-4">
+                            <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={settingsDarkMode}
+                                    onChange={(e) => setSettingsDarkMode(e.target.checked)}
+                                    className="form-checkbox h-5 w-5 text-blue-600"
+                                />
+                                <span className="text-lg">Dark Mode</span>
+                            </label>
+                            {/* If you prefer radio buttons for Light/Dark mode:
+                                <label className="flex items-center space-x-2">
+                                    <input type="radio" name="theme" checked={settingsDarkMode} onChange={() => setSettingsDarkMode(true)} /> Dark Mode
+                                </label>
+                                <label className="flex items-center space-x-2">
+                                    <input type="radio" name="theme" checked={!settingsDarkMode} onChange={() => setSettingsDarkMode(false)} /> Light Mode
+                                </label>
+                            */}
+                        </div>
+                        {/* Footer with Save button */}
+                        <div className="flex justify-end">
+                            <button
+                                onClick={saveSettings}
+                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
