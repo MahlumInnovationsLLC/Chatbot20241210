@@ -93,9 +93,9 @@ export default function ChatInterface({ onLogout }) {
                     className="relative z-50 focus:outline-none"
                 >
                     <div className="w-6 h-6 flex flex-col justify-between items-center">
-                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-150 translate-y-1.5' : 'scale-x-100'}`}></span>
-                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-150 -translate-y-1.5' : 'scale-x-100'}`}></span>
+                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-black' : 'bg-white'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 scale-x-150 translate-y-1.5' : 'scale-x-100'}`}></span>
+                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-black' : 'bg-white'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+                        <span className={`block h-0.5 ${theme === 'dark' ? 'bg-black' : 'bg-white'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 scale-x-150 -translate-y-1.5' : 'scale-x-100'}`}></span>
                     </div>
                 </button>
 
