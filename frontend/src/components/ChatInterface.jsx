@@ -93,11 +93,15 @@ export default function ChatInterface({ onLogout }) {
                 <button
                     onClick={toggleMenu}
                     className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
+                    style={{ width: '2rem', height: '2rem' }} // Ensure a fixed size for precision
                 >
-                    <div className="w-6 h-6 flex flex-col justify-between items-center">
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 translate-y-[0.45rem]' : ''}`}></span>
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transition-opacity duration-300 ease-in-out ${menuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                        <span className={`block w-full h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-y-[0.45rem]' : ''}`}></span>
+                    <div className="relative w-full h-full">
+                        {/* Top Line */}
+                        <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-1/2 -translate-y-[0.4rem]'}`}></span>
+                        {/* Middle Line */}
+                        <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'opacity-0' : '-translate-x-1/2 -translate-y-1/2'}`}></span>
+                        {/* Bottom Line */}
+                        <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-1/2 translate-y-[0.4rem]'}`}></span>
                     </div>
                 </button>
 
