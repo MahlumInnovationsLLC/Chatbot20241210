@@ -201,12 +201,12 @@ function AppContent({ onLogout }) {
                                 rows={5}
                             />
                         </div>
-                        <div className="flex justify-end w-full mt-4">
+                        <div className="flex justify-center w-full mt-4">
                             <button
                                 onClick={saveAiInstructions}
                                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                             >
-                                Save
+                                Save AI Instructions
                             </button>
                         </div>
                     </div>
