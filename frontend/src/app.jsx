@@ -269,7 +269,7 @@ function AppContent({ onLogout }) {
                             </button>
                             {shareMenuOpen && (
                                 <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
-                                    style={{ right: '100%', left: 'auto', marginLeft: '-2px', marginTop: '2rem' }}
+                                    style={{ right: '100%', left: 'auto', marginLeft: '-6px', marginTop: '10rem' }}
                                 >
                                     <a
                                         href={getMailToLink()}
@@ -287,7 +287,7 @@ function AppContent({ onLogout }) {
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                         onClick={downloadTranscriptDocx}
                                     >
-                                        Download as DOCX
+                                        Download as .docx
                                     </button>
                                 </div>
                             )}
