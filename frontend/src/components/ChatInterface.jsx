@@ -5,6 +5,9 @@ import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
 
+// Import from docx for DOCX generation
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+
 export default function ChatInterface({ onLogout }) {
     const [messages, setMessages] = useState([]);
     const [userInput, setUserInput] = useState('');
@@ -13,7 +16,7 @@ export default function ChatInterface({ onLogout }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState('dark'); // 'dark', 'light', 'system'
     const [fileName, setFileName] = useState('');
-    const [shareMenuOpen, setShareMenuOpen] = useState(false); // NEW for share submenu
+    const [shareMenuOpen, setShareMenuOpen] = useState(false); // For share submenu
 
     const { toggleTheme, theme } = useContext(ThemeContext);
 
@@ -50,7 +53,6 @@ export default function ChatInterface({ onLogout }) {
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
         if (!menuOpen) {
-            // If opening the main menu, ensure share menu is closed
             setShareMenuOpen(false);
         }
     };
@@ -58,7 +60,7 @@ export default function ChatInterface({ onLogout }) {
     const openSettings = () => {
         setMenuOpen(false);
         // Set selectedTheme based on current theme
-        setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
+        setSelectedTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
         setSettingsOpen(true);
     };
 
@@ -91,7 +93,7 @@ export default function ChatInterface({ onLogout }) {
     // Determine if we should show the "start chatting" content
     const showStartContent = messages.length === 0 && !isLoading;
 
-    // Share Functions
+    // SHARE FUNCTIONS:
     const copyTranscriptToClipboard = () => {
         const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
         navigator.clipboard.writeText(allText).then(() => {
@@ -99,9 +101,22 @@ export default function ChatInterface({ onLogout }) {
         });
     };
 
-    const downloadTranscriptDocx = () => {
+    const downloadTranscriptDocx = async () => {
         const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
-        const blob = new Blob([allText], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+
+        // Create a docx document
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: allText.split('\n\n').map(paraText =>
+                    new Paragraph({
+                        children: [new TextRun(paraText)],
+                    })
+                ),
+            }],
+        });
+
+        const blob = await Packer.toBlob(doc);
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -151,47 +166,48 @@ export default function ChatInterface({ onLogout }) {
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-9A2.25 2.25
-                                     0 002.25 5.25v13.5A2.25 2.25 0
-                                     005.25 21h8.25a2.25 2.25 0
-                                     002.25-2.25V15M9 15l3-3m0
+                                    d="M15.75 9V5.25A2.25 2.25 0
+                                     0013.5 3h-9A2.25 2.25 0
+                                     002.25 5.25v13.5A2.25 2.25
+                                     0 005.25 21h8.25a2.25 2.25
+                                     0 002.25-2.25V15M9 15l3-3m0
                                      0l-3-3m3 3H21" />
                             </svg>
                             Logout
                         </button>
-
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
                             onClick={openSettings}
                         >
-                            {/* Settings (Gear) Icon */}
+                            {/* Gear Icon for Settings */}
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0
-                                     a1.724 1.724 0 002.591.977l.519-.3a1.724
-                                     1.724 0 012.362.53 1.724 1.724
-                                     0 00.53 2.362l-.3.519a1.724
-                                     1.724 0 00.977 2.591c.921.3.921
-                                     1.603 0 1.902a1.724 1.724
-                                     0 00-.977 2.591l.3.519a1.724
-                                     1.724 0 01-.53 2.362 1.724 1.724
-                                     0 01-2.362.53l-.519-.3a1.724
-                                     1.724 0 00-2.591.977c-.3.921-1.603.921-1.902
-                                     0a1.724 1.724 0 00-2.591-.977l-.519.3a1.724
-                                     1.724 0 01-2.362-.53 1.724 1.724
-                                     0 01-.53-2.362l.3-.519a1.724
-                                     1.724 0 00-.977-2.591c-.921-.3-.921-1.603
-                                     0-1.902a1.724 1.724 0 00.977-2.591l-.3-.519
-                                     a1.724 1.724 0 01.53-2.362 1.724 1.724
-                                     0 012.362-.53l.519.3a1.724 1.724
-                                     0 002.591-.977z"/>
+                                    d="M11.049 2.927c.3-.921 1.603-.921
+                                    1.902 0 a1.724 1.724 0
+                                    002.591.977l.519-.3a1.724
+                                    1.724 0 012.362.53 1.724 1.724
+                                    0 00.53 2.362l-.3.519a1.724
+                                    1.724 0 00.977 2.591c.921.3.921
+                                    1.603 0 1.902a1.724 1.724
+                                    0 00-.977 2.591l.3.519a1.724
+                                    1.724 0 01-.53 2.362 1.724 1.724
+                                    0 01-2.362.53l-.519-.3a1.724
+                                    1.724 0 00-2.591.977c-.3.921-1.603.921-1.902
+                                    0a1.724 1.724 0 00-2.591-.977l-.519.3a1.724
+                                    1.724 0 01-2.362-.53 1.724 1.724
+                                    0 01-.53-2.362l.3-.519a1.724
+                                    1.724 0 00-.977-2.591c-.921-.3-.921-1.603
+                                    0-1.902a1.724 1.724
+                                    0 00.977-2.591l-.3-.519a1.724
+                                    1.724 0 01.53-2.362 1.724 1.724
+                                    0 012.362-.53l.519.3a1.724 1.724
+                                    0 002.591-.977z"/>
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             Settings
                         </button>
-
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
                             onClick={openShareMenu}
@@ -209,7 +225,6 @@ export default function ChatInterface({ onLogout }) {
                             </svg>
                             Share
                         </button>
-
                         {shareMenuOpen && (
                             <div className="absolute top-0 left-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 ml-2 animate-fadeIn z-50">
                                 <a
@@ -270,7 +285,10 @@ export default function ChatInterface({ onLogout }) {
                             className={`w-5 h-5 ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                         >
                             <path strokeLinecap="round" strokeLinejoin="round"
-                                d="M21 12.75v3.375A4.125 4.125 0 0116.875 20.25h-9A4.125 4.125 0 013.75 16.125v-7.5A4.125 4.125 0 017.875 4.5h4.875" />
+                                d="M21 12.75v3.375A4.125 4.125 0
+                                 0116.875 20.25h-9A4.125 4.125 0
+                                 013.75 16.125v-7.5A4.125 4.125
+                                 0 017.875 4.5h4.875" />
                         </svg>
                     </button>
                     <input
