@@ -81,7 +81,7 @@ export default function ChatInterface({ onLogout }) {
                     </>
                 )}
             </div>
-            <div className="flex space-x-2 items-center px-4 pb-4">
+            <div className="flex space-x-2 items-end px-4 pb-4">
                 {/* Paperclip icon for file upload */}
                 <div className="relative flex items-center space-x-2">
                     <button
@@ -108,7 +108,7 @@ export default function ChatInterface({ onLogout }) {
                     value={userInput}
                     onChange={e => setUserInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className={`flex-1 p-2 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'}`}
+                    className={`flex-1 p-6 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'}`}
                     type="text"
                     placeholder="I'm here to help! Ask me anything..."
                 />
