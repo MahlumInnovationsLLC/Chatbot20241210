@@ -21,6 +21,10 @@ export default function App() {
 }
 
 function AppContent({ onLogout }) {
+    const { instance } = useMsal();
+    const account = instance.getActiveAccount();
+    const userKey = account ? account.homeAccountId : 'default_user';
+
     const { theme } = useContext(ThemeContext);
     const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png";
     const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png";
@@ -29,8 +33,11 @@ function AppContent({ onLogout }) {
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState('dark');
-    const [messages, setMessages] = useState([]); // For share logic demonstration
-    const [activeTab, setActiveTab] = useState('theme'); // NEW: track which tab is selected
+    const [messages, setMessages] = useState([]);
+    const [activeTab, setActiveTab] = useState('theme');
+
+    const [aiMood, setAiMood] = useState('');
+    const [aiInstructions, setAiInstructions] = useState('');
 
     const menuRef = useRef(null);
 
@@ -43,8 +50,8 @@ function AppContent({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
-        setSelectedTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
-        setActiveTab('theme'); // reset to 'theme' tab when settings open
+        setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
+        setActiveTab('theme');
         setSettingsOpen(true);
     };
 
@@ -53,8 +60,7 @@ function AppContent({ onLogout }) {
     };
 
     const saveSettings = () => {
-        // If you had logic to toggle theme based on selectedTheme:
-        // toggleTheme(selectedTheme);
+        // Here you would apply the selectedTheme changes if toggling theme was implemented.
         closeSettings();
     };
 
@@ -88,7 +94,6 @@ function AppContent({ onLogout }) {
         return `mailto:?subject=${subject}&body=${body}`;
     };
 
-    // Close all menus if clicked outside
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (menuOpen || shareMenuOpen || settingsOpen) {
@@ -105,7 +110,24 @@ function AppContent({ onLogout }) {
         };
     }, [menuOpen, shareMenuOpen, settingsOpen]);
 
-    // Content for settings tabs
+    useEffect(() => {
+        const savedData = localStorage.getItem(`ai_instructions_${userKey}`);
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            setAiMood(parsed.mood || '');
+            setAiInstructions(parsed.instructions || '');
+        }
+    }, [userKey]);
+
+    const saveAiInstructions = () => {
+        const data = {
+            mood: aiMood,
+            instructions: aiInstructions
+        };
+        localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
+        alert('AI Instructions saved!');
+    };
+
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'theme':
@@ -145,10 +167,35 @@ function AppContent({ onLogout }) {
                 );
             case 'ai':
                 return (
-                    <div className="flex-1 flex flex-col justify-center items-start space-y-4">
-                        <p className="text-sm">
-                            Here you could configure AI instructions, for example prompt presets.
-                        </p>
+                    <div className="flex flex-col space-y-4">
+                        <div className="flex flex-col w-full space-y-2">
+                            <label className="text-lg font-semibold">AI Mood:</label>
+                            <input
+                                type="text"
+                                value={aiMood}
+                                onChange={e => setAiMood(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="e.g., Friendly, Professional, Enthusiastic..."
+                            />
+                        </div>
+                        <div className="flex flex-col w-full space-y-2">
+                            <label className="text-lg font-semibold">AI Instructions:</label>
+                            <textarea
+                                value={aiInstructions}
+                                onChange={e => setAiInstructions(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="Provide instructions for how the AI should behave..."
+                                rows={5}
+                            />
+                        </div>
+                        <div className="flex justify-end w-full mt-4">
+                            <button
+                                onClick={saveAiInstructions}
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            >
+                                Save
+                            </button>
+                        </div>
                     </div>
                 );
             case 'empty1':
@@ -166,130 +213,79 @@ function AppContent({ onLogout }) {
 
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
-            {/* Top bar */}
             <div className="flex items-center justify-between w-full p-4 border-b border-gray-300 dark:border-gray-700 relative">
                 <div className="flex items-center">
                     <img src={logoUrl} alt="Logo" className="h-8 w-auto mr-2" />
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
+                <div ref={menuRef}>
+                    <button
+                        onClick={toggleMenu}
+                        className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
+                        style={{ width: '2rem', height: '2rem' }}
+                    >
+                        <div className="relative w-full h-full">
+                            <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-[0.4rem]'}`}></span>
+                            <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'opacity-0' : '-translate-x-1/2 -translate-y-1/2'}`}></span>
+                            <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 translate-y-[0.4rem]'}`}></span>
+                        </div>
+                    </button>
 
-                {/* Menu Icon */}
-                <button
-                    onClick={toggleMenu}
-                    className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
-                    style={{ width: '2rem', height: '2rem' }}
-                >
-                    <div className="relative w-full h-full">
-                        {/* Top Line */}
-                        <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-[0.4rem]'}`}></span>
-                        {/* Middle Line */}
-                        <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'opacity-0' : '-translate-x-1/2 -translate-y-1/2'}`}></span>
-                        {/* Bottom Line */}
-                        <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 translate-y-[0.4rem]'}`}></span>
-                    </div>
-                </button>
-
-                {menuOpen && (
-                    <div ref={menuRef} className="absolute top-16 right-4 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out scale-y-100">
-                        <button
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
-                            onClick={onLogout}
+                    {menuOpen && (
+                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out"
                         >
-                            {/* Logout Icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M15.75 9V5.25A2.25 2.25 0
-                                    0013.5 3h-9A2.25 2.25 0
-                                    002.25 5.25v13.5A2.25 2.25
-                                    0 005.25 21h8.25a2.25 2.25
-                                    0 002.25-2.25V15M9 15l3-3m0
-                                    0l-3-3m3 3H21" />
-                            </svg>
-                            Logout
-                        </button>
+                            <button
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                                onClick={onLogout}
+                            >
+                                <i className="fa-solid fa-right-to-bracket mr-2"></i>
+                                Logout
+                            </button>
 
-                        <button
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
-                            onClick={openSettings}
-                        >
-                            {/* Settings (Gear) Icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M11.049 2.927c.3-.921 1.603-.921
-                                    1.902 0 a1.724 1.724 0
-                                    002.591.977l.519-.3a1.724
-                                    1.724 0 012.362.53 1.724 1.724
-                                    0 00.53 2.362l-.3.519a1.724
-                                    1.724 0 00.977 2.591c.921.3.921
-                                    1.603 0 1.902a1.724 1.724
-                                    0 00-.977 2.591l.3.519a1.724
-                                    1.724 0 01-.53 2.362 1.724 1.724
-                                    0 01-2.362.53l-.519-.3a1.724
-                                    1.724 0 00-2.591.977c-.3.921-1.603.921-1.902
-                                    0a1.724 1.724 0 00-2.591-.977l-.519.3a1.724
-                                    1.724 0 01-2.362-.53 1.724 1.724
-                                    0 01-.53-2.362l.3-.519a1.724
-                                    1.724 0 00-.977-2.591c-.921-.3-.921-1.603
-                                    0-1.902a1.724 1.724
-                                    0 00.977-2.591l-.3-.519
-                                    a1.724 1.724 0 01.53-2.362 1.724 1.724
-                                    0 012.362-.53l.519.3a1.724 1.724
-                                    0 002.591-.977z"/>
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            Settings
-                        </button>
+                            <button
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                                onClick={openSettings}
+                            >
+                                <i className="fa-solid fa-gear mr-2"></i>
+                                Settings
+                            </button>
 
-                        <button
-                            className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
-                            onClick={openShareMenu}
-                        >
-                            {/* Share Icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
-                                viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M9 9l4.5-4.5M9 9h6M9 9v6M5.25
-                                    21h13.5a2.25 2.25 0
-                                    002.25-2.25V5.25A2.25 2.25
-                                    0 0018.75 3H5.25A2.25 2.25
-                                    0 003 5.25v13.5A2.25 2.25
-                                    0 005.25 21z"/>
-                            </svg>
-                            Share
-                        </button>
-
-                        {shareMenuOpen && (
-                            <div className={"absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 ml-2 z-50 transform origin-top transition-transform duration-200 ease-out scale-y-100"}>
-                                <a
-                                    href={getMailToLink()}
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                            <button
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                                onClick={openShareMenu}
+                            >
+                                <i className="fa-solid fa-share-from-square mr-2"></i>
+                                Share
+                            </button>
+                            {shareMenuOpen && (
+                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
                                 >
-                                    Share via Email
-                                </a>
-                                <button
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-600"
-                                    onClick={copyTranscriptToClipboard}
-                                >
-                                    Copy Transcript
-                                </button>
-                                <button
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-600"
-                                    onClick={downloadTranscriptDocx}
-                                >
-                                    Download as DOCX
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                    <a
+                                        href={getMailToLink()}
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                                    >
+                                        Share via Email
+                                    </a>
+                                    <button
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                                        onClick={copyTranscriptToClipboard}
+                                    >
+                                        Copy Transcript
+                                    </button>
+                                    <button
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                                        onClick={downloadTranscriptDocx}
+                                    >
+                                        Download as DOCX
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {/* Container to center the chat interface in the screen */}
             <div className="flex-grow flex flex-col items-center justify-center p-4">
-                {/* Chat Interface section */}
                 <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 border border-gray-300 dark:border-gray-700">
                     <ChatInterface
                         onLogout={onLogout}
@@ -298,7 +294,6 @@ function AppContent({ onLogout }) {
                     />
                 </div>
 
-                {/* Bottom-right branding wrapped in a link */}
                 <a
                     href="https://www.mahluminnovations.com/"
                     target="_blank"
@@ -316,7 +311,6 @@ function AppContent({ onLogout }) {
                 </a>
             </div>
 
-            {/* Settings Popup */}
             {settingsOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                     onClick={() => { setSettingsOpen(false); }}>
@@ -324,7 +318,6 @@ function AppContent({ onLogout }) {
                         onClick={(e) => e.stopPropagation()}>
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
 
-                        {/* Tabs */}
                         <div className="flex space-x-4 mb-4 border-b border-gray-500 pb-2">
                             <button
                                 className={`text-lg ${activeTab === 'theme' ? 'font-bold underline' : ''}`}
@@ -358,7 +351,6 @@ function AppContent({ onLogout }) {
                             </button>
                         </div>
 
-                        {/* Tab Content */}
                         <div className="flex-1 overflow-y-auto">
                             {activeTab === 'theme' && (
                                 <div className="flex flex-col space-y-4">
@@ -395,10 +387,39 @@ function AppContent({ onLogout }) {
                                 </div>
                             )}
                             {activeTab === 'ai' && (
-                                <div>
-                                    <p className="text-sm text-gray-300">
-                                        Here you can set AI instructions or presets.
-                                    </p>
+                                <div className="flex flex-col space-y-4">
+                                    <div className="flex flex-col w-full space-y-2">
+                                        <label className="text-lg font-semibold">AI Mood:</label>
+                                        <input
+                                            type="text"
+                                            value={aiMood}
+                                            onChange={e => setAiMood(e.target.value)}
+                                            className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                            placeholder="e.g., Friendly, Professional, Enthusiastic..."
+                                        />
+                                    </div>
+                                    <div className="flex flex-col w-full space-y-2">
+                                        <label className="text-lg font-semibold">AI Instructions:</label>
+                                        <textarea
+                                            value={aiInstructions}
+                                            onChange={e => setAiInstructions(e.target.value)}
+                                            className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                            placeholder="Provide instructions for how the AI should behave..."
+                                            rows={5}
+                                        />
+                                    </div>
+                                    <div className="flex justify-end w-full mt-4">
+                                        <button
+                                            onClick={() => {
+                                                const data = { mood: aiMood, instructions: aiInstructions };
+                                                localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
+                                                alert('AI Instructions saved!');
+                                            }}
+                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                             {['empty1', 'empty2', 'empty3'].includes(activeTab) && (

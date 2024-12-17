@@ -89,18 +89,7 @@ export default function ChatInterface({ onLogout }) {
                         className="p-2 focus:outline-none"
                         title="Attach a file"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
-                            stroke="currentColor"
-                            className={`w-5 h-5 ${theme === 'dark' ? 'text-white' : 'text-black'}`}
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round"
-                                d="M21 12.75v3.375A4.125 4.125 0
-                                 0116.875 20.25h-9A4.125 4.125 0
-                                 013.75 16.125v-7.5A4.125 4.125
-                                 0 017.875 4.5h4.875" />
-                        </svg>
+                        <i className={`fa-solid fa-paperclip ${theme === 'dark' ? 'text-white' : 'text-black'} w-5 h-5`}></i>
                     </button>
                     <input
                         type="file"
