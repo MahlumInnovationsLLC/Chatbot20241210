@@ -1,5 +1,5 @@
 ﻿// app.jsx
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
@@ -25,14 +25,35 @@ function AppContent({ onLogout }) {
     const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png";
     const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png";
 
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setMenuOpen(!menuOpen);
+    };
+
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
-            {/* Top bar with logo and title aligned to the left */}
+            {/* Top bar with logo and title aligned to the left and menu icon on the right */}
             <div className="flex items-center justify-between w-full p-4 border-b border-gray-300 dark:border-gray-700">
                 <div className="flex items-center">
                     <img src={logoUrl} alt="Logo" className="h-8 w-auto mr-2" />
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
+                {/* Hamburger Menu Button on the right */}
+                <button
+                    onClick={toggleMenu}
+                    className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
+                    style={{ width: '2rem', height: '2rem' }}
+                >
+                    <div className="relative w-full h-full">
+                        {/* Top Line */}
+                        <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-[0.4rem]'}`}></span>
+                        {/* Middle Line */}
+                        <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'opacity-0' : '-translate-x-1/2 -translate-y-1/2'}`}></span>
+                        {/* Bottom Line */}
+                        <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 translate-y-[0.4rem]'}`}></span>
+                    </div>
+                </button>
             </div>
 
             {/* Container to center the chat interface in the screen */}
