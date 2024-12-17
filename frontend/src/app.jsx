@@ -41,7 +41,7 @@ function AppContent({ onLogout }) {
 
     const menuRef = useRef(null);
 
-    const limeGreen = '#a2f4a2'; // Lime green border color
+    const limeGreen = '#a2f4a2';
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -198,7 +198,6 @@ function AppContent({ onLogout }) {
                                 rows={5}
                             />
                         </div>
-                        {/* Centering the Save AI Instructions button */}
                         <div className="flex justify-center w-full mt-4">
                             <button
                                 onClick={saveAiInstructions}
@@ -347,31 +346,31 @@ function AppContent({ onLogout }) {
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`text-lg ${activeTab === 'theme' ? 'font-bold underline' : ''}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
                                 Theme
                             </button>
                             <button
-                                className={`text-lg ${activeTab === 'ai' ? 'font-bold underline' : ''}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
                                 AI Instructions
                             </button>
                             <button
-                                className={`text-lg ${activeTab === 'empty1' ? 'font-bold underline' : ''}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`text-lg ${activeTab === 'empty2' ? 'font-bold underline' : ''}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`text-lg ${activeTab === 'empty3' ? 'font-bold underline' : ''}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
                                 EMPTY
