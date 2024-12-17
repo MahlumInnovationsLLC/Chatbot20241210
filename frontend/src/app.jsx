@@ -23,7 +23,7 @@ export default function App() {
 function AppContent({ onLogout }) {
     const { theme } = useContext(ThemeContext);
     const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png";
-    const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png"; // Define the bottom logo URL
+    const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png";
 
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
@@ -42,19 +42,22 @@ function AppContent({ onLogout }) {
                     <ChatInterface onLogout={onLogout} />
                 </div>
 
-                {/* File Upload below the chat interface */}
-                <div className="mt-8">
-                    <FileUpload />
-                </div>
-
-                {/* Bottom-right branding */}
-                <div className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
-                    style={{ backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)', border: theme === 'dark' ? '1px solid #374151' : '1px solid #ccc' }}>
+                {/* Bottom-right branding wrapped in a link */}
+                <a
+                    href="https://www.mahluminnovations.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
+                    style={{
+                        backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)',
+                        border: theme === 'dark' ? '1px solid #374151' : '1px solid #ccc'
+                    }}
+                >
                     <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
                     <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                         Powered by Mahlum Innovations, LLC
                     </span>
-                </div>
+                </a>
             </div>
         </div>
     );
