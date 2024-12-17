@@ -1,5 +1,5 @@
 ﻿// app.jsx
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
@@ -29,10 +29,9 @@ function AppContent({ onLogout }) {
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState('dark');
+    const [messages, setMessages] = useState([]); // For share logic demonstration
 
-    // We'll store messages here temporarily for building the share logic.
-    // In a real scenario, you might pass a callback to ChatInterface to get messages, or store them at this level.
-    const [messages, setMessages] = useState([]);
+    const menuRef = useRef(null);
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -43,7 +42,6 @@ function AppContent({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
-        // If we had a theme system: selectedTheme depends on current theme
         setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
         setSettingsOpen(true);
     };
@@ -53,7 +51,7 @@ function AppContent({ onLogout }) {
     };
 
     const saveSettings = () => {
-        // If we had logic to toggle theme:
+        // If you had logic to toggle theme based on selectedTheme:
         // toggleTheme(selectedTheme);
         closeSettings();
     };
@@ -71,7 +69,6 @@ function AppContent({ onLogout }) {
 
     const downloadTranscriptDocx = () => {
         const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
-        // Create a blob as a generic DOCX file
         const blob = new Blob([allText], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -86,19 +83,36 @@ function AppContent({ onLogout }) {
     const getMailToLink = () => {
         const subject = encodeURIComponent('Chat Transcript');
         const body = encodeURIComponent(messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n'));
-        // mailto doesn't allow real attachments easily, so we just include transcript text in the body
         return `mailto:?subject=${subject}&body=${body}`;
     };
 
+    // Close all menus/settings if clicked outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (menuOpen || shareMenuOpen || settingsOpen) {
+                if (menuRef.current && !menuRef.current.contains(e.target)) {
+                    setMenuOpen(false);
+                    setShareMenuOpen(false);
+                    setSettingsOpen(false);
+                }
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [menuOpen, shareMenuOpen, settingsOpen]);
+
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
-            {/* Top bar with logo and title aligned to the left and menu icon on the right */}
-            <div className="flex items-center justify-between w-full p-4 border-b border-gray-300 dark:border-gray-700">
+            {/* Top bar with logo/title on left and menu icon on right */}
+            <div className="flex items-center justify-between w-full p-4 border-b border-gray-300 dark:border-gray-700 relative">
                 <div className="flex items-center">
                     <img src={logoUrl} alt="Logo" className="h-8 w-auto mr-2" />
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
-                {/* Hamburger Menu Button on the right */}
+
+                {/* Menu Icon */}
                 <button
                     onClick={toggleMenu}
                     className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
@@ -113,8 +127,10 @@ function AppContent({ onLogout }) {
                         <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 translate-y-[0.4rem]'}`}></span>
                     </div>
                 </button>
+
+                {/* Main Menu */}
                 {menuOpen && (
-                    <div className="absolute top-16 right-4 bg-gray-700 text-white rounded shadow-lg py-2 w-40 animate-fadeIn z-50">
+                    <div ref={menuRef} className="absolute top-16 right-4 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out scale-y-100">
                         <button
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
                             onClick={onLogout}
@@ -123,11 +139,12 @@ function AppContent({ onLogout }) {
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-9A2.25 2.25
-                                     0 002.25 5.25v13.5A2.25 2.25 0
-                                     005.25 21h8.25a2.25 2.25 0
-                                     002.25-2.25V15M9 15l3-3m0
-                                     0l-3-3m3 3H21" />
+                                    d="M15.75 9V5.25A2.25 2.25 0
+                                    0013.5 3h-9A2.25 2.25 0
+                                    002.25 5.25v13.5A2.25 2.25
+                                    0 005.25 21h8.25a2.25 2.25
+                                    0 002.25-2.25V15M9 15l3-3m0
+                                    0l-3-3m3 3H21" />
                             </svg>
                             Logout
                         </button>
@@ -136,29 +153,30 @@ function AppContent({ onLogout }) {
                             className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
                             onClick={openSettings}
                         >
-                            {/* Settings (Gear) Icon */}
+                            {/* Settings Icon */}
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" fill="none"
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round"
-                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0
-                                     a1.724 1.724 0 002.591.977l.519-.3a1.724
-                                     1.724 0 012.362.53 1.724 1.724
-                                     0 00.53 2.362l-.3.519a1.724
-                                     1.724 0 00.977 2.591c.921.3.921
-                                     1.603 0 1.902a1.724 1.724
-                                     0 00-.977 2.591l.3.519a1.724
-                                     1.724 0 01-.53 2.362 1.724 1.724
-                                     0 01-2.362.53l-.519-.3a1.724 1.724
-                                     0 00-2.591.977c-.3.921-1.603.921-1.902
-                                     0a1.724 1.724 0 00-2.591-.977l-.519.3a1.724
-                                     1.724 0 01-2.362-.53 1.724 1.724
-                                     0 01-.53-2.362l.3-.519a1.724
-                                     1.724 0 00-.977-2.591c-.921-.3-.921-1.603
-                                     0-1.902a1.724 1.724
-                                     0 00.977-2.591l-.3-.519
-                                     a1.724 1.724 0 01.53-2.362 1.724 1.724
-                                     0 012.362-.53l.519.3a1.724 1.724
-                                     0 002.591-.977z"/>
+                                    d="M11.049 2.927c.3-.921 1.603-.921
+                                    1.902 0 a1.724 1.724 0
+                                    002.591.977l.519-.3a1.724
+                                    1.724 0 012.362.53 1.724 1.724
+                                    0 00.53 2.362l-.3.519a1.724
+                                    1.724 0 00.977 2.591c.921.3.921
+                                    1.603 0 1.902a1.724 1.724
+                                    0 00-.977 2.591l.3.519a1.724
+                                    1.724 0 01-.53 2.362 1.724 1.724
+                                    0 01-2.362.53l-.519-.3a1.724
+                                    1.724 0 00-2.591.977c-.3.921-1.603.921-1.902
+                                    0a1.724 1.724 0 00-2.591-.977l-.519.3a1.724
+                                    1.724 0 01-2.362-.53 1.724 1.724
+                                    0 01-.53-2.362l.3-.519a1.724
+                                    1.724 0 00-.977-2.591c-.921-.3-.921-1.603
+                                    0-1.902a1.724 1.724
+                                    0 00.977-2.591l-.3-.519
+                                    a1.724 1.724 0 01.53-2.362 1.724 1.724
+                                    0 012.362-.53l.519.3a1.724 1.724
+                                    0 002.591-.977z"/>
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
@@ -174,19 +192,20 @@ function AppContent({ onLogout }) {
                                 viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round"
                                     d="M9 9l4.5-4.5M9 9h6M9 9v6M5.25
-                                     21h13.5a2.25 2.25 0
-                                     002.25-2.25V5.25A2.25 2.25
-                                     0 0018.75 3H5.25A2.25 2.25
-                                     0 003 5.25v13.5A2.25 2.25
-                                     0 005.25 21z"/>
+                                    21h13.5a2.25 2.25 0
+                                    002.25-2.25V5.25A2.25 2.25
+                                    0 0018.75 3H5.25A2.25 2.25
+                                    0 003 5.25v13.5A2.25 2.25
+                                    0 005.25 21z"/>
                             </svg>
                             Share
                         </button>
 
+                        {/* Share Submenu */}
                         {shareMenuOpen && (
-                            <div className="absolute top-0 left-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 ml-2 animate-fadeIn z-50">
+                            <div className={"absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 ml-2 z-50 transform origin-top transition-transform duration-200 ease-out " + (shareMenuOpen ? 'scale-y-100' : 'scale-y-0')}>
                                 <a
-                                    href={getMailToLink()} // Just text included in body
+                                    href={getMailToLink()}
                                     className="block w-full text-left px-4 py-2 hover:bg-gray-600"
                                 >
                                     Share via Email
@@ -240,10 +259,13 @@ function AppContent({ onLogout }) {
 
             {/* Settings Popup */}
             {settingsOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col`}>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                    onClick={() => { setSettingsOpen(false); }} // close when clicking outside
+                >
+                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100`}
+                        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+                    >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
-                        {/* Radio buttons for Light/Dark/System mode */}
                         <div className="flex-1 flex flex-col justify-center items-start space-y-4">
                             <label className="flex items-center space-x-2">
                                 <input
