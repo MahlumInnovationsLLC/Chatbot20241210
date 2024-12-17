@@ -5,3 +5,23 @@
 body {
     @apply bg-futuristic-bg text-white;
 }
+
+/* Define the keyframes for the slide-down animation */
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Create a custom class for the slide-down animation */
+@layer utilities {
+    .animate-slideDown {
+        animation: slideDown 0.5s ease-out;
+    }
+}

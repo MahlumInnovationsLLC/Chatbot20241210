@@ -1,5 +1,4 @@
-﻿// app.jsx
-import React, { useContext, useState, useRef, useEffect } from 'react';
+﻿import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
@@ -101,7 +100,6 @@ function AppContent({ onLogout }) {
     useEffect(() => {
         const handleClickOutside = (e) => {
             if ((menuOpen || shareMenuOpen || settingsOpen)) {
-                // Only close menus if not clicking inside Settings Popup
                 if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
@@ -330,7 +328,6 @@ function AppContent({ onLogout }) {
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                     onClick={(e) => {
-                        // Close only if clicking the overlay, not the popup itself
                         if (e.target === e.currentTarget) {
                             setSettingsOpen(false);
                         }
@@ -378,81 +375,7 @@ function AppContent({ onLogout }) {
                         </div>
 
                         <div className="flex-1 overflow-y-auto">
-                            {activeTab === 'theme' && (
-                                <div className="flex flex-col space-y-4">
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="theme"
-                                            checked={selectedTheme === 'dark'}
-                                            onChange={() => setSelectedTheme('dark')}
-                                            className="form-radio h-5 w-5 text-blue-600"
-                                        />
-                                        <span className="text-lg">Dark Mode</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="theme"
-                                            checked={selectedTheme === 'light'}
-                                            onChange={() => setSelectedTheme('light')}
-                                            className="form-radio h-5 w-5 text-blue-600"
-                                        />
-                                        <span className="text-lg">Light Mode</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="theme"
-                                            checked={selectedTheme === 'system'}
-                                            onChange={() => setSelectedTheme('system')}
-                                            className="form-radio h-5 w-5 text-blue-600"
-                                        />
-                                        <span className="text-lg">System</span>
-                                    </label>
-                                </div>
-                            )}
-                            {activeTab === 'ai' && (
-                                <div className="flex flex-col space-y-4">
-                                    <div className="flex flex-col w-full space-y-2">
-                                        <label className="text-lg font-semibold">AI Mood:</label>
-                                        <input
-                                            type="text"
-                                            value={aiMood}
-                                            onChange={e => setAiMood(e.target.value)}
-                                            className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
-                                            placeholder="e.g., Friendly, Professional, Enthusiastic..."
-                                        />
-                                    </div>
-                                    <div className="flex flex-col w-full space-y-2">
-                                        <label className="text-lg font-semibold">AI Instructions:</label>
-                                        <textarea
-                                            value={aiInstructions}
-                                            onChange={e => setAiInstructions(e.target.value)}
-                                            className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
-                                            placeholder="Provide instructions for how the AI should behave..."
-                                            rows={5}
-                                        />
-                                    </div>
-                                    <div className="flex justify-center w-full mt-4">
-                                        <button
-                                            onClick={() => {
-                                                const data = { mood: aiMood, instructions: aiInstructions };
-                                                localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
-                                                alert('AI Instructions saved!');
-                                            }}
-                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                        >
-                                            Save AI Instructions
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            {['empty1', 'empty2', 'empty3'].includes(activeTab) && (
-                                <div className="flex items-center justify-center h-full">
-                                    <p className="text-sm text-gray-500">Nothing here yet!</p>
-                                </div>
-                            )}
+                            {renderSettingsContent()}
                         </div>
 
                         <div className="flex justify-end mt-4">
