@@ -244,7 +244,7 @@ function AppContent({ onLogout }) {
                     </button>
 
                     {menuOpen && (
-                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out"
+                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
                         >
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
@@ -270,7 +270,7 @@ function AppContent({ onLogout }) {
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
+                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
                                     style={{ right: '100%', left: 'auto', marginLeft: '-2px', marginTop: '2rem' }}
                                 >
                                     <a
@@ -336,7 +336,7 @@ function AppContent({ onLogout }) {
                         }
                     }}
                 >
-                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100`}
+                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
@@ -346,31 +346,31 @@ function AppContent({ onLogout }) {
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
                                 Theme
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
                                 AI Instructions
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
                                 EMPTY
