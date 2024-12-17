@@ -338,36 +338,36 @@ function AppContent({ onLogout }) {
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
-
+                        {/* Tabs row */}
                         <div className="flex space-x-4 mb-4 pb-2"
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
                                 Theme
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
                                 AI Instructions
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
                                 EMPTY
