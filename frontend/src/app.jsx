@@ -41,7 +41,7 @@ function AppContent({ onLogout }) {
 
     const menuRef = useRef(null);
 
-    const limeGreen = '#a2f4a2'; // Replace this with the exact lime green hex if available
+    const limeGreen = '#a2f4a2'; // Lime green border color
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -52,7 +52,7 @@ function AppContent({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
-        setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
+        setSelectedTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
         setActiveTab('theme');
         setSettingsOpen(true);
     };
@@ -100,11 +100,8 @@ function AppContent({ onLogout }) {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            // Only close menus if not clicking inside Settings Popup
             if ((menuOpen || shareMenuOpen || settingsOpen)) {
-                // If we are clicking outside and not on settings popup overlay
-                // The settings popup is also closed by overlay except if target is inside popup
-                // This logic from previous code ensures we don't close if inside settings popup
+                // Only close menus if not clicking inside Settings Popup
                 if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
@@ -145,7 +142,7 @@ function AppContent({ onLogout }) {
         switch (activeTab) {
             case 'theme':
                 return (
-                    <div className="flex-1 flex flex-col justify-center items-start space-y-4">
+                    <div className="flex flex-col space-y-4">
                         <label className="flex items-center space-x-2">
                             <input
                                 type="radio"
@@ -201,6 +198,7 @@ function AppContent({ onLogout }) {
                                 rows={5}
                             />
                         </div>
+                        {/* Centering the Save AI Instructions button */}
                         <div className="flex justify-center w-full mt-4">
                             <button
                                 onClick={saveAiInstructions}
@@ -227,7 +225,7 @@ function AppContent({ onLogout }) {
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
             <div className="flex items-center justify-between w-full p-4"
-                style={{ borderBottom: `1px solid ${limeGreen}` }} // Update border color
+                style={{ borderBottom: `1px solid ${limeGreen}` }}
             >
                 <div className="flex items-center">
                     <img src={logoUrl} alt="Logo" className="h-8 w-auto mr-2" />
@@ -437,7 +435,7 @@ function AppContent({ onLogout }) {
                                             rows={5}
                                         />
                                     </div>
-                                    <div className="flex justify-end w-full mt-4">
+                                    <div className="flex justify-center w-full mt-4">
                                         <button
                                             onClick={() => {
                                                 const data = { mood: aiMood, instructions: aiInstructions };
@@ -446,7 +444,7 @@ function AppContent({ onLogout }) {
                                             }}
                                             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                                         >
-                                            Save
+                                            Save AI Instructions
                                         </button>
                                     </div>
                                 </div>
