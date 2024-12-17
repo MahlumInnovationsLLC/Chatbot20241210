@@ -8,31 +8,6 @@ import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 export default function MessageBubble({ role, content }) {
     const isUser = role === 'user';
 
-    // This function will handle initiating the file download from a given filename.
-    // In a real scenario, you might fetch from a server endpoint.
-    async function initiateFileDownload(fileName) {
-        try {
-            // Example: fetch from your server endpoint
-            const res = await fetch(`/api/download?filename=${encodeURIComponent(fileName)}`);
-            if (!res.ok) {
-                alert("Failed to download file.");
-                return;
-            }
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch (e) {
-            console.error("Download error:", e);
-            alert("Error occurred while downloading the file.");
-        }
-    }
-
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -57,27 +32,7 @@ export default function MessageBubble({ role, content }) {
         ol({ children }) {
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
-        a({ href, children, ...props }) {
-            // Check if the link is a download link
-            if (href && href.startsWith('download://')) {
-                const fileName = href.replace('download://', '');
-                return (
-                    <button
-                        className="text-blue-500 underline hover:text-blue-700"
-                        onClick={() => initiateFileDownload(fileName)}
-                        {...props}
-                    >
-                        {children}
-                    </button>
-                );
-            }
-            // Otherwise render a normal link
-            return (
-                <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
-                    {children}
-                </a>
-            );
-        }
+        // We no longer handle 'a' specially for download:// since we are using normal links now
     };
 
     return (
