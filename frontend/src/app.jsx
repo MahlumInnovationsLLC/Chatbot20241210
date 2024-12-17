@@ -269,7 +269,7 @@ function AppContent({ onLogout }) {
                             </button>
                             {shareMenuOpen && (
                                 <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
-                                    style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '10rem' }}
+                                    style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '6rem' }}
                                 >
                                     <a
                                         href={getMailToLink()}

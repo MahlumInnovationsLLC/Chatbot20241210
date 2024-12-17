@@ -104,11 +104,13 @@ export default function ChatInterface({ onLogout }) {
                     )}
                 </div>
 
-                <input
+                <textarea
                     value={userInput}
                     onChange={e => setUserInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className={`flex-1 p-6 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'}`}
+                    rows={3}
+                    wrap="soft"
+                    className={`flex-1 p-6 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'} resize-none overflow-y-auto whitespace-pre-wrap`}
                     type="text"
                     placeholder="I'm here to help! Ask me anything..."
                 />
