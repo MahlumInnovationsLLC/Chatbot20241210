@@ -297,7 +297,7 @@ function AppContent({ onLogout }) {
             </div>
 
             <div className="flex-grow flex flex-col items-center justify-center p-4">
-                <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4"
+                <div className="w-[85vw] h-[85vh] relative flex flex-col rounded-md p-4"
                     style={{ border: `1px solid ${limeGreen}` }}
                 >
                     <ChatInterface
