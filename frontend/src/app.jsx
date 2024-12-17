@@ -247,8 +247,7 @@ function AppContent({ onLogout }) {
                     </button>
 
                     {menuOpen && (
-                        <div className="absolute top-16 right-0 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out"
-                            style={{ backgroundColor: limeGreen }}
+                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out"
                         >
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
@@ -274,8 +273,8 @@ function AppContent({ onLogout }) {
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 right-full bg-green-300 text-black rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
-                                    style={{ backgroundColor: limeGreen, right: '100%', left: 'auto', marginLeft: '-2px', marginTop: '2rem' }}
+                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
+                                    style={{ right: '100%', left: 'auto', marginLeft: '-2px', marginTop: '2rem' }}
                                 >
                                     <a
                                         href={getMailToLink()}
