@@ -25,7 +25,7 @@ function AppContent({ onLogout }) {
     const account = instance.getActiveAccount();
     const userKey = account ? account.homeAccountId : 'default_user';
 
-    const { theme } = useContext(ThemeContext);
+    const { theme, toggleTheme } = useContext(ThemeContext);
     const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png";
     const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png";
 
@@ -40,6 +40,8 @@ function AppContent({ onLogout }) {
     const [aiInstructions, setAiInstructions] = useState('');
 
     const menuRef = useRef(null);
+
+    const limeGreen = '#a2f4a2'; // Replace this with the exact lime green hex if available
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -60,7 +62,9 @@ function AppContent({ onLogout }) {
     };
 
     const saveSettings = () => {
-        // toggleTheme(selectedTheme) logic would go here if theme switching was implemented
+        if (selectedTheme !== theme) {
+            toggleTheme(selectedTheme);
+        }
         closeSettings();
     };
 
@@ -96,16 +100,20 @@ function AppContent({ onLogout }) {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if ((menuOpen || shareMenuOpen || settingsOpen) && !settingsOpen) {
-                if (menuRef.current && !menuRef.current.contains(e.target)) {
+            // Only close menus if not clicking inside Settings Popup
+            if ((menuOpen || shareMenuOpen || settingsOpen)) {
+                // If we are clicking outside and not on settings popup overlay
+                // The settings popup is also closed by overlay except if target is inside popup
+                // This logic from previous code ensures we don't close if inside settings popup
+                if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
                     setSettingsOpen(false);
-                }
-            } else if ((menuOpen || shareMenuOpen) && !settingsOpen) {
-                if (menuRef.current && !menuRef.current.contains(e.target)) {
-                    setMenuOpen(false);
-                    setShareMenuOpen(false);
+                } else if ((menuOpen || shareMenuOpen) && !settingsOpen) {
+                    if (menuRef.current && !menuRef.current.contains(e.target)) {
+                        setMenuOpen(false);
+                        setShareMenuOpen(false);
+                    }
                 }
             }
         };
@@ -207,7 +215,7 @@ function AppContent({ onLogout }) {
             case 'empty2':
             case 'empty3':
                 return (
-                    <div className="flex-1 flex flex-col justify-center items-center">
+                    <div className="flex items-center justify-center h-full">
                         <p className="text-sm text-gray-500">Nothing here yet!</p>
                     </div>
                 );
@@ -218,7 +226,9 @@ function AppContent({ onLogout }) {
 
     return (
         <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
-            <div className="flex items-center justify-between w-full p-4 border-b border-gray-300 dark:border-gray-700 relative">
+            <div className="flex items-center justify-between w-full p-4"
+                style={{ borderBottom: `1px solid ${limeGreen}` }} // Update border color
+            >
                 <div className="flex items-center">
                     <img src={logoUrl} alt="Logo" className="h-8 w-auto mr-2" />
                     <span className="font-bold text-xl">GYM AI Engine</span>
@@ -226,8 +236,8 @@ function AppContent({ onLogout }) {
                 <div ref={menuRef}>
                     <button
                         onClick={toggleMenu}
-                        className={`relative z-50 focus:outline-none border ${theme === 'dark' ? 'border-white' : 'border-black'} rounded p-1`}
-                        style={{ width: '2rem', height: '2rem' }}
+                        className={`relative z-50 focus:outline-none rounded p-1`}
+                        style={{ width: '2rem', height: '2rem', border: `1px solid ${limeGreen}` }}
                     >
                         <div className="relative w-full h-full">
                             <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-[0.4rem]'}`}></span>
@@ -237,10 +247,11 @@ function AppContent({ onLogout }) {
                     </button>
 
                     {menuOpen && (
-                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out"
+                        <div className="absolute top-16 right-0 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out"
+                            style={{ backgroundColor: limeGreen }}
                         >
                             <button
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                                className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={onLogout}
                             >
                                 <i className="fa-solid fa-right-to-bracket mr-2"></i>
@@ -248,7 +259,7 @@ function AppContent({ onLogout }) {
                             </button>
 
                             <button
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                                className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openSettings}
                             >
                                 <i className="fa-solid fa-gear mr-2"></i>
@@ -256,29 +267,30 @@ function AppContent({ onLogout }) {
                             </button>
 
                             <button
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-600 flex items-center"
+                                className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openShareMenu}
                             >
                                 <i className="fa-solid fa-share-from-square mr-2"></i>
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 left-auto right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
+                                <div className="absolute top-2 right-full bg-green-300 text-black rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
+                                    style={{ backgroundColor: limeGreen, right: '100%', left: 'auto', marginLeft: '-2px', marginTop: '2rem' }}
                                 >
                                     <a
                                         href={getMailToLink()}
-                                        className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                     >
                                         Share via Email
                                     </a>
                                     <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                         onClick={copyTranscriptToClipboard}
                                     >
                                         Copy Transcript
                                     </button>
                                     <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-gray-600"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                         onClick={downloadTranscriptDocx}
                                     >
                                         Download as DOCX
@@ -291,7 +303,9 @@ function AppContent({ onLogout }) {
             </div>
 
             <div className="flex-grow flex flex-col items-center justify-center p-4">
-                <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4 border border-gray-300 dark:border-gray-700">
+                <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4"
+                    style={{ border: `1px solid ${limeGreen}` }}
+                >
                     <ChatInterface
                         onLogout={onLogout}
                         messages={messages}
@@ -306,7 +320,7 @@ function AppContent({ onLogout }) {
                     className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
                     style={{
                         backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)',
-                        border: theme === 'dark' ? '1px solid #374151' : '1px solid #ccc'
+                        border: `1px solid ${limeGreen}`
                     }}
                 >
                     <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
@@ -320,7 +334,7 @@ function AppContent({ onLogout }) {
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                     onClick={(e) => {
-                        // Close only if clicking on the overlay, not the popup
+                        // Close only if clicking the overlay, not the popup itself
                         if (e.target === e.currentTarget) {
                             setSettingsOpen(false);
                         }
@@ -328,10 +342,13 @@ function AppContent({ onLogout }) {
                 >
                     <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100`}
                         onClick={(e) => e.stopPropagation()}
+                        style={{ border: `1px solid ${limeGreen}` }}
                     >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
 
-                        <div className="flex space-x-4 mb-4 border-b border-gray-500 pb-2">
+                        <div className="flex space-x-4 mb-4 pb-2"
+                            style={{ borderBottom: `1px solid ${limeGreen}` }}
+                        >
                             <button
                                 className={`text-lg ${activeTab === 'theme' ? 'font-bold underline' : ''}`}
                                 onClick={() => setActiveTab('theme')}
