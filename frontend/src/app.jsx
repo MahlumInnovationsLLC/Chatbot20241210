@@ -60,7 +60,7 @@ function AppContent({ onLogout }) {
     };
 
     const saveSettings = () => {
-        // Here you would apply the selectedTheme changes if toggling theme was implemented.
+        // toggleTheme(selectedTheme) logic would go here if theme switching was implemented
         closeSettings();
     };
 
@@ -96,11 +96,16 @@ function AppContent({ onLogout }) {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (menuOpen || shareMenuOpen || settingsOpen) {
+            if ((menuOpen || shareMenuOpen || settingsOpen) && !settingsOpen) {
                 if (menuRef.current && !menuRef.current.contains(e.target)) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
                     setSettingsOpen(false);
+                }
+            } else if ((menuOpen || shareMenuOpen) && !settingsOpen) {
+                if (menuRef.current && !menuRef.current.contains(e.target)) {
+                    setMenuOpen(false);
+                    setShareMenuOpen(false);
                 }
             }
         };
@@ -258,7 +263,7 @@ function AppContent({ onLogout }) {
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
+                                <div className="absolute top-2 left-auto right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out"
                                 >
                                     <a
                                         href={getMailToLink()}
@@ -312,10 +317,18 @@ function AppContent({ onLogout }) {
             </div>
 
             {settingsOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-                    onClick={() => { setSettingsOpen(false); }}>
+                <div
+                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                    onClick={(e) => {
+                        // Close only if clicking on the overlay, not the popup
+                        if (e.target === e.currentTarget) {
+                            setSettingsOpen(false);
+                        }
+                    }}
+                >
                     <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100`}
-                        onClick={(e) => e.stopPropagation()}>
+                        onClick={(e) => e.stopPropagation()}
+                    >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
 
                         <div className="flex space-x-4 mb-4 border-b border-gray-500 pb-2">
