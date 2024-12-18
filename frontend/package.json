@@ -2,7 +2,12 @@
     "dependencies": {
         "@azure/msal-browser": "^3.28.0",
         "@azure/msal-react": "^2.2.0",
+        "@fortawesome/duotone-light-svg-icons": "^6.7.2",
+        "@fortawesome/duotone-regular-svg-icons": "^6.7.2",
+        "@fortawesome/duotone-thin-svg-icons": "^6.7.2",
         "@fortawesome/fontawesome-free": "^6.7.2",
+        "@fortawesome/fontawesome-svg-core": "^6.7.2",
+        "@fortawesome/free-brands-svg-icons": "^6.7.2",
         "axios": "^1.5.0",
         "docx": "^9.1.0",
         "react": "^18.2.0",

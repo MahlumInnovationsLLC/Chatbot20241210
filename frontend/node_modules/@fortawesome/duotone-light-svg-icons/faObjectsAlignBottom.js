@@ -1,0 +1,30 @@
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+var prefix = 'fadl';
+var iconName = 'objects-align-bottom';
+var width = 512;
+var height = 512;
+var aliases = [];
+var unicode = 'e3bb';
+var svgPathData = ['M96 48l0 288c0 8.8 7.2 16 16 16l64 0c8.8 0 16-7.2 16-16l0-288c0-8.8-7.2-16-16-16l-64 0c-8.8 0-16 7.2-16 16zM320 176l0 160c0 8.8 7.2 16 16 16l64 0c8.8 0 16-7.2 16-16l0-160c0-8.8-7.2-16-16-16l-64 0c-8.8 0-16 7.2-16 16z', 'M16 512c-8.8 0-16-7.2-16-16s7.2-16 16-16l480 0c8.8 0 16 7.2 16 16s-7.2 16-16 16L16 512zM176 352c8.8 0 16-7.2 16-16l0-288c0-8.8-7.2-16-16-16l-64 0c-8.8 0-16 7.2-16 16l0 288c0 8.8 7.2 16 16 16l64 0zm-64 32c-26.5 0-48-21.5-48-48L64 48C64 21.5 85.5 0 112 0l64 0c26.5 0 48 21.5 48 48l0 288c0 26.5-21.5 48-48 48l-64 0zm288-32c8.8 0 16-7.2 16-16l0-160c0-8.8-7.2-16-16-16l-64 0c-8.8 0-16 7.2-16 16l0 160c0 8.8 7.2 16 16 16l64 0zm-64 32c-26.5 0-48-21.5-48-48l0-160c0-26.5 21.5-48 48-48l64 0c26.5 0 48 21.5 48 48l0 160c0 26.5-21.5 48-48 48l-64 0z'];
+
+exports.definition = {
+  prefix: prefix,
+  iconName: iconName,
+  icon: [
+    width,
+    height,
+    aliases,
+    unicode,
+    svgPathData
+  ]};
+
+exports.faObjectsAlignBottom = exports.definition;
+exports.prefix = prefix;
+exports.iconName = iconName;
+exports.width = width;
+exports.height = height;
+exports.ligatures = aliases;
+exports.unicode = unicode;
+exports.svgPathData = svgPathData;
+exports.aliases = aliases;
