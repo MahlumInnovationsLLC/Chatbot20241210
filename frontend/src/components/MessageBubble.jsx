@@ -41,7 +41,7 @@ export default function MessageBubble({ role, content }) {
                 return (
                     <a
                         href={fileUrl}
-                        download={fileName} // This triggers a direct download.
+                        download={fileName} // This triggers a direct download in browsers.
                         className="text-blue-500 underline hover:text-blue-700"
                         {...props}
                     >
@@ -50,7 +50,7 @@ export default function MessageBubble({ role, content }) {
                 );
             }
 
-            // Otherwise, render a normal link
+            // If no download prefix, just render a normal link
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
                     {children}
@@ -80,15 +80,9 @@ export default function MessageBubble({ role, content }) {
             <ReactMarkdown
                 className="prose prose-invert max-w-none"
                 remarkPlugins={[remarkGfm, remarkBreaks]}
+                // Remove transformLinkUri to ensure we don't sanitize away our custom links
+                transformLinkUri={null}
                 components={components}
-                transformLinkUri={(uri) => {
-                    // Keep the custom download:// URI intact for handling above.
-                    if (uri.startsWith('download://')) {
-                        return uri;
-                    }
-                    // Fallback to default transform
-                    return ReactMarkdown.uriTransformer(uri);
-                }}
             >
                 {mainContent}
             </ReactMarkdown>
@@ -106,6 +100,7 @@ export default function MessageBubble({ role, content }) {
                             <ReactMarkdown
                                 className="prose prose-invert max-w-none text-sm"
                                 remarkPlugins={[remarkGfm, remarkBreaks]}
+                                transformLinkUri={null}
                             >
                                 {referencesSection}
                             </ReactMarkdown>
