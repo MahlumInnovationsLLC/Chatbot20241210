@@ -8,30 +8,6 @@ import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 export default function MessageBubble({ role, content }) {
     const isUser = role === 'user';
 
-    async function initiateFileDownload(fileName) {
-        try {
-            console.log("Download initiated for:", fileName);
-            const res = await fetch(`/api/generateReport?filename=${encodeURIComponent(fileName)}`);
-            if (!res.ok) {
-                alert("Failed to download file.");
-                return;
-            }
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            console.log("Download completed for:", fileName);
-        } catch (e) {
-            console.error("Download error:", e);
-            alert("Error occurred while downloading the file.");
-        }
-    }
-
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -57,22 +33,23 @@ export default function MessageBubble({ role, content }) {
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
-            // If href starts with download://, we handle it as a download button
+            // If href starts with download://, convert it into a direct download link.
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
+                const fileUrl = `/api/generateReport?filename=${encodeURIComponent(fileName)}`;
+
                 return (
-                    <button
+                    <a
+                        href={fileUrl}
+                        download={fileName} // This triggers a direct download.
                         className="text-blue-500 underline hover:text-blue-700"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            initiateFileDownload(fileName);
-                        }}
                         {...props}
                     >
                         {children}
-                    </button>
+                    </a>
                 );
             }
+
             // Otherwise, render a normal link
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
@@ -104,11 +81,12 @@ export default function MessageBubble({ role, content }) {
                 className="prose prose-invert max-w-none"
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={components}
-                // This function preserves the custom download:// protocol
                 transformLinkUri={(uri) => {
+                    // Keep the custom download:// URI intact for handling above.
                     if (uri.startsWith('download://')) {
                         return uri;
                     }
+                    // Fallback to default transform
                     return ReactMarkdown.uriTransformer(uri);
                 }}
             >
