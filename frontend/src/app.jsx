@@ -100,7 +100,6 @@ function AppContent({ onLogout }) {
     useEffect(() => {
         const handleClickOutside = (e) => {
             if ((menuOpen || shareMenuOpen || settingsOpen)) {
-                // Only close menus if not clicking inside Settings Popup
                 if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
@@ -270,28 +269,25 @@ function AppContent({ onLogout }) {
                             </button>
                             {shareMenuOpen && (
                                 <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
-                                    style={{ right: '100%', left: 'auto', marginLeft: '-2px', marginTop: '2rem' }}
+                                    style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '6rem' }}
                                 >
                                     <a
                                         href={getMailToLink()}
-                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                     >
-                                        <i className="fa-light fa-envelope mr-2"></i>
                                         Share via Email
                                     </a>
                                     <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                         onClick={copyTranscriptToClipboard}
                                     >
-                                        <i className="fa-light fa-copy mr-2"></i>
                                         Copy Transcript
                                     </button>
                                     <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
                                         onClick={downloadTranscriptDocx}
                                     >
-                                        <i className="fa-light fa-download mr-2"></i>
-                                        Download as DOCX
+                                        Download as .docx
                                     </button>
                                 </div>
                             )}
@@ -301,7 +297,7 @@ function AppContent({ onLogout }) {
             </div>
 
             <div className="flex-grow flex flex-col items-center justify-center p-4">
-                <div className="w-[75vw] h-[75vh] relative flex flex-col rounded-md p-4"
+                <div className="w-[85vw] h-[85vh] relative flex flex-col rounded-md p-4"
                     style={{ border: `1px solid ${limeGreen}` }}
                 >
                     <ChatInterface
@@ -337,41 +333,41 @@ function AppContent({ onLogout }) {
                         }
                     }}
                 >
-                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out animate-slideDown scale-y-100`}
+                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
-
+                        {/* Tabs row */}
                         <div className="flex space-x-4 mb-4 pb-2"
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
                                 Theme
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
                                 AI Instructions
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? `bg-[${limeGreen}] text-black font-bold` : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
                                 EMPTY
@@ -379,81 +375,7 @@ function AppContent({ onLogout }) {
                         </div>
 
                         <div className="flex-1 overflow-y-auto">
-                            {activeTab === 'theme' && (
-                                <div className="flex flex-col space-y-4">
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="theme"
-                                            checked={selectedTheme === 'dark'}
-                                            onChange={() => setSelectedTheme('dark')}
-                                            className="form-radio h-5 w-5 text-blue-600"
-                                        />
-                                        <span className="text-lg">Dark Mode</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="theme"
-                                            checked={selectedTheme === 'light'}
-                                            onChange={() => setSelectedTheme('light')}
-                                            className="form-radio h-5 w-5 text-blue-600"
-                                        />
-                                        <span className="text-lg">Light Mode</span>
-                                    </label>
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="radio"
-                                            name="theme"
-                                            checked={selectedTheme === 'system'}
-                                            onChange={() => setSelectedTheme('system')}
-                                            className="form-radio h-5 w-5 text-blue-600"
-                                        />
-                                        <span className="text-lg">System</span>
-                                    </label>
-                                </div>
-                            )}
-                            {activeTab === 'ai' && (
-                                <div className="flex flex-col space-y-4">
-                                    <div className="flex flex-col w-full space-y-2">
-                                        <label className="text-lg font-semibold">AI Mood:</label>
-                                        <input
-                                            type="text"
-                                            value={aiMood}
-                                            onChange={e => setAiMood(e.target.value)}
-                                            className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
-                                            placeholder="e.g., Friendly, Professional, Enthusiastic..."
-                                        />
-                                    </div>
-                                    <div className="flex flex-col w-full space-y-2">
-                                        <label className="text-lg font-semibold">AI Instructions:</label>
-                                        <textarea
-                                            value={aiInstructions}
-                                            onChange={e => setAiInstructions(e.target.value)}
-                                            className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
-                                            placeholder="Provide instructions for how the AI should behave..."
-                                            rows={5}
-                                        />
-                                    </div>
-                                    <div className="flex justify-center w-full mt-4">
-                                        <button
-                                            onClick={() => {
-                                                const data = { mood: aiMood, instructions: aiInstructions };
-                                                localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
-                                                alert('AI Instructions saved!');
-                                            }}
-                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                        >
-                                            Save AI Instructions
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            {['empty1', 'empty2', 'empty3'].includes(activeTab) && (
-                                <div className="flex items-center justify-center h-full">
-                                    <p className="text-sm text-gray-500">Nothing here yet!</p>
-                                </div>
-                            )}
+                            {renderSettingsContent()}
                         </div>
 
                         <div className="flex justify-end mt-4">
