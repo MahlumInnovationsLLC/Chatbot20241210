@@ -3,6 +3,7 @@ import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
+// Uncomment if you have Font Awesome Pro properly set up:
 // import '@fortawesome/fontawesome-pro/web/css/all.min.css';
 
 export default function App() {
@@ -32,6 +33,7 @@ function AppContent({ onLogout }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false); // NEW: state for the URL share popup
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [messages, setMessages] = useState([]);
     const [activeTab, setActiveTab] = useState('theme');
@@ -121,12 +123,13 @@ function AppContent({ onLogout }) {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if ((menuOpen || shareMenuOpen || settingsOpen)) {
-                if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen) {
+            if ((menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen)) {
+                // If clicking outside and not on settings or share URL popup
+                if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen && !shareUrlPopupOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
                     setSettingsOpen(false);
-                } else if ((menuOpen || shareMenuOpen) && !settingsOpen) {
+                } else if ((menuOpen || shareMenuOpen) && !settingsOpen && !shareUrlPopupOpen) {
                     if (menuRef.current && !menuRef.current.contains(e.target)) {
                         setMenuOpen(false);
                         setShareMenuOpen(false);
@@ -138,7 +141,7 @@ function AppContent({ onLogout }) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [menuOpen, shareMenuOpen, settingsOpen]);
+    }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
     useEffect(() => {
         const savedData = localStorage.getItem(`ai_instructions_${userKey}`);
@@ -314,6 +317,14 @@ function AppContent({ onLogout }) {
                                         <i class="fa-light fa-download mr-2"></i>
                                         Download as .docx
                                     </button>
+                                    {/* New "Share URL" option */}
+                                    <button
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
+                                        onClick={() => setShareUrlPopupOpen(true)}
+                                    >
+                                        <i class="fa-light fa-copy mr-2"></i>
+                                        Share URL
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -413,6 +424,52 @@ function AppContent({ onLogout }) {
                                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                             >
                                 Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Share URL Popup */}
+            {shareUrlPopupOpen && (
+                <div
+                    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) {
+                            setShareUrlPopupOpen(false);
+                        }
+                    }}
+                >
+                    <div
+                        className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-auto h-auto rounded p-4 flex flex-col space-y-4 transform origin-top transition-transform duration-200 ease-out animate-slideDown`}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ border: `1px solid ${limeGreen}` }}
+                    >
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-bold">Share the web app</h3>
+                            <button
+                                onClick={() => setShareUrlPopupOpen(false)}
+                                className="text-sm font-bold"
+                            >
+                                X
+                            </button>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="text"
+                                readOnly
+                                className="border p-2 rounded flex-1"
+                                value={window.location.href}
+                            />
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert('URL copied to clipboard!');
+                                }}
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
+                            >
+                                <i class="fa-light fa-copy mr-2"></i>
+                                Copy URL
                             </button>
                         </div>
                     </div>
