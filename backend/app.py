@@ -67,13 +67,20 @@ def chat_endpoint():
                 "for clarity. End your responses with a friendly tone.\n\n"
 
                 "Additionally, you can produce downloadable reports in the form of `download://filename.docx` links when the user requests a report or a downloadable report. "
-                "If the user asks for a report or a downloadable report, you MUST provide a link in the exact format `download://report.docx` within your response. "
-                "Do not refuse to create the link. Do not provide any alternative link formats.\n\n"
+                "If the user asks for a report or a downloadable report, you MUST provide a link in the exact format `[Download the report](download://report.docx)` within your response. "
+                "Do not refuse to create the link, and do not provide any alternative link formats.\n\n"
 
-                "If you use external sources, at the end provide:\n"
+                "If you use external sources, at the end of your response provide:\n"
                 "References:\n"
                 "- [Name](URL): short description\n\n"
-                "If no external sources used, write `References: None`."
+                "If no external sources are used, write `References: None`.\n\n"
+
+                "Example scenario:\n"
+                "User: \"Can I get a report on the latest fitness trends?\"\n"
+                "Assistant: \"Sure! Here's a downloadable report for you:\n\n"
+                "[Download the report](download://report.docx)\n\n"
+                "References:\n"
+                "None\""
             )
         },
         {
