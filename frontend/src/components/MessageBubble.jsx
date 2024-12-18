@@ -33,6 +33,9 @@ export default function MessageBubble({ role, content }) {
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
+            // Log the href to the console for debugging
+            console.log("Link href encountered:", href);
+
             // If href starts with download://, convert it into a direct download link.
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
@@ -41,7 +44,7 @@ export default function MessageBubble({ role, content }) {
                 return (
                     <a
                         href={fileUrl}
-                        download={fileName} // This triggers a direct download in browsers.
+                        download={fileName}
                         className="text-blue-500 underline hover:text-blue-700"
                         {...props}
                     >
@@ -59,7 +62,6 @@ export default function MessageBubble({ role, content }) {
         }
     };
 
-    // State to control showing references
     const [showReferences, setShowReferences] = useState(false);
 
     // Check if there's a "References:" section
@@ -80,7 +82,6 @@ export default function MessageBubble({ role, content }) {
             <ReactMarkdown
                 className="prose prose-invert max-w-none"
                 remarkPlugins={[remarkGfm, remarkBreaks]}
-                // Remove transformLinkUri to ensure we don't sanitize away our custom links
                 transformLinkUri={null}
                 components={components}
             >
