@@ -1,10 +1,12 @@
-from flask import Flask, send_from_directory, request, jsonify
+from flask import Flask, send_from_directory, request, jsonify, make_response
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
 from document_processing import extract_text_from_pdf, extract_text_from_docx
 import traceback
 import re
+from io import BytesIO
+from docx import Document
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -82,7 +84,7 @@ def chat_endpoint():
     if file_bytes:
         if file_ext == 'pdf':
             # Process PDF using Form Recognizer
-            app.logger.info("Extracting text from PDF using Form Recognizer...")
+            app.logger.info("Extracting text from PDF...")
             try:
                 extracted_text = extract_text_from_pdf(file_bytes)
                 app.logger.info("PDF text extracted successfully.")
@@ -101,7 +103,6 @@ def chat_endpoint():
         elif file_ext == 'image':
             # Process image using Vision API
             app.logger.info("Analyzing image data...")
-            app.logger.info(f"Debug: Received image of length {len(file_bytes)} bytes.")
             try:
                 vision_result = analyze_image_from_bytes(file_bytes)
                 if vision_result.description and vision_result.description.captions:
@@ -190,6 +191,24 @@ def chat_endpoint():
         "reply": main_content,
         "references": references_list
     })
+
+@app.route('/api/generateReport', methods=['GET'])
+def generate_report():
+    filename = request.args.get('filename', 'report.docx')
+
+    # Create a simple docx file on the fly
+    doc = Document()
+    doc.add_heading('Your Generated Report', level=1)
+    doc.add_paragraph('This is a dynamically generated report based on your request.')
+
+    byte_io = BytesIO()
+    doc.save(byte_io)
+    byte_io.seek(0)
+
+    response = make_response(byte_io.read())
+    response.headers.set('Content-Disposition', f'attachment; filename="{filename}"')
+    response.headers.set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    return response
 
 @app.errorhandler(404)
 def not_found(e):
