@@ -461,7 +461,7 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 readOnly
                                 className="border p-2 rounded flex-1"
-                                value={customUrl}}
+                                value={customUrl}
                             />
                             <button
                                 onClick={() => {
