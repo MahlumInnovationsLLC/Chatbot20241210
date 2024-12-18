@@ -269,7 +269,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={onLogout}
                             >
-                                <i className="fa-solid fa-right-to-bracket mr-2"></i>
+                                <i class="fa-light fa-arrow-right-from-bracket"></i>
                                 Logout
                             </button>
 
@@ -277,7 +277,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openSettings}
                             >
-                                <i className="fa-solid fa-gear mr-2"></i>
+                                <i class="fa-light fa-gear"></i>
                                 Settings
                             </button>
 
@@ -285,7 +285,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openShareMenu}
                             >
-                                <i className="fa-solid fa-share-from-square mr-2"></i>
+                                <i class="fa-light fa-share-from-square"></i>
                                 Share
                             </button>
                             {shareMenuOpen && (
@@ -369,30 +369,35 @@ function AppContent({ onLogout }) {
                                 className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
+                                <i class="fa-light fa-ferris-wheel"></i>
                                 Theme
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
+                                <i class="fa-light fa-head-side-gear"></i>
                                 AI Instructions
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
+                                <i class="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
+                                <i class="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
+                                <i class="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                         </div>
