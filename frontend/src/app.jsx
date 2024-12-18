@@ -3,6 +3,7 @@ import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
+import '@fortawesome/fontawesome-pro/css/all.min.css';
 
 export default function App() {
     const { instance } = useMsal();
@@ -369,35 +370,35 @@ function AppContent({ onLogout }) {
                                 className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
-                                <i class="fa-light fa-ferris-wheel"></i>
+                                <i className="fa-light fa-ferris-wheel"></i>
                                 Theme
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
-                                <i class="fa-light fa-head-side-gear"></i>
+                                <i className="fa-light fa-head-side-gear"></i>
                                 AI Instructions
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
-                                <i class="fa-light fa-empty-set"></i>
+                                <i className="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
-                                <i class="fa-light fa-empty-set"></i>
+                                <i className="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
-                                <i class="fa-light fa-empty-set"></i>
+                                <i className="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                         </div>

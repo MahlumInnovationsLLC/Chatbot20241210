@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { Document, Packer, Paragraph, TextRun } from 'docx'; // Import docx here
 import routes from './routes.js';
+import '@fortawesome/fontawesome-pro/css/all.min.css';
 
 const __dirname = path.resolve(); // If needed, depending on Node version
 
