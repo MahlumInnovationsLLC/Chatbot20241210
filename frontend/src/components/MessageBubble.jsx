@@ -10,6 +10,7 @@ export default function MessageBubble({ role, content }) {
 
     async function initiateFileDownload(fileName) {
         try {
+            console.log("Download initiated for:", fileName); // Debug logging
             const res = await fetch(`/api/generateReport?filename=${encodeURIComponent(fileName)}`);
             if (!res.ok) {
                 alert("Failed to download file.");
@@ -24,6 +25,7 @@ export default function MessageBubble({ role, content }) {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            console.log("Download completed for:", fileName); // Debug logging
         } catch (e) {
             console.error("Download error:", e);
             alert("Error occurred while downloading the file.");
@@ -58,17 +60,16 @@ export default function MessageBubble({ role, content }) {
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
                 return (
-                    <a
-                        href="#"
+                    <button
                         className="text-blue-500 underline hover:text-blue-700"
                         onClick={(e) => {
-                            e.preventDefault();
+                            e.preventDefault(); // Ensure no navigation
                             initiateFileDownload(fileName);
                         }}
                         {...props}
                     >
                         {children}
-                    </a>
+                    </button>
                 );
             }
             return (
