@@ -270,7 +270,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={onLogout}
                             >
-                                <i class="fa-light fa-arrow-right-from-bracket"></i>
+                                <i class="fa-light fa-arrow-right-from-bracket mr-2"></i>
                                 Logout
                             </button>
 
@@ -278,7 +278,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openSettings}
                             >
-                                <i class="fa-light fa-gear"></i>
+                                <i class="fa-light fa-gear mr-2"></i>
                                 Settings
                             </button>
 
@@ -286,7 +286,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openShareMenu}
                             >
-                                <i class="fa-light fa-share-from-square"></i>
+                                <i class="fa-light fa-share-from-square mr-2"></i>
                                 Share
                             </button>
                             {shareMenuOpen && (
@@ -370,35 +370,35 @@ function AppContent({ onLogout }) {
                                 className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
-                                <i class="fa-light fa-ferris-wheel"></i>
+                                <i class="fa-light fa-ferris-wheel mr-2"></i>
                                 Theme
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
-                                <i class="fa-light fa-head-side-gear"></i>
+                                <i class="fa-light fa-head-side-gear mr-2"></i>
                                 AI Instructions
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
-                                <i class="fa-light fa-empty-set"></i>
+                                <i class="fa-light fa-empty-set mr-2"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
-                                <i class="fa-light fa-empty-set"></i>
+                                <i class="fa-light fa-empty-set mr-2"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
-                                <i class="fa-light fa-empty-set"></i>
+                                <i class="fa-light fa-empty-set mr-2"></i>
                                 EMPTY
                             </button>
                         </div>
