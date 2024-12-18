@@ -42,6 +42,27 @@ function AppContent({ onLogout }) {
 
     const limeGreen = '#a2f4a2';
 
+    // System message to instruct AI to produce download links when asked for a report
+    const systemMessage = {
+        role: 'system',
+        content: (
+            "You are an AI assistant that can produce downloadable reports in the form of `download://filename.docx` links when the user requests a report. " +
+            "If the user asks for a report, you should respond with a `download://report.docx` link that the user can click to download a generated report.docx. " +
+            "Do not refuse to create the link. If the user requests a report, always provide `download://report.docx` in your response."
+        )
+    };
+
+    useEffect(() => {
+        // Ensure system message is at the start of messages
+        if (messages.length === 0) {
+            setMessages([systemMessage]);
+        } else {
+            if (messages[0].role !== 'system') {
+                setMessages(prev => [systemMessage, ...prev]);
+            }
+        }
+    }, []);
+
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
         if (!menuOpen) {
@@ -273,20 +294,23 @@ function AppContent({ onLogout }) {
                                 >
                                     <a
                                         href={getMailToLink()}
-                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                     >
+                                        <i className="fa-light fa-envelope mr-2"></i>
                                         Share via Email
                                     </a>
                                     <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={copyTranscriptToClipboard}
                                     >
+                                        <i className="fa-light fa-copy mr-2"></i>
                                         Copy Transcript
                                     </button>
                                     <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80"
+                                        className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={downloadTranscriptDocx}
                                     >
+                                        <i className="fa-light fa-download mr-2"></i>
                                         Download as .docx
                                     </button>
                                 </div>
@@ -338,7 +362,6 @@ function AppContent({ onLogout }) {
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
-                        {/* Tabs row */}
                         <div className="flex space-x-4 mb-4 pb-2"
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
