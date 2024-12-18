@@ -58,13 +58,17 @@ export default function MessageBubble({ role, content }) {
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
                 return (
-                    <button
+                    <a
+                        href="#"
                         className="text-blue-500 underline hover:text-blue-700"
-                        onClick={() => initiateFileDownload(fileName)}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            initiateFileDownload(fileName);
+                        }}
                         {...props}
                     >
                         {children}
-                    </button>
+                    </a>
                 );
             }
             return (
@@ -90,8 +94,7 @@ export default function MessageBubble({ role, content }) {
 
     return (
         <div
-            className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'
-                }`}
+            className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}
         >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
             <ReactMarkdown
