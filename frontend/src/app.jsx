@@ -54,6 +54,8 @@ function AppContent({ onLogout }) {
             "You are an AI assistant that can produce downloadable reports in the form of `download://filename.docx` links when the user requests a report. " +
             "If the user asks for a report, you should respond with a `download://report.docx` link that the user can click to download a generated report.docx. " +
             "Do not refuse to create the link. If the user requests a report, always provide `download://report.docx` in your response."
+            "Additionally, if your response references any external information, you should include a note like: 'Citations: [^1] for more info.' 
+            "Where [^ 1] can be a number referencing a source.At the end of your response, if citations exist, always provide a section labeled 'References:' followed by a list of sources.The client UI may later use this to show a dropdown of references."
         )
     };
 
@@ -378,7 +380,7 @@ function AppContent({ onLogout }) {
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
                         <button
                             onClick={() => setSettingsOpen(false)}
-                            className="absolute top-2 right-2 text-sm font-bold"
+                            className="absolute top-6 right-8 text-sm font-bold"
                         >
                             <i class="fa-light fa-xmark-large"></i>
                         </button>

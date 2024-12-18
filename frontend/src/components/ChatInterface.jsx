@@ -25,6 +25,12 @@ export default function ChatInterface({ onLogout }) {
         try {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
+
+            // If server returns references, include them
+            if (res.data.references) {
+                botMsg.references = res.data.references;
+            }
+
             setMessages(prev => [...prev, botMsg]);
         } catch (e) {
             console.error(e);
@@ -75,7 +81,13 @@ export default function ChatInterface({ onLogout }) {
                 {!showStartContent && (
                     <>
                         {messages.map((m, i) => (
-                            <MessageBubble key={i} role={m.role} content={m.content} />
+                            // Pass references if present
+                            <MessageBubble
+                                key={i}
+                                role={m.role}
+                                content={m.content}
+                                references={m.references}
+                            />
                         ))}
                         {isLoading && <ThinkingBubble />}
                     </>

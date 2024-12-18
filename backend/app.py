@@ -4,6 +4,7 @@ from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
 from document_processing import extract_text_from_pdf, extract_text_from_docx
 import traceback
+import re
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -53,6 +54,7 @@ def chat_endpoint():
         file_bytes = None
 
     # Base system and user messages
+    # Updated instructions about producing download links and references
     messages = [
         {
             "role": "system",
@@ -60,7 +62,14 @@ def chat_endpoint():
                 "You are a helpful assistant. When you respond, please use Markdown formatting. "
                 "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
-                "for clarity. End your responses with a friendly tone."
+                "for clarity. End your responses with a friendly tone.\n\n"
+                "Additionally, you can produce downloadable reports in the form of `download://filename.docx` links when the user requests a report. "
+                "If the user asks for a report, always provide `download://report.docx` in your response. "
+                "Do not refuse to create the link.\n\n"
+                "If you use external sources, at the end provide:\n"
+                "References:\n"
+                "- [Name](URL): short description\n\n"
+                "If no external sources used, write `References: None`."
             )
         },
         {
@@ -152,7 +161,35 @@ def chat_endpoint():
         app.logger.error("Error calling Azure OpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
-    return jsonify({"reply": assistant_reply})
+    # Parse references from assistant_reply
+    main_content = assistant_reply
+    references_list = []
+    if 'References:' in assistant_reply:
+        parts = assistant_reply.split('References:')
+        main_content = parts[0].strip()
+        references_section = parts[1].strip() if len(parts) > 1 else "None"
+
+        if references_section.lower().startswith('none'):
+            references_list = []
+        else:
+            # Each reference line: "- [Name](URL): description"
+            for line in references_section.split('\n'):
+                line = line.strip()
+                if line.startswith('-'):
+                    match = re.match(r"- \[(.*?)\]\((.*?)\): (.*)", line)
+                    if match:
+                        name = match.group(1)
+                        url = match.group(2)
+                        desc = match.group(3)
+                        references_list.append({"name": name, "url": url, "description": desc})
+    else:
+        # No references section found
+        references_list = []
+
+    return jsonify({
+        "reply": main_content,
+        "references": references_list
+    })
 
 @app.errorhandler(404)
 def not_found(e):

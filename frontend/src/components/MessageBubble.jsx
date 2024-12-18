@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -75,6 +75,19 @@ export default function MessageBubble({ role, content }) {
         }
     };
 
+    // State to control showing references
+    const [showReferences, setShowReferences] = useState(false);
+
+    // Check if there's a "References:" section
+    let mainContent = content;
+    let referencesSection = null;
+    const referencesIndex = content.indexOf("References:");
+
+    if (referencesIndex !== -1) {
+        mainContent = content.substring(0, referencesIndex).trim();
+        referencesSection = content.substring(referencesIndex).trim();
+    }
+
     return (
         <div
             className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'
@@ -86,8 +99,29 @@ export default function MessageBubble({ role, content }) {
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={components}
             >
-                {content}
+                {mainContent}
             </ReactMarkdown>
+
+            {referencesSection && (
+                <div className="mt-2">
+                    <button
+                        className="text-sm text-blue-400 underline hover:text-blue-600"
+                        onClick={() => setShowReferences(!showReferences)}
+                    >
+                        {showReferences ? "Hide References" : "Show References"}
+                    </button>
+                    {showReferences && (
+                        <div className="mt-2 p-2 rounded bg-gray-600 text-white">
+                            <ReactMarkdown
+                                className="prose prose-invert max-w-none text-sm"
+                                remarkPlugins={[remarkGfm, remarkBreaks]}
+                            >
+                                {referencesSection}
+                            </ReactMarkdown>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
