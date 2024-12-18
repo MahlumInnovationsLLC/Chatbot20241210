@@ -296,7 +296,7 @@ function AppContent({ onLogout }) {
                             </button>
                             {shareMenuOpen && (
                                 <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
-                                    style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '6rem' }}
+                                    style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '4rem' }}
                                 >
                                     <a
                                         href={getMailToLink()}
@@ -376,6 +376,12 @@ function AppContent({ onLogout }) {
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
+                        <button
+                            onClick={() => setSettingsOpen(false)}
+                            className="text-sm font-bold"
+                        >
+                            <i class="fa-light fa-xmark-large"></i>
+                        </button>
                         <div className="flex space-x-4 mb-4 pb-2"
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
