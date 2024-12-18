@@ -378,7 +378,7 @@ function AppContent({ onLogout }) {
                         <h2 className="text-3xl mb-4 font-bold">Settings</h2>
                         <button
                             onClick={() => setSettingsOpen(false)}
-                            className="text-sm font-bold"
+                            className="absolute top-2 right-2 text-sm font-bold"
                         >
                             <i class="fa-light fa-xmark-large"></i>
                         </button>
