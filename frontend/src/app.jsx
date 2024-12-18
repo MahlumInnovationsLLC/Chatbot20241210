@@ -297,21 +297,21 @@ function AppContent({ onLogout }) {
                                         href={getMailToLink()}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                     >
-                                        <i className="fa-light fa-envelope mr-2"></i>
+                                        <i class="fa-light fa-envelope mr-2"></i>
                                         Share via Email
                                     </a>
                                     <button
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={copyTranscriptToClipboard}
                                     >
-                                        <i className="fa-light fa-copy mr-2"></i>
+                                        <i class="fa-light fa-copy mr-2"></i>
                                         Copy Transcript
                                     </button>
                                     <button
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={downloadTranscriptDocx}
                                     >
-                                        <i className="fa-light fa-download mr-2"></i>
+                                        <i class="fa-light fa-download mr-2"></i>
                                         Download as .docx
                                     </button>
                                 </div>
@@ -370,35 +370,35 @@ function AppContent({ onLogout }) {
                                 className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
-                                <i className="fa-light fa-ferris-wheel"></i>
+                                <i class="fa-light fa-ferris-wheel"></i>
                                 Theme
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
-                                <i className="fa-light fa-head-side-gear"></i>
+                                <i class="fa-light fa-head-side-gear"></i>
                                 AI Instructions
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
-                                <i className="fa-light fa-empty-set"></i>
+                                <i class="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
-                                <i className="fa-light fa-empty-set"></i>
+                                <i class="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
-                                <i className="fa-light fa-empty-set"></i>
+                                <i class="fa-light fa-empty-set"></i>
                                 EMPTY
                             </button>
                         </div>
