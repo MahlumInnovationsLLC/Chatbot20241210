@@ -3,7 +3,7 @@ import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
-// import '@fortawesome/fontawesome-pro/css/all.css';
+import '@fortawesome/fontawesome-pro/web/css/all.min.css';
 
 export default function App() {
     const { instance } = useMsal();
