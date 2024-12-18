@@ -10,7 +10,7 @@ export default function MessageBubble({ role, content }) {
 
     async function initiateFileDownload(fileName) {
         try {
-            console.log("Download initiated for:", fileName); // Debug logging
+            console.log("Download initiated for:", fileName);
             const res = await fetch(`/api/generateReport?filename=${encodeURIComponent(fileName)}`);
             if (!res.ok) {
                 alert("Failed to download file.");
@@ -25,7 +25,7 @@ export default function MessageBubble({ role, content }) {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            console.log("Download completed for:", fileName); // Debug logging
+            console.log("Download completed for:", fileName);
         } catch (e) {
             console.error("Download error:", e);
             alert("Error occurred while downloading the file.");
@@ -57,13 +57,14 @@ export default function MessageBubble({ role, content }) {
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
+            // If href starts with download://, we handle it as a download button
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
                 return (
                     <button
                         className="text-blue-500 underline hover:text-blue-700"
                         onClick={(e) => {
-                            e.preventDefault(); // Ensure no navigation
+                            e.preventDefault();
                             initiateFileDownload(fileName);
                         }}
                         {...props}
@@ -72,6 +73,7 @@ export default function MessageBubble({ role, content }) {
                     </button>
                 );
             }
+            // Otherwise, render a normal link
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
                     {children}
@@ -102,6 +104,13 @@ export default function MessageBubble({ role, content }) {
                 className="prose prose-invert max-w-none"
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 components={components}
+                // This function preserves the custom download:// protocol
+                transformLinkUri={(uri) => {
+                    if (uri.startsWith('download://')) {
+                        return uri;
+                    }
+                    return ReactMarkdown.uriTransformer(uri);
+                }}
             >
                 {mainContent}
             </ReactMarkdown>
