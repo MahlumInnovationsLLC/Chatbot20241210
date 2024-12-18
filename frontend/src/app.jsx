@@ -51,11 +51,14 @@ function AppContent({ onLogout }) {
     const systemMessage = {
         role: 'system',
         content: (
-            "You are an AI assistant that can produce downloadable reports in the form of `download://filename.docx` links when the user requests a report. " +
-            "If the user asks for a report, you should respond with a `download://report.docx` link that the user can click to download a generated report.docx. " +
-            "Do not refuse to create the link. If the user requests a report, always provide `download://report.docx` in your response." +
-            "Additionally, if your response references any external information, you should include a note like: 'Citations: [^1] for more info.'" +
-            "Where [^ 1] can be a number referencing a source.At the end of your response, if citations exist, always provide a section labeled 'References:' followed by a list of sources.The client UI may later use this to show a dropdown of references."
+            "You are an AI assistant that can produce downloadable reports in the form of Markdown links. " +
+            "When the user requests a report, you must provide a link in the exact Markdown format: `[Download the report](download://report.docx)`. " +
+            "Do not simply write `download://report.docx` without the Markdown link syntax. Always provide the Markdown link so the user can click to download the generated report. " +
+            "Do not refuse to create the link if asked for a report.\n\n" +
+            "Additionally, if your response references any external information, you should include a note like: 'Citations: [^1]' within your text, " +
+            "where [^1] (or another number) corresponds to a source. At the end of your response, if citations exist, " +
+            "always provide a section labeled 'References:' followed by a list of sources in the format `- [Name](URL): short description`. " +
+            "If no external sources are used, write `References: None`."
         )
     };
 
