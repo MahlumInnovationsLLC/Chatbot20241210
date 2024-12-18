@@ -45,6 +45,8 @@ function AppContent({ onLogout }) {
 
     const limeGreen = '#a2f4a2';
 
+    const customUrl = "https://peakaiengine.com"; // Replace with your custom URL
+
     // System message to instruct AI to produce download links when asked for a report
     const systemMessage = {
         role: 'system',
@@ -451,7 +453,7 @@ function AppContent({ onLogout }) {
                                 onClick={() => setShareUrlPopupOpen(false)}
                                 className="text-sm font-bold"
                             >
-                                X
+                                <i class="fa-light fa-xmark-large"></i>
                             </button>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -459,7 +461,7 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 readOnly
                                 className="border p-2 rounded flex-1"
-                                value={window.location.href}
+                                value={customUrl}}
                             />
                             <button
                                 onClick={() => {
