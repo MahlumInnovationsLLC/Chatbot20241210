@@ -86,7 +86,7 @@ export default function ChatInterface({ onLogout }) {
                 {!showStartContent && (
                     <>
                         {messages.map((m, i) => {
-                            // Optional: Logging references and downloadUrl before rendering
+                            // Log references and downloadUrl if present
                             if (m.references) {
                                 console.log(`Message ${i}: Passing references to MessageBubble:`, m.references);
                             }
@@ -100,7 +100,7 @@ export default function ChatInterface({ onLogout }) {
                                     role={m.role}
                                     content={m.content}
                                     references={m.references}
-                                    downloadUrl={m.downloadUrl}
+                                    downloadUrl={m.downloadUrl} // Ensure we pass downloadUrl here
                                 />
                             );
                         })}
