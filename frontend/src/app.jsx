@@ -45,7 +45,7 @@ function AppContent({ onLogout }) {
 
     const limeGreen = '#a2f4a2';
 
-    const customUrl = "https://peakaiengine.com"; // Replace with your custom URL
+    const customUrl = "https://gymaiengine.com"; // Replace with your custom URL
 
     // System message to instruct AI to produce download links when asked for a report
     const systemMessage = {

@@ -61,20 +61,20 @@ def chat_endpoint():
             "role": "system",
                     "content": (
                         "You are a helpful assistant. When you respond, please use Markdown formatting. "
-                    "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
-                    "when appropriate. Also, break down complex steps into bullet points or numbered lists "
-                    "for clarity. End your responses with a friendly tone.\n\n"
+                        "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
+                        "when appropriate. Also, break down complex steps into bullet points or numbered lists "
+                        "for clarity. End your responses with a friendly tone.\n\n"
 
-                    "Additionally, you can produce downloadable reports in the form of a Markdown link when the user requests a report or a downloadable report. "
-                    "The link MUST be in the format: `[Download the report](download://report.docx)`."
-                    "Do not refuse to create the link. Do not provide any alternative link formats. "
-                    "Always use the exact Markdown syntax above whenever a report is requested.\n\n"
+                        "Additionally, you can produce downloadable reports in the form of a Markdown link when the user requests a report or a downloadable report. "
+                        "The link MUST be in the format: `[Download the report](download://report.docx)`."
+                        "Do not refuse to create the link. Do not provide any alternative link formats. "
+                        "Always use the exact Markdown syntax above whenever a report is requested.\n\n"
 
-                    "If you use external sources, at the end provide:\n"
-                    "References:\n"
-                    "- [Name](URL): short description\n\n"
-                    "If no external sources used, write `References: None`."
-                )
+                        "If you use external sources, at the end provide:\n"
+                        "References:\n"
+                        "- [Name](URL): short description\n\n"
+                        "If no external sources used, write `References: None`."
+                    )
         },
         {
             "role": "user",

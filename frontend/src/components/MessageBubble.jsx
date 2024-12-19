@@ -5,8 +5,14 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content, references }) {
+export default function MessageBubble({ role, content, references, downloadUrl }) {
     const isUser = role === 'user';
+
+    // Debug log to inspect main content and props before rendering
+    console.log('MessageBubble: role:', role);
+    console.log('MessageBubble: content:', content);
+    console.log('MessageBubble: references:', references);
+    console.log('MessageBubble: downloadUrl:', downloadUrl);
 
     const components = {
         code({ node, inline, className, children, ...props }) {
@@ -33,12 +39,12 @@ export default function MessageBubble({ role, content, references }) {
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
-            // If href starts with download://, turn it into a direct download link.
+            // Check if the link uses download:// format
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
                 const fileUrl = `/api/generateReport?filename=${encodeURIComponent(fileName)}`;
+                console.log('Converting download://... to fileUrl:', fileUrl);
 
-                // Add a stable ID and data attribute for easy querying
                 return (
                     <a
                         id="downloadReportLink"
@@ -53,7 +59,8 @@ export default function MessageBubble({ role, content, references }) {
                 );
             }
 
-            // Normal link
+            // Normal link: Just log and return
+            console.log('Normal link href:', href);
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
                     {children}
@@ -74,6 +81,10 @@ export default function MessageBubble({ role, content, references }) {
         mainContent = content.substring(0, referencesIndex).trim();
         referencesSection = content.substring(referencesIndex).trim();
     }
+
+    // Log final parsed mainContent and referencesSection
+    console.log('Final content mainContent:', mainContent);
+    console.log('Final content referencesSection:', referencesSection);
 
     return (
         <div
