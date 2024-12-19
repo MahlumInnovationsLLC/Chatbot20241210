@@ -65,28 +65,15 @@ def chat_endpoint():
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
 
-                "CRITICAL INSTRUCTION:\n"
-                "If the user requests a report or a downloadable report, you MUST include the EXACT substring:\n\n"
-                "`download://report.docx`\n\n"
-                "in your final answer. Do not alter this substring. Do not omit the backticks. "
-                "Do not provide an empty code block. Do not provide any different link format.\n\n"
-
-                "EXAMPLES:\n"
-                "Correct:\n"
-                "'Here is your requested report: `download://report.docx`'\n\n"
-
-                "Incorrect:\n"
-                "'Here is your requested report: '' '\n"
-                "'Here is your requested report: download://report.docx' (missing backticks)\n"
-                "'Here is your requested report:' with no code block\n\n"
-
-                "You must produce the substring `download://report.docx` exactly once whenever a report is requested.\n"
-                "If the user requests a report, DO NOT refuse, just produce it.\n\n"
+                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
+                "in the exact format: `download://report.docx` somewhere in your final response text. "
+                "Do not omit it, do not alter the format. If the user asks for a downloadable report or says 'generate a report', "
+                "you must provide: `download://report.docx`\n\n"
 
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
-                "- [Name](URL): short description\n\n"
-                "If no external sources are used, write `References: None`."
+                "- [Name](URL): short description\n"
+                "If no external sources, write `References: None`."
             )
         },
         {
@@ -94,6 +81,15 @@ def chat_endpoint():
             "content": user_input
         }
     ]
+
+    # If "report" keyword found in user_input, add extra system guidance (optional step)
+    if "report" in user_input.lower() or "downloadable report" in user_input.lower():
+        messages.append({
+            "role": "system",
+            "content": (
+                "The user requested a report. Remember to include exactly one `download://report.docx` link in your response."
+            )
+        })
 
     # If a file is uploaded, process according to file type
     if file_bytes:
@@ -183,7 +179,6 @@ def chat_endpoint():
         if references_section.lower().startswith('none'):
             references_list = []
         else:
-            import re
             for line in references_section.split('\n'):
                 line = line.strip()
                 if line.startswith('-'):
@@ -197,7 +192,7 @@ def chat_endpoint():
         references_list = []
 
     # Step 3 modification:
-    # Check for `download://report.docx` and remove it from the text.
+    # Check for `download://report.docx` and extract it as a separate field
     download_url = None
     if 'download://report.docx' in main_content:
         # Remove the link from main_content

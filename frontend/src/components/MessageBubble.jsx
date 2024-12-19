@@ -62,7 +62,9 @@ export default function MessageBubble({ role, content, references, downloadUrl }
             // Normal link: Just log and return
             console.log('Normal link href:', href);
             return (
-                <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
+                <a
+                    href={href} className="text-blue-500 underline hover:text-blue-700" {...props}
+                >
                     {children}
                 </a>
             );
