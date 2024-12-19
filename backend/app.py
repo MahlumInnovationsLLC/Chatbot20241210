@@ -182,19 +182,18 @@ def chat_endpoint():
     else:
         references_list = []
 
-    # Step 3 modification:
-    # Check for `download://report.docx` and remove it from the text.
     download_url = None
     if 'download://report.docx' in main_content:
-        # Remove the link from main_content
         main_content = main_content.replace('download://report.docx', '').strip()
-        # Provide the separate downloadUrl field
         download_url = '/api/generateReport?filename=report.docx'
+    else:
+        # As a fallback, still provide a download_url even if not found, or handle differently
+        download_url = '/api/generateReport?filename=report.docx'  # If you want a guaranteed link
 
     return jsonify({
-        "reply": main_content,
+        "reply": main_content,  # without removal of download://report.docx
         "references": references_list,
-        "downloadUrl": download_url  # Could be None if no download link requested
+        "downloadUrl": download_url
     })
 
 @app.route('/api/generateReport', methods=['GET'])
