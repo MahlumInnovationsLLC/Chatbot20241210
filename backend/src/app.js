@@ -19,9 +19,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 
 // New on-the-fly report generation route
-app.get('/api/report', async (req, res) => {
+app.get('/api/generateReport', async (req, res) => {
     try {
-        const docName = req.query.docName || 'untitled';
+        const docName = req.query.filename || 'untitled';
 
         // For demonstration: simple doc with given docName in its content
         const doc = new Document({

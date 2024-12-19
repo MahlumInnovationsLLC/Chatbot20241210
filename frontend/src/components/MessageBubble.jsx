@@ -26,7 +26,6 @@ export default function MessageBubble({ role, content }) {
                 </code>
             );
         },
-        // Inside components.a
         a({ href, children, ...props }) {
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
@@ -57,7 +56,15 @@ export default function MessageBubble({ role, content }) {
                     </button>
                 );
             }
-            return <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>{children}</a>;
+            return (
+                <a
+                    href={href}
+                    className="text-blue-500 underline hover:text-blue-700"
+                    {...props}
+                >
+                    {children}
+                </a>
+            );
         }
     };
 
@@ -107,3 +114,4 @@ export default function MessageBubble({ role, content }) {
         </div>
     );
 }
+
