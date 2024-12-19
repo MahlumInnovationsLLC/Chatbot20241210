@@ -1,12 +1,10 @@
 from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
 from openai import AzureOpenAI
-from vision_api import analyze_image_from_bytes
-from document_processing import extract_text_from_pdf, extract_text_from_docx
-import traceback
-import re
-from io import BytesIO
 from docx import Document
+from io import BytesIO
+import re
+import traceback
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -25,40 +23,15 @@ def serve_frontend():
 
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
-    user_input = None
-    file_bytes = None
-    file_ext = None
+    data = request.get_json(force=True)
+    user_input = data.get('userMessage', '')
 
-    # Parse input
-    if request.content_type and 'multipart/form-data' in request.content_type:
-        app.logger.info("Received multipart/form-data request.")
-        user_input = request.form.get('userMessage', '')
-        file = request.files.get('file')
-        if file:
-            app.logger.info(f"Received file: {file.filename}")
-            file_bytes = file.read()
-            filename = file.filename.lower()
-            if filename.endswith('.pdf'):
-                file_ext = 'pdf'
-            elif filename.endswith(('.png', '.jpg', '.jpeg')):
-                file_ext = 'image'
-            elif filename.endswith('.docx'):
-                file_ext = 'docx'
-        else:
-            app.logger.info("No file found in the request.")
-    else:
-        app.logger.info("Received JSON request.")
-        data = request.get_json(force=True)
-        user_input = data.get('userMessage', '')
-        file_bytes = None
-
-    # Very simple system message
-    # Key instruction: If user asks for a report, MUST include `[Download the report](download://report.docx)`
+    # Extremely simplified system instructions
     system_prompt = (
-        "You are a helpful assistant. Always answer in a friendly tone.\n\n"
-        "If the user requests a 'report' or 'downloadable report', you MUST include exactly this Markdown link in your final answer:\n"
-        "`[Download the report](download://report.docx)`\n\n"
-        "Do not change the wording, do not omit it. If the user does not ask for a report, do not include that link.\n"
+        "You are a helpful assistant. If the user asks for a report or a downloadable report, "
+        "you MUST include exactly this link once in your final response: [Download the report](download://report.docx)\n\n"
+        "Do not omit it, do not alter the format, do not mention other links. "
+        "If the user does not ask for a report, do not include that link."
     )
 
     messages = [
@@ -66,50 +39,13 @@ def chat_endpoint():
         {"role": "user", "content": user_input}
     ]
 
-    # If user requests a report, add another system message to reinforce
+    # If user requests a report, add a strong reminder
     if "report" in user_input.lower():
         messages.append({
             "role": "system",
-            "content": (
-                "The user requested a report. Remember, you MUST include exactly `[Download the report](download://report.docx)` "
-                "once in your final answer. No variations!"
-            )
+            "content": "The user asked for a report. You MUST include `[Download the report](download://report.docx)` exactly once in your final answer."
         })
 
-    # File processing if needed (optional step)
-    if file_bytes:
-        if file_ext == 'pdf':
-            app.logger.info("Extracting text from PDF...")
-            try:
-                extracted_text = extract_text_from_pdf(file_bytes)
-                app.logger.info("PDF text extracted successfully.")
-                messages.append({"role": "system", "content": f"Extracted PDF text:\n{extracted_text}"})
-            except Exception as e:
-                app.logger.error("PDF error:", exc_info=True)
-                messages.append({"role": "assistant", "content": "Error reading PDF."})
-
-        elif file_ext == 'image':
-            app.logger.info("Analyzing image...")
-            try:
-                vision_result = analyze_image_from_bytes(file_bytes)
-                desc = "No description"
-                if vision_result.description and vision_result.description.captions:
-                    desc = vision_result.description.captions[0].text
-                messages.append({"role": "system", "content": f"Image description: {desc}"})
-            except Exception as e:
-                app.logger.error("Image error:", exc_info=True)
-                messages.append({"role": "assistant", "content": "Error analyzing image."})
-
-        elif file_ext == 'docx':
-            app.logger.info("Extracting text from DOCX...")
-            try:
-                extracted_text = extract_text_from_docx(file_bytes)
-                messages.append({"role": "system", "content": f"Extracted DOCX text:\n{extracted_text}"})
-            except Exception as e:
-                app.logger.error("DOCX error:", exc_info=True)
-                messages.append({"role": "assistant", "content": "Error reading DOCX."})
-
-    # Call Azure OpenAI
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -125,13 +61,13 @@ def chat_endpoint():
     download_url = None
     pattern = r"\[Download the report\]\(download://report\.docx\)"
     if re.search(pattern, assistant_reply):
-        # Remove that link from main_content, store a separate URL
+        # Remove the link from main_content and store it separately
         main_content = re.sub(pattern, '', assistant_reply).strip()
         download_url = '/api/generateReport?filename=report.docx'
     else:
+        # No link found
         main_content = assistant_reply
 
-    # No references logic for now, just return reply and downloadUrl
     return jsonify({
         "reply": main_content,
         "downloadUrl": download_url
