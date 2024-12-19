@@ -61,20 +61,25 @@ def chat_endpoint():
             "role": "system",
             "content": (
                 "You are a helpful assistant. When you respond, please use Markdown formatting. "
-                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
+                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this```, "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
 
-                "Additionally, if the user requests a report or a downloadable report, you MUST include exactly this link: `download://report.docx` "
-                "in your response. Do not provide empty parentheses or any other variation. For example, you might say:\n\n"
-                "'Here is your requested report: `download://report.docx`'\n\n"
+                "IMPORTANT: When the user requests a report or a downloadable report, you MUST include exactly "
+                "this substring in your response (without quotes): `download://report.docx`\n\n"
             
-                "Do not omit or alter this link. If a report is requested, always produce the exact string `download://report.docx` somewhere in your final answer.\n\n"
+                "Instructions:\n"
+                "1. If user asks for a report, DO NOT omit or change the substring. Always produce `download://report.docx`.\n"
+                "2. Do NOT produce empty code blocks or empty parentheses. You must show `download://report.docx` as a code snippet "
+                "or inline code, for example: `download://report.docx`\n"
+                "3. Example of a correct response if asked for a report: 'Here is your requested report: `download://report.docx`'\n"
+                "4. Example of an incorrect response: 'Here is your requested report: ``' (empty) or 'download:report.docx' (missing //)\n"
+                "5. Under no circumstance omit or alter the format of `download://report.docx`\n\n"
 
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
                 "- [Name](URL): short description\n\n"
-                "If no external sources used, write `References: None`."
+                "If no external sources are used, write `References: None`."
             )
         },
         {
