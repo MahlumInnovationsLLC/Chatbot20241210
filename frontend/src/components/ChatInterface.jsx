@@ -85,15 +85,25 @@ export default function ChatInterface({ onLogout }) {
                 )}
                 {!showStartContent && (
                     <>
-                        {messages.map((m, i) => (
-                            <MessageBubble
-                                key={i}
-                                role={m.role}
-                                content={m.content}
-                                references={m.references}
-                                downloadUrl={m.downloadUrl} // Pass the downloadUrl to the bubble
-                            />
-                        ))}
+                        {messages.map((m, i) => {
+                            // Optional: Logging references and downloadUrl before rendering
+                            if (m.references) {
+                                console.log(`Message ${i}: Passing references to MessageBubble:`, m.references);
+                            }
+                            if (m.downloadUrl) {
+                                console.log(`Message ${i}: Passing downloadUrl to MessageBubble:`, m.downloadUrl);
+                            }
+
+                            return (
+                                <MessageBubble
+                                    key={i}
+                                    role={m.role}
+                                    content={m.content}
+                                    references={m.references}
+                                    downloadUrl={m.downloadUrl}
+                                />
+                            );
+                        })}
                         {isLoading && <ThinkingBubble />}
                     </>
                 )}

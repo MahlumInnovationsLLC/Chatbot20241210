@@ -5,7 +5,7 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content }) {
+export default function MessageBubble({ role, content, references }) {
     const isUser = role === 'user';
 
     const components = {
@@ -26,49 +26,46 @@ export default function MessageBubble({ role, content }) {
                 </code>
             );
         },
+        ul({ children }) {
+            return <ul className="list-disc list-outside pl-5">{children}</ul>;
+        },
+        ol({ children }) {
+            return <ol className="list-decimal list-outside pl-5">{children}</ol>;
+        },
         a({ href, children, ...props }) {
+            // If href starts with download://, turn it into a direct download link.
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
                 const fileUrl = `/api/generateReport?filename=${encodeURIComponent(fileName)}`;
+
+                // Add a stable ID and data attribute for easy querying
                 return (
-                    <button
+                    <a
+                        id="downloadReportLink"
+                        data-download-link="true"
+                        href={fileUrl}
+                        download={fileName}
                         className="text-blue-500 underline hover:text-blue-700"
-                        onClick={async (e) => {
-                            e.preventDefault();
-                            const res = await fetch(fileUrl);
-                            if (!res.ok) {
-                                alert("Failed to download file.");
-                                return;
-                            }
-                            const blob = await res.blob();
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = fileName;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(url);
-                        }}
                         {...props}
                     >
                         {children}
-                    </button>
+                    </a>
                 );
             }
+
+            // Normal link
             return (
-                <a
-                    href={href}
-                    className="text-blue-500 underline hover:text-blue-700"
-                    {...props}
-                >
+                <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
                     {children}
                 </a>
             );
         }
     };
 
+    // State to control showing references
     const [showReferences, setShowReferences] = useState(false);
+
+    // Check if there's a "References:" section
     let mainContent = content;
     let referencesSection = null;
     const referencesIndex = content.indexOf("References:");
@@ -79,7 +76,9 @@ export default function MessageBubble({ role, content }) {
     }
 
     return (
-        <div className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}>
+        <div
+            className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}
+        >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
             <ReactMarkdown
                 className="prose prose-invert max-w-none"
@@ -114,4 +113,3 @@ export default function MessageBubble({ role, content }) {
         </div>
     );
 }
-
