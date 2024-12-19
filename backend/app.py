@@ -17,7 +17,7 @@ client = AzureOpenAI(
     api_version="2023-05-15"
 )
 
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual Azure OpenAI deployment name
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Update if needed
 
 @app.route('/')
 def serve_frontend():
@@ -29,7 +29,6 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
-    # Determine if the request includes a file (multipart/form-data) or just JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -38,7 +37,6 @@ def chat_endpoint():
             app.logger.info(f"Received file: {file.filename}")
             file_bytes = file.read()
             filename = file.filename.lower()
-            # Determine file extension for processing
             if filename.endswith('.pdf'):
                 file_ext = 'pdf'
             elif filename.endswith(('.png', '.jpg', '.jpeg')):
@@ -55,7 +53,7 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
-    # Base system and user messages with instructions
+    # Updated instructions: specify exactly how to present the link.
     messages = [
         {
             "role": "system",
@@ -65,15 +63,14 @@ def chat_endpoint():
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
 
-                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
-                "in the exact format: `download://report.docx` somewhere in your final response text. "
-                "Do not omit it, do not alter the format. If the user asks for a downloadable report or says 'generate a report', "
-                "you must provide: `download://report.docx`\n\n"
+                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one Markdown link "
+                "in this format (do not deviate): `[Download the report](download://report.docx)` somewhere in your final response text. "
+                "This ensures the user sees proper link text instead of empty brackets.\n\n"
 
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
                 "- [Name](URL): short description\n"
-                "If no external sources, write `References: None`."
+                "If no external sources used, write `References: None`."
             )
         },
         {
@@ -82,16 +79,16 @@ def chat_endpoint():
         }
     ]
 
-    # If "report" keyword found in user_input, add extra system guidance (optional step)
+    # Optional: If 'report' or 'downloadable report' found, add a system nudge
     if "report" in user_input.lower() or "downloadable report" in user_input.lower():
         messages.append({
             "role": "system",
             "content": (
-                "The user requested a report. Remember to include exactly one `download://report.docx` link in your response."
+                "The user requested a report. Remember to include `[Download the report](download://report.docx)` "
+                "exactly once in your final answer."
             )
         })
 
-    # If a file is uploaded, process according to file type
     if file_bytes:
         if file_ext == 'pdf':
             app.logger.info("Extracting text from PDF...")
@@ -153,11 +150,10 @@ def chat_endpoint():
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
         else:
-            app.logger.info("File format not recognized or not handled. No action taken.")
+            app.logger.info("File format not recognized or not handled.")
     else:
         app.logger.info("No file data found, proceeding without file analysis.")
 
-    # Call Azure OpenAI with the collected messages
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -168,7 +164,6 @@ def chat_endpoint():
         app.logger.error("Error calling Azure OpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
-    # Parse references from assistant_reply
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -191,26 +186,24 @@ def chat_endpoint():
     else:
         references_list = []
 
-    # Step 3 modification:
-    # Check for `download://report.docx` and extract it as a separate field
     download_url = None
-    if 'download://report.docx' in main_content:
-        # Remove the link from main_content
-        main_content = main_content.replace('download://report.docx', '').strip()
-        # Provide the separate downloadUrl field
+    # Look for the exact `[Download the report](download://report.docx)` pattern
+    # This ensures the assistant provides anchor text and we can remove it from main_content.
+    pattern = r"\[Download the report\]\(download://report\.docx\)"
+    if re.search(pattern, main_content):
+        main_content = re.sub(pattern, '', main_content).strip()
         download_url = '/api/generateReport?filename=report.docx'
 
     return jsonify({
         "reply": main_content,
         "references": references_list,
-        "downloadUrl": download_url  # Could be None if no download link requested
+        "downloadUrl": download_url
     })
 
 @app.route('/api/generateReport', methods=['GET'])
 def generate_report():
     filename = request.args.get('filename', 'report.docx')
 
-    # Create a simple docx file on the fly
     doc = Document()
     doc.add_heading('Your Generated Report', level=1)
     doc.add_paragraph('This is a dynamically generated report based on your request.')
