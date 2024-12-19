@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify, make_response
+from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
@@ -46,7 +46,7 @@ def chat_endpoint():
             elif filename.endswith('.docx'):
                 file_ext = 'docx'
             else:
-                file_ext = None  # Unrecognized file format
+                file_ext = None
         else:
             app.logger.info("No file found in the request.")
     else:
@@ -55,8 +55,7 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
-    # Base system and user messages
-    # Updated instructions about producing download links and references
+    # Base system and user messages with instructions
     messages = [
         {
             "role": "system",
@@ -85,12 +84,10 @@ def chat_endpoint():
     # If a file is uploaded, process according to file type
     if file_bytes:
         if file_ext == 'pdf':
-            # Process PDF using Form Recognizer
             app.logger.info("Extracting text from PDF...")
             try:
                 extracted_text = extract_text_from_pdf(file_bytes)
                 app.logger.info("PDF text extracted successfully.")
-                # Add extracted text as a system message for context
                 messages.append({
                     "role": "system",
                     "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
@@ -103,7 +100,6 @@ def chat_endpoint():
                 })
 
         elif file_ext == 'image':
-            # Process image using Vision API
             app.logger.info("Analyzing image data...")
             try:
                 vision_result = analyze_image_from_bytes(file_bytes)
@@ -126,7 +122,6 @@ def chat_endpoint():
                 })
 
         elif file_ext == 'docx':
-            # Process DOCX locally
             app.logger.info("Extracting text from DOCX file...")
             try:
                 extracted_text = extract_text_from_docx(file_bytes)
@@ -148,7 +143,6 @@ def chat_endpoint():
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
         else:
-            # Unsupported file type
             app.logger.info("File format not recognized or not handled. No action taken.")
     else:
         app.logger.info("No file data found, proceeding without file analysis.")
@@ -175,7 +169,7 @@ def chat_endpoint():
         if references_section.lower().startswith('none'):
             references_list = []
         else:
-            # Each reference line: "- [Name](URL): description"
+            import re
             for line in references_section.split('\n'):
                 line = line.strip()
                 if line.startswith('-'):
@@ -186,12 +180,21 @@ def chat_endpoint():
                         desc = match.group(3)
                         references_list.append({"name": name, "url": url, "description": desc})
     else:
-        # No references section found
         references_list = []
+
+    # Step 3 modification:
+    # Check for `download://report.docx` and remove it from the text.
+    download_url = None
+    if 'download://report.docx' in main_content:
+        # Remove the link from main_content
+        main_content = main_content.replace('download://report.docx', '').strip()
+        # Provide the separate downloadUrl field
+        download_url = '/api/generateReport?filename=report.docx'
 
     return jsonify({
         "reply": main_content,
-        "references": references_list
+        "references": references_list,
+        "downloadUrl": download_url  # Could be None if no download link requested
     })
 
 @app.route('/api/generateReport', methods=['GET'])
@@ -207,10 +210,12 @@ def generate_report():
     doc.save(byte_io)
     byte_io.seek(0)
 
-    response = make_response(byte_io.read())
-    response.headers.set('Content-Disposition', f'attachment; filename="{filename}"')
-    response.headers.set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    return response
+    return send_file(
+        byte_io,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
 
 @app.errorhandler(404)
 def not_found(e):
@@ -218,5 +223,4 @@ def not_found(e):
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))
-    # Run on all interfaces and the specified port
     app.run(host="0.0.0.0", port=port, debug=True)

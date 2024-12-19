@@ -26,45 +26,42 @@ export default function MessageBubble({ role, content }) {
                 </code>
             );
         },
-        ul({ children }) {
-            return <ul className="list-disc list-outside pl-5">{children}</ul>;
-        },
-        ol({ children }) {
-            return <ol className="list-decimal list-outside pl-5">{children}</ol>;
-        },
+        // Inside components.a
         a({ href, children, ...props }) {
-            // Log the href to the console for debugging
-            console.log("Link href encountered:", href);
-
-            // If href starts with download://, convert it into a direct download link.
             if (href && href.startsWith('download://')) {
                 const fileName = href.replace('download://', '');
                 const fileUrl = `/api/generateReport?filename=${encodeURIComponent(fileName)}`;
-
                 return (
-                    <a
-                        href={fileUrl}
-                        download={fileName}
+                    <button
                         className="text-blue-500 underline hover:text-blue-700"
+                        onClick={async (e) => {
+                            e.preventDefault();
+                            const res = await fetch(fileUrl);
+                            if (!res.ok) {
+                                alert("Failed to download file.");
+                                return;
+                            }
+                            const blob = await res.blob();
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            URL.revokeObjectURL(url);
+                        }}
                         {...props}
                     >
                         {children}
-                    </a>
+                    </button>
                 );
             }
-
-            // If no download prefix, just render a normal link
-            return (
-                <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
-                    {children}
-                </a>
-            );
+            return <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>{children}</a>;
         }
     };
 
     const [showReferences, setShowReferences] = useState(false);
-
-    // Check if there's a "References:" section
     let mainContent = content;
     let referencesSection = null;
     const referencesIndex = content.indexOf("References:");
@@ -75,9 +72,7 @@ export default function MessageBubble({ role, content }) {
     }
 
     return (
-        <div
-            className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}
-        >
+        <div className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}>
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
             <ReactMarkdown
                 className="prose prose-invert max-w-none"

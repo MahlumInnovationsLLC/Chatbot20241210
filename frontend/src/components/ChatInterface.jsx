@@ -26,9 +26,14 @@ export default function ChatInterface({ onLogout }) {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
 
-            // If server returns references, include them
+            // If the server returns references, add them
             if (res.data.references) {
                 botMsg.references = res.data.references;
+            }
+
+            // If the server returns a separate downloadUrl, add it
+            if (res.data.downloadUrl) {
+                botMsg.downloadUrl = res.data.downloadUrl;
             }
 
             setMessages(prev => [...prev, botMsg]);
@@ -81,12 +86,12 @@ export default function ChatInterface({ onLogout }) {
                 {!showStartContent && (
                     <>
                         {messages.map((m, i) => (
-                            // Pass references if present
                             <MessageBubble
                                 key={i}
                                 role={m.role}
                                 content={m.content}
                                 references={m.references}
+                                downloadUrl={m.downloadUrl} // Pass the downloadUrl to the bubble
                             />
                         ))}
                         {isLoading && <ThinkingBubble />}
@@ -123,7 +128,6 @@ export default function ChatInterface({ onLogout }) {
                     rows={3}
                     wrap="soft"
                     className={`flex-1 p-6 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'} resize-none overflow-y-auto whitespace-pre-wrap`}
-                    type="text"
                     placeholder="I'm here to help! Ask me anything..."
                 />
                 <button onClick={sendMessage} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
