@@ -61,20 +61,27 @@ def chat_endpoint():
             "role": "system",
             "content": (
                 "You are a helpful assistant. When you respond, please use Markdown formatting. "
-                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this```, "
+                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
 
-                "IMPORTANT: When the user requests a report or a downloadable report, you MUST include exactly "
-                "this substring in your response (without quotes): `download://report.docx`\n\n"
-            
-                "Instructions:\n"
-                "1. If user asks for a report, DO NOT omit or change the substring. Always produce `download://report.docx`.\n"
-                "2. Do NOT produce empty code blocks or empty parentheses. You must show `download://report.docx` as a code snippet "
-                "or inline code, for example: `download://report.docx`\n"
-                "3. Example of a correct response if asked for a report: 'Here is your requested report: `download://report.docx`'\n"
-                "4. Example of an incorrect response: 'Here is your requested report: ``' (empty) or 'download:report.docx' (missing //)\n"
-                "5. Under no circumstance omit or alter the format of `download://report.docx`\n\n"
+                "CRITICAL INSTRUCTION:\n"
+                "If the user requests a report or a downloadable report, you MUST include the EXACT substring:\n\n"
+                "`download://report.docx`\n\n"
+                "in your final answer. Do not alter this substring. Do not omit the backticks. "
+                "Do not provide an empty code block. Do not provide any different link format.\n\n"
+
+                "EXAMPLES:\n"
+                "Correct:\n"
+                "'Here is your requested report: `download://report.docx`'\n\n"
+
+                "Incorrect:\n"
+                "'Here is your requested report: '' '\n"
+                "'Here is your requested report: download://report.docx' (missing backticks)\n"
+                "'Here is your requested report:' with no code block\n\n"
+
+                "You must produce the substring `download://report.docx` exactly once whenever a report is requested.\n"
+                "If the user requests a report, DO NOT refuse, just produce it.\n\n"
 
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
