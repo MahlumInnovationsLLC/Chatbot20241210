@@ -8,11 +8,7 @@ import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 export default function MessageBubble({ role, content, references, downloadUrl }) {
     const isUser = role === 'user';
 
-    // Debug log to inspect main content and props before rendering
-    console.log('MessageBubble: role:', role);
-    console.log('MessageBubble: content:', content);
-    console.log('MessageBubble: references:', references);
-    console.log('MessageBubble: downloadUrl:', downloadUrl);
+    console.log("MessageBubble:", { role, content, references, downloadUrl });
 
     const components = {
         code({ node, inline, className, children, ...props }) {
@@ -39,32 +35,10 @@ export default function MessageBubble({ role, content, references, downloadUrl }
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
-            // Check if the link uses download:// format
-            if (href && href.startsWith('download://')) {
-                const fileName = href.replace('download://', '');
-                const fileUrl = `/api/generateReport?filename=${encodeURIComponent(fileName)}`;
-                console.log('Converting download://... to fileUrl:', fileUrl);
-
-                return (
-                    <a
-                        id="downloadReportLink"
-                        data-download-link="true"
-                        href={fileUrl}
-                        download={fileName}
-                        className="text-blue-500 underline hover:text-blue-700"
-                        {...props}
-                    >
-                        {children}
-                    </a>
-                );
-            }
-
-            // Normal link: Just log and return
-            console.log('Normal link href:', href);
+            // Just log the hrefs we encounter
+            console.log("Normal link href:", href);
             return (
-                <a
-                    href={href} className="text-blue-500 underline hover:text-blue-700" {...props}
-                >
+                <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
                     {children}
                 </a>
             );
@@ -75,14 +49,23 @@ export default function MessageBubble({ role, content, references, downloadUrl }
     const [showReferences, setShowReferences] = useState(false);
 
     // Check if there's a "References:" section
-    let mainContent = content;
+    let mainContent = content || '';
     let referencesSection = null;
-    const referencesIndex = content.indexOf("References:");
+    const referencesIndex = mainContent.indexOf("References:");
 
     if (referencesIndex !== -1) {
-        mainContent = content.substring(0, referencesIndex).trim();
-        referencesSection = content.substring(referencesIndex).trim();
+        referencesSection = mainContent.substring(referencesIndex).trim();
+        mainContent = mainContent.substring(0, referencesIndex).trim();
     }
+
+    // If a downloadUrl is provided, append a download link at the end.
+    if (downloadUrl) {
+        // Append a download link in markdown format
+        mainContent += `\n\n[Download the report](${downloadUrl})`;
+    }
+
+    console.log("Final content mainContent:", mainContent);
+    console.log("Final content referencesSection:", referencesSection);
 
     return (
         <div
