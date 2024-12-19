@@ -17,7 +17,7 @@ client = AzureOpenAI(
     api_version="2023-05-15"
 )
 
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Update if needed
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual Azure OpenAI deployment name
 
 @app.route('/')
 def serve_frontend():
@@ -29,6 +29,7 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
+    # Determine if the request includes a file (multipart/form-data) or just JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -37,6 +38,7 @@ def chat_endpoint():
             app.logger.info(f"Received file: {file.filename}")
             file_bytes = file.read()
             filename = file.filename.lower()
+            # Determine file extension for processing
             if filename.endswith('.pdf'):
                 file_ext = 'pdf'
             elif filename.endswith(('.png', '.jpg', '.jpeg')):
@@ -53,7 +55,8 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
-    # Updated instructions: specify exactly how to present the link.
+    # Base system and user messages with instructions
+    # Make instructions VERY explicit: The assistant must include the exact link pattern.
     messages = [
         {
             "role": "system",
@@ -63,9 +66,10 @@ def chat_endpoint():
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
 
-                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one Markdown link "
-                "in this format (do not deviate): `[Download the report](download://report.docx)` somewhere in your final response text. "
-                "This ensures the user sees proper link text instead of empty brackets.\n\n"
+                "IMPORTANT: If the user requests a 'report' or a 'downloadable report', you MUST include exactly one Markdown link "
+                "in this exact format: `[Download the report](download://report.docx)`. "
+                "Do NOT change 'Download the report', do NOT remove or alter the filename, and do NOT omit the parentheses or the `download://report.docx` URL. "
+                "If the user does not ask for a report, do not include this link.\n\n"
 
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
@@ -79,16 +83,17 @@ def chat_endpoint():
         }
     ]
 
-    # Optional: If 'report' or 'downloadable report' found, add a system nudge
+    # If user input mentions "report", remind the assistant again
     if "report" in user_input.lower() or "downloadable report" in user_input.lower():
         messages.append({
             "role": "system",
             "content": (
-                "The user requested a report. Remember to include `[Download the report](download://report.docx)` "
-                "exactly once in your final answer."
+                "The user requested a report. Remember, include exactly `[Download the report](download://report.docx)` "
+                "once in your final answer. Do not deviate."
             )
         })
 
+    # If a file is uploaded, process it
     if file_bytes:
         if file_ext == 'pdf':
             app.logger.info("Extracting text from PDF...")
@@ -149,21 +154,20 @@ def chat_endpoint():
                     "role": "assistant",
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
-        else:
-            app.logger.info("File format not recognized or not handled.")
-    else:
-        app.logger.info("No file data found, proceeding without file analysis.")
 
+    # Call Azure OpenAI
     try:
         response = client.chat.completions.create(
             messages=messages,
             model=AZURE_DEPLOYMENT_NAME
         )
         assistant_reply = response.choices[0].message.content
+        app.logger.info("Assistant reply: " + assistant_reply)
     except Exception as e:
         app.logger.error("Error calling Azure OpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
+    # Parse references from assistant_reply
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -183,12 +187,9 @@ def chat_endpoint():
                         url = match.group(2)
                         desc = match.group(3)
                         references_list.append({"name": name, "url": url, "description": desc})
-    else:
-        references_list = []
 
     download_url = None
-    # Look for the exact `[Download the report](download://report.docx)` pattern
-    # This ensures the assistant provides anchor text and we can remove it from main_content.
+    # Strict pattern for `[Download the report](download://report.docx)`
     pattern = r"\[Download the report\]\(download://report\.docx\)"
     if re.search(pattern, main_content):
         main_content = re.sub(pattern, '', main_content).strip()
