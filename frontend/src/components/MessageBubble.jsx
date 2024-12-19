@@ -84,10 +84,6 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         referencesSection = content.substring(referencesIndex).trim();
     }
 
-    // Log final parsed mainContent and referencesSection
-    console.log('Final content mainContent:', mainContent);
-    console.log('Final content referencesSection:', referencesSection);
-
     return (
         <div
             className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'}`}
