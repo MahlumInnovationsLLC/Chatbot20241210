@@ -1,8 +1,8 @@
 modules = ["nodejs-20", "python-3.12", "lua-5.2", "web"]
-run = "node index.js"
+run = "python app.py"
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "node index.js"]
+run = ["sh", "-c", "python app.py"]
