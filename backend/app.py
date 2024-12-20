@@ -196,14 +196,14 @@ def chat_endpoint():
         "downloadUrl": download_url
     })
 
-@app.route('/api/generateReport', methods=['GET'])
+@app.route('/api/generateReport', methods=['POST'])
 def generate_report():
-    filename = request.args.get('filename', 'report.docx')
+    data = request.get_json(force=True)
+    report_content = data.get('reportContent', 'No content provided')
 
-    # Create a simple docx file on the fly
     doc = Document()
     doc.add_heading('Your Generated Report', level=1)
-    doc.add_paragraph('This is a dynamically generated report based on your request.')
+    doc.add_paragraph(report_content)  # Insert the actual content
 
     byte_io = BytesIO()
     doc.save(byte_io)
@@ -212,7 +212,7 @@ def generate_report():
     return send_file(
         byte_io,
         as_attachment=True,
-        download_name=filename,
+        download_name='report.docx',
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 

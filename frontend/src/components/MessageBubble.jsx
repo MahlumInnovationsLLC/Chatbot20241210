@@ -5,11 +5,28 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content, references, downloadUrl }) {
+export default function MessageBubble({ role, content, references }) {
     const isUser = role === 'user';
 
-    console.log("MessageBubble:", { role, content, references, downloadUrl });
+    console.log("MessageBubble:", { role, content, references });
 
+    // State to control showing references
+    const [showReferences, setShowReferences] = useState(false);
+
+    // Ensure content is a string
+    let mainContent = content || '';
+    let referencesSection = null;
+    const referencesIndex = mainContent.indexOf("References:");
+
+    if (referencesIndex !== -1) {
+        referencesSection = mainContent.substring(referencesIndex).trim();
+        mainContent = mainContent.substring(0, referencesIndex).trim();
+    }
+
+    console.log("Final content mainContent:", mainContent);
+    console.log("Final content referencesSection:", referencesSection);
+
+    // We have mainContent defined before components, so components can access it via closure
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -35,7 +52,49 @@ export default function MessageBubble({ role, content, references, downloadUrl }
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
-            // Just log the hrefs we encounter
+            // Detect 'download://report.docx'
+            if (href && href.startsWith('download://')) {
+                const fileName = href.replace('download://', '');
+                console.log("Detected download link for:", fileName);
+                return (
+                    <button
+                        className="text-blue-500 underline hover:text-blue-700"
+                        onClick={async (e) => {
+                            e.preventDefault();
+                            // Use mainContent as the report content
+                            const reportContent = mainContent;
+                            try {
+                                const res = await fetch('/api/generateReport', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ reportContent })
+                                });
+                                if (!res.ok) {
+                                    alert("Failed to generate report.");
+                                    return;
+                                }
+                                const blob = await res.blob();
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                            } catch (err) {
+                                console.error("Download error:", err);
+                                alert("Error occurred while downloading the file.");
+                            }
+                        }}
+                        {...props}
+                    >
+                        {children}
+                    </button>
+                );
+            }
+
+            // Normal link if not 'download://'
             console.log("Normal link href:", href);
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
@@ -44,28 +103,6 @@ export default function MessageBubble({ role, content, references, downloadUrl }
             );
         }
     };
-
-    // State to control showing references
-    const [showReferences, setShowReferences] = useState(false);
-
-    // Check if there's a "References:" section
-    let mainContent = content || '';
-    let referencesSection = null;
-    const referencesIndex = mainContent.indexOf("References:");
-
-    if (referencesIndex !== -1) {
-        referencesSection = mainContent.substring(referencesIndex).trim();
-        mainContent = mainContent.substring(0, referencesIndex).trim();
-    }
-
-    // If a downloadUrl is provided, append a download link at the end.
-    if (downloadUrl) {
-        // Append a download link in markdown format
-        mainContent += `\n\n[Download the report](${downloadUrl})`;
-    }
-
-    console.log("Final content mainContent:", mainContent);
-    console.log("Final content referencesSection:", referencesSection);
 
     return (
         <div
