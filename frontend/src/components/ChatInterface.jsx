@@ -9,6 +9,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [fileName, setFileName] = useState('');
+
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
@@ -22,15 +23,12 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
 
         try {
             const res = await axios.post('/chat', { userMessage: userInput });
-            const botMsg = { role: 'assistant', content: res.data.reply };
-
-            if (res.data.references) {
-                botMsg.references = res.data.references;
-            }
-
-            if (res.data.downloadUrl) {
-                botMsg.downloadUrl = res.data.downloadUrl;
-            }
+            const botMsg = {
+                role: 'assistant',
+                content: res.data.reply,
+                references: res.data.references,
+                downloadUrl: res.data.downloadUrl
+            };
 
             setMessages(prev => [...prev, botMsg]);
         } catch (e) {
@@ -64,8 +62,10 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
         }
     };
 
-    const showStartContent = messages.length === 1 && !isLoading;
-    // If we start with a system message, length=1 means just system message is there.
+    // Filter out system messages so they do not display in the UI.
+    const filteredMessages = messages.filter(m => m.role !== 'system');
+
+    const showStartContent = filteredMessages.length === 0 && !isLoading;
 
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
@@ -81,18 +81,15 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                 )}
                 {!showStartContent && (
                     <>
-                        {messages.map((m, i) => {
-                            // Pass downloadUrl and references if present
-                            return (
-                                <MessageBubble
-                                    key={i}
-                                    role={m.role}
-                                    content={m.content}
-                                    references={m.references}
-                                    downloadUrl={m.downloadUrl}
-                                />
-                            );
-                        })}
+                        {filteredMessages.map((m, i) => (
+                            <MessageBubble
+                                key={i}
+                                role={m.role}
+                                content={m.content}
+                                references={m.references}
+                                downloadUrl={m.downloadUrl}
+                            />
+                        ))}
                         {isLoading && <ThinkingBubble />}
                     </>
                 )}
