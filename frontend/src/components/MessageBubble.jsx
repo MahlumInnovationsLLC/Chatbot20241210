@@ -28,6 +28,10 @@ export default function MessageBubble({ role, content, references, downloadUrl }
     const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
     mainContent = mainContent.replace(webAppUrlPattern, '');
 
+    // Remove system messages from the content
+    const systemMessagePattern = /You are a helpful assistant[\s\S]*?References: None/gi;
+    mainContent = mainContent.replace(systemMessagePattern, '').trim();
+
     const [showReferences, setShowReferences] = useState(false);
 
     const components = {
@@ -70,6 +74,7 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         try {
             const res = await fetch(downloadUrl);
             if (!res.ok) {
+                console.error("Failed to fetch the report:", res.statusText);
                 alert("Failed to download the report.");
                 return;
             }
