@@ -26,14 +26,13 @@ export default function ChatInterface({ onLogout }) {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
 
-            // If the server returns references, add them
             if (res.data.references) {
                 botMsg.references = res.data.references;
             }
 
-            // If the server returns a separate downloadUrl, add it
             if (res.data.downloadUrl) {
                 botMsg.downloadUrl = res.data.downloadUrl;
+                botMsg.reportContent = res.data.reportContent; // Store the detailed content
             }
 
             setMessages(prev => [...prev, botMsg]);
@@ -68,8 +67,26 @@ export default function ChatInterface({ onLogout }) {
         }
     };
 
-    // Determine if we should show the "start chatting" content
     const showStartContent = messages.length === 0 && !isLoading;
+
+    // Function to handle download from the bubble (if we choose to do it here):
+    const handleDownload = async (downloadUrl, reportContent) => {
+        try {
+            const res = await axios.post(downloadUrl, { reportContent }, { responseType: 'blob' });
+            const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'report.docx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download error:", err);
+            alert("Error occurred while downloading the file.");
+        }
+    };
 
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
@@ -85,25 +102,16 @@ export default function ChatInterface({ onLogout }) {
                 )}
                 {!showStartContent && (
                     <>
-                        {messages.map((m, i) => {
-                            // Log references and downloadUrl if present
-                            if (m.references) {
-                                console.log(`Message ${i}: Passing references to MessageBubble:`, m.references);
-                            }
-                            if (m.downloadUrl) {
-                                console.log(`Message ${i}: Passing downloadUrl to MessageBubble:`, m.downloadUrl);
-                            }
-
-                            return (
-                                <MessageBubble
-                                    key={i}
-                                    role={m.role}
-                                    content={m.content}
-                                    references={m.references}
-                                    downloadUrl={m.downloadUrl} // Ensure we pass downloadUrl here
-                                />
-                            );
-                        })}
+                        {messages.map((m, i) => (
+                            <MessageBubble
+                                key={i}
+                                role={m.role}
+                                content={m.content}
+                                references={m.references}
+                                downloadUrl={m.downloadUrl}
+                                onDownload={() => handleDownload(m.downloadUrl, m.reportContent)}
+                            />
+                        ))}
                         {isLoading && <ThinkingBubble />}
                     </>
                 )}

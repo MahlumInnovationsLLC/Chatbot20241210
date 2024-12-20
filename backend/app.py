@@ -7,17 +7,17 @@ import traceback
 import re
 from io import BytesIO
 from docx import Document
+import json
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
-# Configure the AzureOpenAI client
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
     api_version="2023-05-15"
 )
 
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual Azure OpenAI deployment name
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
 
 @app.route('/')
 def serve_frontend():
@@ -53,6 +53,10 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
+    # Update the system message to ask the AI to produce a structured "Report Content" section.
+    # For example, instruct the AI:
+    # "When producing a downloadable report, include a section marked by '---BEGIN REPORT CONTENT---' 
+    # and '---END REPORT CONTENT---' containing the full, detailed text for the docx."
     messages = [
         {
             "role": "system",
@@ -61,15 +65,13 @@ def chat_endpoint():
                 "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
-                
-                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
-                "in the exact format: `download://report.docx` somewhere in your final response text.\n"
-                "Do not omit it, do not alter the format. If the user asks for a downloadable report, always provide `download://report.docx`.\n\n"
-
-                "If you use external sources, at the end provide:\n"
+                "If the user requests a report or downloadable report, you MUST include `download://report.docx` in your response.\n"
+                "Additionally, provide a structured 'Report Content' section between `---BEGIN REPORT CONTENT---` and `---END REPORT CONTENT---` in your response.\n"
+                "This 'Report Content' should contain a detailed, comprehensive write-up suitable for a Word document, more detailed than the short summary you return.\n\n"
+                "If you use external sources, at the end of the main content section (not inside the Report Content), provide:\n"
                 "References:\n"
                 "- [Name](URL): short description\n"
-                "If no external sources, write `References: None`."
+                "If none, write `References: None`."
             )
         },
         {
@@ -79,69 +81,46 @@ def chat_endpoint():
     ]
 
     if file_bytes:
+        # Handle file extraction similarly as before...
         if file_ext == 'pdf':
-            app.logger.info("Extracting text from PDF...")
             try:
                 extracted_text = extract_text_from_pdf(file_bytes)
-                app.logger.info("PDF text extracted successfully.")
                 messages.append({
                     "role": "system",
-                    "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
+                    "content": f"Extracted PDF text:\n{extracted_text}"
                 })
-            except Exception as e:
-                app.logger.error("Error extracting text from PDF:", exc_info=True)
+            except:
                 messages.append({
                     "role": "assistant",
-                    "content": "I encountered an error reading the PDF. Please try again."
+                    "content": "Error reading PDF."
                 })
-
         elif file_ext == 'image':
-            app.logger.info("Analyzing image data...")
             try:
                 vision_result = analyze_image_from_bytes(file_bytes)
+                described_image = "No description available."
                 if vision_result.description and vision_result.description.captions:
                     described_image = vision_result.description.captions[0].text
-                    app.logger.info(f"Image described as: {described_image}")
-                else:
-                    described_image = "No description available."
-                    app.logger.info("No description returned by the vision API.")
-
                 messages.append({
                     "role": "system",
-                    "content": f"Here's what the image seems to show: {described_image}"
+                    "content": f"Image description: {described_image}"
                 })
-            except Exception as e:
-                app.logger.error("Error analyzing image:", exc_info=True)
+            except:
                 messages.append({
                     "role": "assistant",
-                    "content": "It seems there was an error analyzing the image."
+                    "content": "Error analyzing image."
                 })
-
         elif file_ext == 'docx':
-            app.logger.info("Extracting text from DOCX file...")
             try:
                 extracted_text = extract_text_from_docx(file_bytes)
-                app.logger.info("DOCX text extracted successfully.")
-                if extracted_text.strip():
-                    messages.append({
-                        "role": "system",
-                        "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
-                    })
-                else:
-                    messages.append({
-                        "role": "assistant",
-                        "content": "The DOCX file seems empty or unreadable."
-                    })
-            except Exception as e:
-                app.logger.error("Error extracting text from DOCX:", exc_info=True)
+                messages.append({
+                    "role": "system",
+                    "content": f"Extracted DOCX text:\n{extracted_text}"
+                })
+            except:
                 messages.append({
                     "role": "assistant",
-                    "content": "I encountered an error reading the DOCX file. Please try again."
+                    "content": "Error reading DOCX."
                 })
-        else:
-            app.logger.info("File format not recognized or not handled. No action taken.")
-    else:
-        app.logger.info("No file data found, proceeding without file analysis.")
 
     try:
         response = client.chat.completions.create(
@@ -150,16 +129,16 @@ def chat_endpoint():
         )
         assistant_reply = response.choices[0].message.content
     except Exception as e:
-        app.logger.error("Error calling Azure OpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
+    # Extract references
     main_content = assistant_reply
     references_list = []
-    if 'References:' in assistant_reply:
-        parts = assistant_reply.split('References:')
+    references_index = main_content.find("References:")
+    if references_index != -1:
+        parts = main_content.split('References:')
         main_content = parts[0].strip()
         references_section = parts[1].strip() if len(parts) > 1 else "None"
-
         if references_section.lower().startswith('none'):
             references_list = []
         else:
@@ -172,30 +151,40 @@ def chat_endpoint():
                         url = match.group(2)
                         desc = match.group(3)
                         references_list.append({"name": name, "url": url, "description": desc})
+
     else:
         references_list = []
 
-    # Check for `download://report.docx`
+    # Check for 'download://report.docx'
     download_url = None
+    report_content = None
     if 'download://report.docx' in main_content:
         # Remove it from main_content
         main_content = main_content.replace('download://report.docx', '').strip()
-        # We'll provide a separate downloadUrl. We'll send only reportContent to the endpoint via POST.
         download_url = '/api/generateReport'
+        # Extract the Report Content section
+        rc_start = assistant_reply.find('---BEGIN REPORT CONTENT---')
+        rc_end = assistant_reply.find('---END REPORT CONTENT---')
+        if rc_start != -1 and rc_end != -1:
+            report_content = assistant_reply[rc_start+len('---BEGIN REPORT CONTENT---'):rc_end].strip()
+        else:
+            report_content = "No detailed report content found."
 
     return jsonify({
         "reply": main_content,
         "references": references_list,
-        "downloadUrl": download_url  # Could be None if no download link requested
+        "downloadUrl": download_url,
+        "reportContent": report_content
     })
 
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
     data = request.get_json(force=True)
-    report_content = data.get('reportContent', 'No content provided.')
+    report_content = data.get('reportContent', 'No content')
+    filename = 'report.docx'
 
     doc = Document()
-    doc.add_heading('Your Generated Report', level=1)
+    doc.add_heading('Your Detailed Fitness Report', level=1)
     doc.add_paragraph(report_content)
 
     byte_io = BytesIO()
@@ -205,7 +194,7 @@ def generate_report():
     return send_file(
         byte_io,
         as_attachment=True,
-        download_name='report.docx',
+        download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 

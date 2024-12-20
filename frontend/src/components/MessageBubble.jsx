@@ -5,36 +5,10 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content, references, downloadUrl }) {
+export default function MessageBubble({ role, content, references, downloadUrl, onDownload, reportContent }) {
     const isUser = role === 'user';
 
-    console.log("MessageBubble:", { role, content, references, downloadUrl });
-
-    const [showReferences, setShowReferences] = useState(false);
-
-    let mainContent = content || '';
-    let referencesSection = null;
-    const referencesIndex = mainContent.indexOf("References:");
-    if (referencesIndex !== -1) {
-        referencesSection = mainContent.substring(referencesIndex).trim();
-        mainContent = mainContent.substring(0, referencesIndex).trim();
-    }
-
-    // Check if we have a downloadUrl from backend
-    const encounteredDownloadRequest = (downloadUrl != null);
-
-    // If we have a download request, remove any original download links the AI might have provided
-    if (encounteredDownloadRequest) {
-        // This regex tries to remove any Markdown links that start with [Download
-        // You can refine this if needed.
-        mainContent = mainContent.replace(/\[Download[^\]]*\]\([^\)]*\)/gi, '');
-
-        // Now append our custom prompt
-        mainContent += `\n\n*Ready to download your report?*`;
-    }
-
-    console.log("Final content mainContent:", mainContent);
-    console.log("Final content referencesSection:", referencesSection);
+    console.log("MessageBubble:", { role, content, references, downloadUrl, reportContent });
 
     const components = {
         code({ node, inline, className, children, ...props }) {
@@ -61,6 +35,7 @@ export default function MessageBubble({ role, content, references, downloadUrl }
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
+            // Just log the hrefs we encounter
             console.log("Normal link href:", href);
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
@@ -70,31 +45,23 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         }
     };
 
-    const handleDownload = async () => {
-        try {
-            const res = await fetch(downloadUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reportContent: mainContent })
-            });
-            if (!res.ok) {
-                alert("Failed to generate report.");
-                return;
-            }
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'report.docx';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch (err) {
-            console.error("Download error:", err);
-            alert("Error occurred while downloading the file.");
-        }
-    };
+    // State to control showing references
+    const [showReferences, setShowReferences] = useState(false);
+
+    let mainContent = content || '';
+    let referencesSection = null;
+    const referencesIndex = mainContent.indexOf("References:");
+
+    if (referencesIndex !== -1) {
+        referencesSection = mainContent.substring(referencesIndex).trim();
+        mainContent = mainContent.substring(0, referencesIndex).trim();
+    }
+
+    // If we have a downloadUrl and reportContent, we show a button to trigger the onDownload.
+    // Instead of embedding the link directly, we can show a custom button after the main content.
+    // We won't append anything to mainContent this time.
+    console.log("Final content mainContent:", mainContent);
+    console.log("Final content referencesSection:", referencesSection);
 
     return (
         <div
@@ -110,13 +77,14 @@ export default function MessageBubble({ role, content, references, downloadUrl }
                 {mainContent}
             </ReactMarkdown>
 
-            {encounteredDownloadRequest && (
+            {/* If we have a detailed report to download, show a button */}
+            {!isUser && downloadUrl && reportContent && (
                 <div className="mt-2">
                     <button
+                        onClick={() => onDownload(downloadUrl, reportContent)}
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                        onClick={handleDownload}
                     >
-                        Download the Report
+                        Download the Detailed Report
                     </button>
                 </div>
             )}
