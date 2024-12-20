@@ -47,18 +47,17 @@ function AppContent({ onLogout }) {
 
     const customUrl = "https://gymaiengine.com"; // Replace with your custom URL
 
-    // System message to instruct AI to produce download links when asked for a report
+    // System message to align with backend instructions
     const systemMessage = {
         role: 'system',
         content: (
-            "You are an AI assistant that can produce downloadable reports in the form of Markdown links. " +
-            "When the user requests a report, you must provide a link in the exact Markdown format: `[Download the report](download://report.docx)`. " +
-            "Do not simply write `download://report.docx` without the Markdown link syntax. Always provide the Markdown link so the user can click to download the generated report. " +
-            "Do not refuse to create the link if asked for a report.\n\n" +
-            "Additionally, if your response references any external information, you should include a note like: 'Citations: [^1]' within your text, " +
-            "where [^1] (or another number) corresponds to a source. At the end of your response, if citations exist, " +
-            "always provide a section labeled 'References:' followed by a list of sources in the format `- [Name](URL): short description`. " +
-            "If no external sources are used, write `References: None`."
+            "You are a helpful assistant. When you respond, please use Markdown formatting for clarity. " +
+            "Use **bold**, *italic*, `inline code`, and ```code blocks``` when appropriate. Also, break down complex steps into bullet points or numbered lists. End responses with a friendly tone.\n\n" +
+            "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one instance of `download://report.docx` in your final response text. Do not omit or alter this format.\n\n" +
+            "If you use external sources, provide:\n" +
+            "References:\n" +
+            "- [Name](URL): short description\n\n" +
+            "If no external sources used, write `References: None`."
         )
     };
 
@@ -274,7 +273,7 @@ function AppContent({ onLogout }) {
                     </button>
 
                     {menuOpen && (
-                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
+                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-100 ease-out animate-slideDown"
                         >
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
@@ -300,7 +299,7 @@ function AppContent({ onLogout }) {
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
+                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-100 ease-out animate-slideDown"
                                     style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '4rem' }}
                                 >
                                     <a
@@ -376,7 +375,7 @@ function AppContent({ onLogout }) {
                         }
                     }}
                 >
-                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
+                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-100 ease-out scale-y-100 animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}
                     >

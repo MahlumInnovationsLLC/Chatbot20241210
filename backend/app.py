@@ -7,6 +7,7 @@ import traceback
 import re
 from io import BytesIO
 from docx import Document
+import json
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -17,7 +18,7 @@ client = AzureOpenAI(
     api_version="2023-05-15"
 )
 
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual deployment name
 
 @app.route('/')
 def serve_frontend():
@@ -45,15 +46,12 @@ def chat_endpoint():
                 file_ext = 'docx'
             else:
                 file_ext = None
-        else:
-            app.logger.info("No file found in the request.")
     else:
         app.logger.info("Received JSON request.")
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
         file_bytes = None
 
-    # System and user messages
     messages = [
         {
             "role": "system",
@@ -62,14 +60,14 @@ def chat_endpoint():
                 "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
-                "If asked for a report, always provide `download://report.docx` in the final answer. "
-                "Also include the report content between `---BEGIN REPORT CONTENT---` and `---END REPORT CONTENT---`.\n\n"
-                "Example:\n"
-                "Here is your report: download://report.docx\n"
-                "---BEGIN REPORT CONTENT---\n"
-                "Detailed content here\n"
-                "---END REPORT CONTENT---\n\n"
-                "If no references: 'References: None'"
+                
+                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
+                "in the exact format: `download://report.docx` somewhere in your final response text.\n\n"
+
+                "If you use external sources, at the end provide:\n"
+                "References:\n"
+                "- [Name](URL): short description\n"
+                "If no external sources, write `References: None`."
             )
         },
         {
@@ -78,8 +76,62 @@ def chat_endpoint():
         }
     ]
 
-    # If a file is uploaded, handle it (omitted for brevity, same as before)
-    # ... (PDF/image/docx extraction code) ...
+    if file_bytes:
+        if file_ext == 'pdf':
+            app.logger.info("Extracting text from PDF...")
+            try:
+                extracted_text = extract_text_from_pdf(file_bytes)
+                app.logger.info("PDF text extracted successfully.")
+                messages.append({
+                    "role": "system",
+                    "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
+                })
+            except Exception as e:
+                app.logger.error("Error extracting text from PDF:", exc_info=True)
+                messages.append({
+                    "role": "assistant",
+                    "content": "I encountered an error reading the PDF. Please try again."
+                })
+
+        elif file_ext == 'image':
+            app.logger.info("Analyzing image data...")
+            try:
+                vision_result = analyze_image_from_bytes(file_bytes)
+                if vision_result.description and vision_result.description.captions:
+                    described_image = vision_result.description.captions[0].text
+                else:
+                    described_image = "No description available."
+                messages.append({
+                    "role": "system",
+                    "content": f"Here's what the image seems to show: {described_image}"
+                })
+            except Exception as e:
+                app.logger.error("Error analyzing image:", exc_info=True)
+                messages.append({
+                    "role": "assistant",
+                    "content": "It seems there was an error analyzing the image."
+                })
+
+        elif file_ext == 'docx':
+            app.logger.info("Extracting text from DOCX file...")
+            try:
+                extracted_text = extract_text_from_docx(file_bytes)
+                if extracted_text.strip():
+                    messages.append({
+                        "role": "system",
+                        "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
+                    })
+                else:
+                    messages.append({
+                        "role": "assistant",
+                        "content": "The DOCX file seems empty or unreadable."
+                    })
+            except Exception as e:
+                app.logger.error("Error extracting text from DOCX:", exc_info=True)
+                messages.append({
+                    "role": "assistant",
+                    "content": "I encountered an error reading the DOCX file. Please try again."
+                })
 
     try:
         response = client.chat.completions.create(
@@ -89,9 +141,8 @@ def chat_endpoint():
         assistant_reply = response.choices[0].message.content
     except Exception as e:
         app.logger.error("Error calling Azure OpenAI:", exc_info=True)
-        return jsonify({"reply": f"Error occurred: {str(e)}"}), 500
+        assistant_reply = f"Error occurred: {str(e)}"
 
-    # Parse references and download link
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -113,43 +164,38 @@ def chat_endpoint():
     else:
         references_list = []
 
-    # Extract download_url and report_content
+    # Check for `download://report.docx`
     download_url = None
     report_content = None
-
     if 'download://report.docx' in main_content:
+        # Remove the `download://report.docx` from the displayed text
         main_content = main_content.replace('download://report.docx', '').strip()
+
+        # Provide a separate downloadUrl and also some form of content
+        # Let's say we take the main_content and create a more detailed report content here:
+        # For demonstration, we'll just pass the main_content as 'reportContent'.
+        # In a real scenario, you might generate a more detailed report content here based on the conversation.
+        report_content = main_content + "\n\nThis is additional detailed analysis not fully displayed above."
+
+        # downloadUrl is the endpoint we will POST to in order to generate and download the doc
         download_url = '/api/generateReport'
-        # Now try to find report content between delimiters
-        begin_marker = '---BEGIN REPORT CONTENT---'
-        end_marker = '---END REPORT CONTENT---'
-
-        begin_index = assistant_reply.find(begin_marker)
-        end_index = assistant_reply.find(end_marker)
-
-        if begin_index != -1 and end_index != -1 and end_index > begin_index:
-            report_content = assistant_reply[begin_index+len(begin_marker):end_index].strip()
-        else:
-            app.logger.warning("Report content delimiters not found or malformed.")
-            report_content = "No detailed content provided by the AI."
-    else:
-        app.logger.info("User did not request a report or AI did not provide download link.")
 
     return jsonify({
         "reply": main_content,
         "references": references_list,
-        "downloadUrl": download_url if download_url else None,
-        "reportContent": report_content if report_content else None
+        "downloadUrl": download_url,
+        "reportContent": report_content
     })
 
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
+    # Now we expect reportContent from JSON body
     data = request.get_json(force=True)
-    report_text = data.get('reportContent', 'No report content provided.')
+    report_content = data.get('reportContent', 'No content provided')
 
     doc = Document()
-    doc.add_heading('Your Generated Detailed Report', level=1)
-    doc.add_paragraph(report_text)
+    doc.add_heading('Your Custom Generated Report', level=1)
+    doc.add_paragraph(report_content)
 
     byte_io = BytesIO()
     doc.save(byte_io)
