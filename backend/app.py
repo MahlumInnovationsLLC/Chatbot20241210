@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify, send_file, make_response
+from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
@@ -7,7 +7,7 @@ import traceback
 import re
 from io import BytesIO
 from docx import Document
-import json
+import urllib.parse  # for URL encoding
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -164,21 +164,17 @@ def chat_endpoint():
     else:
         references_list = []
 
-    # Check for `download://report.docx`
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
-        # Remove the `download://report.docx` from the displayed text
+        # Extract the link and then remove it from main_content
         main_content = main_content.replace('download://report.docx', '').strip()
+        # Generate a more detailed report content. For now, we just enhance main_content.
+        report_content = main_content + "\n\nAdditional detailed analysis and insights here."
 
-        # Provide a separate downloadUrl and also some form of content
-        # Let's say we take the main_content and create a more detailed report content here:
-        # For demonstration, we'll just pass the main_content as 'reportContent'.
-        # In a real scenario, you might generate a more detailed report content here based on the conversation.
-        report_content = main_content + "\n\nThis is additional detailed analysis not fully displayed above."
-
-        # downloadUrl is the endpoint we will POST to in order to generate and download the doc
-        download_url = '/api/generateReport'
+        # Encode the report_content for URL
+        encoded_content = urllib.parse.quote(report_content)
+        download_url = f'/api/generateReport?filename=report.docx&content={encoded_content}'
 
     return jsonify({
         "reply": main_content,
@@ -187,7 +183,6 @@ def chat_endpoint():
         "reportContent": report_content
     })
 
-# In /api/generateReport endpoint, accept 'content' as a query parameter and incorporate it into the doc.
 @app.route('/api/generateReport', methods=['GET'])
 def generate_report():
     filename = request.args.get('filename', 'report.docx')
@@ -195,7 +190,6 @@ def generate_report():
 
     doc = Document()
     doc.add_heading('Your Generated Report', level=1)
-    # Split the content by lines and add each line as a paragraph
     for line in report_content.split('\n'):
         doc.add_paragraph(line.strip())
 
