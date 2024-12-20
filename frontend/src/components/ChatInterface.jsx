@@ -26,13 +26,15 @@ export default function ChatInterface({ onLogout }) {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
 
+            // If the server returns references, add them to the botMsg
             if (res.data.references) {
                 botMsg.references = res.data.references;
             }
 
-            if (res.data.downloadUrl) {
+            // If the server returns downloadUrl and reportContent, store them
+            if (res.data.downloadUrl && res.data.reportContent) {
                 botMsg.downloadUrl = res.data.downloadUrl;
-                botMsg.reportContent = res.data.reportContent; // Store the detailed content
+                botMsg.reportContent = res.data.reportContent;
             }
 
             setMessages(prev => [...prev, botMsg]);
@@ -67,10 +69,9 @@ export default function ChatInterface({ onLogout }) {
         }
     };
 
-    const showStartContent = messages.length === 0 && !isLoading;
-
-    // Function to handle download from the bubble (if we choose to do it here):
-    const handleDownload = async (downloadUrl, reportContent) => {
+    // This function handles downloading the report by POSTing the reportContent to downloadUrl
+    const onDownload = async (downloadUrl, reportContent) => {
+        if (!downloadUrl || !reportContent) return;
         try {
             const res = await axios.post(downloadUrl, { reportContent }, { responseType: 'blob' });
             const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
@@ -83,10 +84,11 @@ export default function ChatInterface({ onLogout }) {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         } catch (err) {
-            console.error("Download error:", err);
-            alert("Error occurred while downloading the file.");
+            console.error('Error downloading report:', err);
         }
     };
+
+    const showStartContent = messages.length === 0 && !isLoading;
 
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
@@ -109,7 +111,8 @@ export default function ChatInterface({ onLogout }) {
                                 content={m.content}
                                 references={m.references}
                                 downloadUrl={m.downloadUrl}
-                                onDownload={() => handleDownload(m.downloadUrl, m.reportContent)}
+                                reportContent={m.reportContent}
+                                onDownload={onDownload}
                             />
                         ))}
                         {isLoading && <ThinkingBubble />}
@@ -117,7 +120,6 @@ export default function ChatInterface({ onLogout }) {
                 )}
             </div>
             <div className="flex space-x-2 items-end px-4 pb-4">
-                {/* Paperclip icon for file upload */}
                 <div className="relative flex items-center space-x-2">
                     <button
                         onClick={handleFileClick}

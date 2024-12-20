@@ -1,11 +1,12 @@
-﻿import React, { useState } from 'react';
+﻿// MessageBubble.jsx
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content, references, downloadUrl, onDownload, reportContent }) {
+export default function MessageBubble({ role, content, references, downloadUrl, reportContent, onDownload }) {
     const isUser = role === 'user';
 
     console.log("MessageBubble:", { role, content, references, downloadUrl, reportContent });
@@ -35,7 +36,7 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
-            // Just log the hrefs we encounter
+            // Just log the hrefs we encounter to help debugging
             console.log("Normal link href:", href);
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
@@ -57,9 +58,6 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
 
-    // If we have a downloadUrl and reportContent, we show a button to trigger the onDownload.
-    // Instead of embedding the link directly, we can show a custom button after the main content.
-    // We won't append anything to mainContent this time.
     console.log("Final content mainContent:", mainContent);
     console.log("Final content referencesSection:", referencesSection);
 
@@ -77,14 +75,14 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
                 {mainContent}
             </ReactMarkdown>
 
-            {/* If we have a detailed report to download, show a button */}
-            {!isUser && downloadUrl && reportContent && (
+            {/* If we have a downloadUrl and reportContent, show a button to download the detailed report */}
+            {downloadUrl && reportContent && (
                 <div className="mt-2">
                     <button
+                        className="text-blue-500 underline hover:text-blue-700"
                         onClick={() => onDownload(downloadUrl, reportContent)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                     >
-                        Download the Detailed Report
+                        Download the detailed report
                     </button>
                 </div>
             )}
