@@ -10,16 +10,7 @@ export default function MessageBubble({ role, content, references, downloadUrl }
 
     console.log("MessageBubble:", { role, content, references, downloadUrl });
 
-    // Before rendering, remove any unwanted links leading to the webapp base URL if needed
-    // Example: If links to "https://gymaiengine.com" appear, remove them.
-    // We'll just remove that line if found in mainContent:
-    let filteredContent = content || '';
-
-    // If there's a link pattern like [text](https://gymaiengine.com), remove it
-    const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
-    filteredContent = filteredContent.replace(webAppUrlPattern, '');
-
-    let mainContent = filteredContent;
+    let mainContent = content || '';
     let referencesSection = null;
     const referencesIndex = mainContent.indexOf("References:");
 
@@ -27,6 +18,10 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         referencesSection = mainContent.substring(referencesIndex).trim();
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
+
+    // Remove unwanted links that point to the webapp URL
+    const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
+    mainContent = mainContent.replace(webAppUrlPattern, '');
 
     const [showReferences, setShowReferences] = useState(false);
 
@@ -67,10 +62,8 @@ export default function MessageBubble({ role, content, references, downloadUrl }
     // Function to handle the actual download via the downloadUrl
     const handleDownload = () => {
         if (!downloadUrl) return;
-        // Append the content as a query param to the downloadUrl
-        const finalDownloadUrl = `${downloadUrl}&content=${encodeURIComponent(mainContent + (referencesSection ? '\n\n' + referencesSection : ''))}`;
         const a = document.createElement('a');
-        a.href = finalDownloadUrl;
+        a.href = downloadUrl;
         a.download = 'report.docx';
         document.body.appendChild(a);
         a.click();
@@ -81,6 +74,9 @@ export default function MessageBubble({ role, content, references, downloadUrl }
     console.log("Final content referencesSection:", referencesSection);
     console.log("MessageBubble: references:", references);
     console.log("MessageBubble: downloadUrl:", downloadUrl);
+
+    // Check if there are any relevant references to display
+    const hasRelevantReferences = references && references.length > 0;
 
     return (
         <div
@@ -96,7 +92,7 @@ export default function MessageBubble({ role, content, references, downloadUrl }
                 {mainContent}
             </ReactMarkdown>
 
-            {referencesSection && (
+            {hasRelevantReferences && (
                 <div className="mt-2">
                     <button
                         className="text-sm text-blue-400 underline hover:text-blue-600"
@@ -120,7 +116,6 @@ export default function MessageBubble({ role, content, references, downloadUrl }
 
             {downloadUrl && (
                 <div className="mt-4">
-                    {/* Replace text link with a button */}
                     <button
                         onClick={handleDownload}
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
