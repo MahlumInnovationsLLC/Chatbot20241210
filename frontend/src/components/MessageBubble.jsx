@@ -5,28 +5,34 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content, references }) {
+export default function MessageBubble({ role, content, references, downloadUrl }) {
     const isUser = role === 'user';
 
-    console.log("MessageBubble:", { role, content, references });
+    console.log("MessageBubble:", { role, content, references, downloadUrl });
 
-    // State to control showing references
     const [showReferences, setShowReferences] = useState(false);
 
-    // Ensure content is a string
     let mainContent = content || '';
     let referencesSection = null;
     const referencesIndex = mainContent.indexOf("References:");
-
     if (referencesIndex !== -1) {
         referencesSection = mainContent.substring(referencesIndex).trim();
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
 
+    // Detect if 'download://report.docx' was mentioned originally by the AI:
+    // Actually, we already removed it in the backend. If downloadUrl is provided, we know user requested a report.
+    // We'll append a simple button at the end of mainContent that triggers the download.
+    let encounteredDownloadRequest = (downloadUrl != null);
+
+    // If encounteredDownloadRequest, append a placeholder text
+    if (encounteredDownloadRequest) {
+        mainContent += `\n\n*Ready to download your report?*`;
+    }
+
     console.log("Final content mainContent:", mainContent);
     console.log("Final content referencesSection:", referencesSection);
 
-    // We have mainContent defined before components, so components can access it via closure
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -52,55 +58,38 @@ export default function MessageBubble({ role, content, references }) {
             return <ol className="list-decimal list-outside pl-5">{children}</ol>;
         },
         a({ href, children, ...props }) {
-            // Detect 'download://report.docx'
-            if (href && href.startsWith('download://')) {
-                const fileName = href.replace('download://', '');
-                console.log("Detected download link for:", fileName);
-                return (
-                    <button
-                        className="text-blue-500 underline hover:text-blue-700"
-                        onClick={async (e) => {
-                            e.preventDefault();
-                            // Use mainContent as the report content
-                            const reportContent = mainContent;
-                            try {
-                                const res = await fetch('/api/generateReport', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ reportContent })
-                                });
-                                if (!res.ok) {
-                                    alert("Failed to generate report.");
-                                    return;
-                                }
-                                const blob = await res.blob();
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = fileName;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(url);
-                            } catch (err) {
-                                console.error("Download error:", err);
-                                alert("Error occurred while downloading the file.");
-                            }
-                        }}
-                        {...props}
-                    >
-                        {children}
-                    </button>
-                );
-            }
-
-            // Normal link if not 'download://'
             console.log("Normal link href:", href);
             return (
                 <a href={href} className="text-blue-500 underline hover:text-blue-700" {...props}>
                     {children}
                 </a>
             );
+        }
+    };
+
+    const handleDownload = async () => {
+        try {
+            const res = await fetch(downloadUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reportContent: mainContent })
+            });
+            if (!res.ok) {
+                alert("Failed to generate report.");
+                return;
+            }
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'report.docx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download error:", err);
+            alert("Error occurred while downloading the file.");
         }
     };
 
@@ -117,6 +106,17 @@ export default function MessageBubble({ role, content, references }) {
             >
                 {mainContent}
             </ReactMarkdown>
+
+            {encounteredDownloadRequest && (
+                <div className="mt-2">
+                    <button
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        onClick={handleDownload}
+                    >
+                        Download the Report
+                    </button>
+                </div>
+            )}
 
             {referencesSection && (
                 <div className="mt-2">

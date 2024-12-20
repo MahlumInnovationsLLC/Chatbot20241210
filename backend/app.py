@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify, send_file
+from flask import Flask, send_from_directory, request, jsonify, send_file, make_response
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
@@ -29,7 +29,6 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
-    # Determine if the request includes a file (multipart/form-data) or just JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -38,7 +37,6 @@ def chat_endpoint():
             app.logger.info(f"Received file: {file.filename}")
             file_bytes = file.read()
             filename = file.filename.lower()
-            # Determine file extension for processing
             if filename.endswith('.pdf'):
                 file_ext = 'pdf'
             elif filename.endswith(('.png', '.jpg', '.jpeg')):
@@ -55,7 +53,6 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
-    # Base system and user messages with instructions
     messages = [
         {
             "role": "system",
@@ -64,15 +61,15 @@ def chat_endpoint():
                 "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
-
-                "Additionally, you can produce downloadable reports in the form of `download://filename.docx` links when the user requests a report or a downloadable report. "
-                "If the user asks for a report or a downloadable report, you MUST provide a link in the exact format `download://report.docx` within your response. "
-                "Do not refuse to create the link. Do not provide any alternative link formats.\n\n"
+                
+                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
+                "in the exact format: `download://report.docx` somewhere in your final response text.\n"
+                "Do not omit it, do not alter the format. If the user asks for a downloadable report, always provide `download://report.docx`.\n\n"
 
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
-                "- [Name](URL): short description\n\n"
-                "If no external sources used, write `References: None`."
+                "- [Name](URL): short description\n"
+                "If no external sources, write `References: None`."
             )
         },
         {
@@ -81,7 +78,6 @@ def chat_endpoint():
         }
     ]
 
-    # If a file is uploaded, process according to file type
     if file_bytes:
         if file_ext == 'pdf':
             app.logger.info("Extracting text from PDF...")
@@ -147,7 +143,6 @@ def chat_endpoint():
     else:
         app.logger.info("No file data found, proceeding without file analysis.")
 
-    # Call Azure OpenAI with the collected messages
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -158,7 +153,6 @@ def chat_endpoint():
         app.logger.error("Error calling Azure OpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
-    # Parse references from assistant_reply
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -169,7 +163,6 @@ def chat_endpoint():
         if references_section.lower().startswith('none'):
             references_list = []
         else:
-            import re
             for line in references_section.split('\n'):
                 line = line.strip()
                 if line.startswith('-'):
@@ -182,28 +175,28 @@ def chat_endpoint():
     else:
         references_list = []
 
+    # Check for `download://report.docx`
     download_url = None
     if 'download://report.docx' in main_content:
+        # Remove it from main_content
         main_content = main_content.replace('download://report.docx', '').strip()
-        download_url = '/api/generateReport?filename=report.docx'
-    else:
-        # As a fallback, still provide a download_url even if not found, or handle differently
-        download_url = '/api/generateReport?filename=report.docx'  # If you want a guaranteed link
+        # We'll provide a separate downloadUrl. We'll send only reportContent to the endpoint via POST.
+        download_url = '/api/generateReport'
 
     return jsonify({
-        "reply": main_content,  # without removal of download://report.docx
+        "reply": main_content,
         "references": references_list,
-        "downloadUrl": download_url
+        "downloadUrl": download_url  # Could be None if no download link requested
     })
 
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
     data = request.get_json(force=True)
-    report_content = data.get('reportContent', 'No content provided')
+    report_content = data.get('reportContent', 'No content provided.')
 
     doc = Document()
     doc.add_heading('Your Generated Report', level=1)
-    doc.add_paragraph(report_content)  # Insert the actual content
+    doc.add_paragraph(report_content)
 
     byte_io = BytesIO()
     doc.save(byte_io)
