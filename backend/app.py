@@ -187,15 +187,17 @@ def chat_endpoint():
         "reportContent": report_content
     })
 
-@app.route('/api/generateReport', methods=['POST'])
+# In /api/generateReport endpoint, accept 'content' as a query parameter and incorporate it into the doc.
+@app.route('/api/generateReport', methods=['GET'])
 def generate_report():
-    # Now we expect reportContent from JSON body
-    data = request.get_json(force=True)
-    report_content = data.get('reportContent', 'No content provided')
+    filename = request.args.get('filename', 'report.docx')
+    report_content = request.args.get('content', 'No content provided')
 
     doc = Document()
-    doc.add_heading('Your Custom Generated Report', level=1)
-    doc.add_paragraph(report_content)
+    doc.add_heading('Your Generated Report', level=1)
+    # Split the content by lines and add each line as a paragraph
+    for line in report_content.split('\n'):
+        doc.add_paragraph(line.strip())
 
     byte_io = BytesIO()
     doc.save(byte_io)
@@ -204,7 +206,7 @@ def generate_report():
     return send_file(
         byte_io,
         as_attachment=True,
-        download_name='report.docx',
+        download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 

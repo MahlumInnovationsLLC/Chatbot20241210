@@ -5,12 +5,10 @@ import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
 
-export default function ChatInterface({ onLogout }) {
-    const [messages, setMessages] = useState([]);
+export default function ChatInterface({ onLogout, messages, setMessages }) {
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [fileName, setFileName] = useState('');
-
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
@@ -26,15 +24,12 @@ export default function ChatInterface({ onLogout }) {
             const res = await axios.post('/chat', { userMessage: userInput });
             const botMsg = { role: 'assistant', content: res.data.reply };
 
-            // If the server returns references, add them to the botMsg
             if (res.data.references) {
                 botMsg.references = res.data.references;
             }
 
-            // If the server returns downloadUrl and reportContent, store them
-            if (res.data.downloadUrl && res.data.reportContent) {
+            if (res.data.downloadUrl) {
                 botMsg.downloadUrl = res.data.downloadUrl;
-                botMsg.reportContent = res.data.reportContent;
             }
 
             setMessages(prev => [...prev, botMsg]);
@@ -69,26 +64,8 @@ export default function ChatInterface({ onLogout }) {
         }
     };
 
-    // This function handles downloading the report by POSTing the reportContent to downloadUrl
-    const onDownload = async (downloadUrl, reportContent) => {
-        if (!downloadUrl || !reportContent) return;
-        try {
-            const res = await axios.post(downloadUrl, { reportContent }, { responseType: 'blob' });
-            const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'report.docx';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch (err) {
-            console.error('Error downloading report:', err);
-        }
-    };
-
-    const showStartContent = messages.length === 0 && !isLoading;
+    const showStartContent = messages.length === 1 && !isLoading;
+    // If we start with a system message, length=1 means just system message is there.
 
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
@@ -104,22 +81,24 @@ export default function ChatInterface({ onLogout }) {
                 )}
                 {!showStartContent && (
                     <>
-                        {messages.map((m, i) => (
-                            <MessageBubble
-                                key={i}
-                                role={m.role}
-                                content={m.content}
-                                references={m.references}
-                                downloadUrl={m.downloadUrl}
-                                reportContent={m.reportContent}
-                                onDownload={onDownload}
-                            />
-                        ))}
+                        {messages.map((m, i) => {
+                            // Pass downloadUrl and references if present
+                            return (
+                                <MessageBubble
+                                    key={i}
+                                    role={m.role}
+                                    content={m.content}
+                                    references={m.references}
+                                    downloadUrl={m.downloadUrl}
+                                />
+                            );
+                        })}
                         {isLoading && <ThinkingBubble />}
                     </>
                 )}
             </div>
             <div className="flex space-x-2 items-end px-4 pb-4">
+                {/* Paperclip icon for file upload */}
                 <div className="relative flex items-center space-x-2">
                     <button
                         onClick={handleFileClick}
