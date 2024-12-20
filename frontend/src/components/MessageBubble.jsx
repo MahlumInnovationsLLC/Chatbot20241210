@@ -19,7 +19,7 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
 
-    // Remove `download://report.docx` if present
+    // Remove `download://report.docx`
     if (mainContent.includes('download://report.docx')) {
         mainContent = mainContent.replace('download://report.docx', '').trim();
     }
@@ -64,7 +64,7 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
         }
     };
 
-    // Function to handle the download button click using POST request with JSON
+    // Handle download button
     const handleDownload = async () => {
         if (!downloadUrl || !reportContent) return;
         try {
@@ -97,7 +97,6 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
     console.log("MessageBubble: references:", references);
     console.log("MessageBubble: downloadUrl:", downloadUrl);
 
-    // Only show references if we have them and references is a non-empty array
     const hasRelevantReferences = references && references.length > 0;
 
     return (

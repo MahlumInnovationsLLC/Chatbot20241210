@@ -19,6 +19,42 @@ client = AzureOpenAI(
 
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual deployment name
 
+def generate_detailed_report(base_content):
+    """
+    Make a second OpenAI call to produce a more in-depth, structured, and detailed report
+    based on the main_content from the assistant.
+    """
+    detail_messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful assistant that specializes in creating detailed, comprehensive reports. "
+                "Given some brief content about a topic, produce a thorough, well-structured, and in-depth written report. "
+                "Include headings, subheadings, bullet points, data-driven insights, best practices, examples, and potential future trends. "
+                "Write as if producing a professional whitepaper or industry analysis document."
+            )
+        },
+        {
+            "role": "user",
+            "content": (
+                "Here is a brief summary: " + base_content + "\n\n"
+                "Now please create a significantly more in-depth, expanded, and detailed report that covers the topic comprehensively."
+            )
+        }
+    ]
+
+    try:
+        detail_response = client.chat.completions.create(
+            messages=detail_messages,
+            model=AZURE_DEPLOYMENT_NAME
+        )
+        detailed_report = detail_response.choices[0].message.content
+        return detailed_report
+    except Exception as e:
+        app.logger.error("Error calling OpenAI for detailed report:", exc_info=True)
+        # Fallback to just using the base_content if detailed generation fails
+        return base_content + "\n\n(Additional detailed analysis could not be generated due to an error.)"
+
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
@@ -29,7 +65,6 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
-    # Check request type
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -76,7 +111,6 @@ def chat_endpoint():
         }
     ]
 
-    # Handle file analysis if provided
     if file_bytes:
         if file_ext == 'pdf':
             app.logger.info("Extracting text from PDF...")
@@ -134,7 +168,7 @@ def chat_endpoint():
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
 
-    # Call Azure OpenAI
+    # Call the main OpenAI API to get the assistant_reply
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -171,11 +205,9 @@ def chat_endpoint():
     if 'download://report.docx' in main_content:
         # Remove placeholder
         main_content = main_content.replace('download://report.docx', '').strip()
-        # Generate more detailed report content
-        report_content = main_content + "\n\nAdditional detailed analysis and insights here."
-
-        # We'll send a POST request for downloading the doc. Just provide a known endpoint.
-        # The client will POST { filename: 'report.docx', reportContent } to /api/generateReport
+        # Produce a more in-depth, structured report based on main_content
+        report_content = generate_detailed_report(main_content)
+        # We'll use a POST request to /api/generateReport
         download_url = '/api/generateReport'
 
     return jsonify({

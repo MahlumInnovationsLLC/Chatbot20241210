@@ -9,7 +9,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [fileName, setFileName] = useState('');
-    const [file, setFile] = useState(null); // Keep track of the file object
+    const [file, setFile] = useState(null);
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
@@ -25,7 +25,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
         try {
             let res;
             if (file) {
-                // Send multipart/form-data if file is present
+                // Send multipart/form-data if file present
                 const formData = new FormData();
                 formData.append('userMessage', userInput);
                 formData.append('file', file);
@@ -35,7 +35,6 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                     }
                 });
             } else {
-                // Send JSON if no file
                 res = await axios.post('/chat', { userMessage: userInput });
             }
 
@@ -81,7 +80,6 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
         }
     };
 
-    // Filter out system messages
     const filteredMessages = messages.filter(m => m.role !== 'system');
     const showStartContent = filteredMessages.length === 0 && !isLoading;
 
