@@ -3,8 +3,7 @@ import ChatInterface from './components/ChatInterface';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
-// Uncomment if you have Font Awesome Pro properly set up:
-// import '@fortawesome/fontawesome-pro/web/css/all.min.css';
+import axios from 'axios';
 
 export default function App() {
     const { instance } = useMsal();
@@ -33,7 +32,7 @@ function AppContent({ onLogout }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
-    const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false); // NEW: state for the URL share popup
+    const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [messages, setMessages] = useState([]);
     const [activeTab, setActiveTab] = useState('theme');
@@ -45,24 +44,19 @@ function AppContent({ onLogout }) {
 
     const limeGreen = '#a2f4a2';
 
-    const customUrl = "https://gymaiengine.com"; // Replace with your custom URL
+    const customUrl = "https://gymaiengine.com";
 
-    // System message to align with backend instructions
+    // System message
     const systemMessage = {
         role: 'system',
         content: (
-            "You are a helpful assistant. When you respond, please use Markdown formatting for clarity. " +
-            "Use **bold**, *italic*, `inline code`, and ```code blocks``` when appropriate. Also, break down complex steps into bullet points or numbered lists. End responses with a friendly tone.\n\n" +
-            "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one instance of `download://report.docx` in your final response text. Do not omit or alter this format.\n\n" +
-            "If you use external sources, provide:\n" +
-            "References:\n" +
-            "- [Name](URL): short description\n\n" +
-            "If no external sources used, write `References: None`."
+            "You are an AI assistant that can produce downloadable reports in Markdown link format. "
+            + "If asked for a report, produce `download://report.docx` in your response. "
+            + "Use Markdown formatting, references if external sources used. If none, write `References: None`."
         )
     };
 
     useEffect(() => {
-        // Ensure system message is at the start of messages
         if (messages.length === 0) {
             setMessages([systemMessage]);
         } else {
@@ -121,16 +115,9 @@ function AppContent({ onLogout }) {
         URL.revokeObjectURL(url);
     };
 
-    const getMailToLink = () => {
-        const subject = encodeURIComponent('Chat Transcript');
-        const body = encodeURIComponent(messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n'));
-        return `mailto:?subject=${subject}&body=${body}`;
-    };
-
     useEffect(() => {
         const handleClickOutside = (e) => {
             if ((menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen)) {
-                // If clicking outside and not on settings or share URL popup
                 if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen && !shareUrlPopupOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
@@ -165,6 +152,36 @@ function AppContent({ onLogout }) {
         };
         localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
         alert('AI Instructions saved!');
+    };
+
+    // New Contact Us tab state
+    const [contactNameFirst, setContactNameFirst] = useState('');
+    const [contactNameLast, setContactNameLast] = useState('');
+    const [contactCompany, setContactCompany] = useState('');
+    const [contactEmail, setContactEmail] = useState('');
+    const [contactNote, setContactNote] = useState('');
+
+    const sendContactForm = async () => {
+        try {
+            const formData = {
+                firstName: contactNameFirst,
+                lastName: contactNameLast,
+                company: contactCompany,
+                email: contactEmail,
+                note: contactNote
+            };
+            await axios.post('/contact', formData);
+            alert('Your message has been sent successfully!');
+            // Clear fields
+            setContactNameFirst('');
+            setContactNameLast('');
+            setContactCompany('');
+            setContactEmail('');
+            setContactNote('');
+        } catch (e) {
+            console.error('Error sending contact form:', e);
+            alert('Failed to send your message. Please try again later.');
+        }
     };
 
     const renderSettingsContent = () => {
@@ -237,7 +254,70 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-            case 'empty1':
+            case 'empty1': // REPLACED with Contact Us
+                return (
+                    <div className="flex flex-col space-y-4">
+                        <h2 className="text-xl font-bold">Contact Us</h2>
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">First Name:</label>
+                            <input
+                                type="text"
+                                value={contactNameFirst}
+                                onChange={e => setContactNameFirst(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="First Name"
+                            />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Last Name:</label>
+                            <input
+                                type="text"
+                                value={contactNameLast}
+                                onChange={e => setContactNameLast(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="Last Name"
+                            />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Company:</label>
+                            <input
+                                type="text"
+                                value={contactCompany}
+                                onChange={e => setContactCompany(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="Company Name"
+                            />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Email:</label>
+                            <input
+                                type="email"
+                                value={contactEmail}
+                                onChange={e => setContactEmail(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="Your Email"
+                            />
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Note:</label>
+                            <textarea
+                                value={contactNote}
+                                onChange={e => setContactNote(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                placeholder="How can we help?"
+                                rows={5}
+                            />
+                        </div>
+                        <div className="flex justify-center mt-4">
+                            <button
+                                onClick={sendContactForm}
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                );
             case 'empty2':
             case 'empty3':
                 return (
@@ -279,7 +359,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={onLogout}
                             >
-                                <i class="fa-light fa-arrow-right-from-bracket mr-2"></i>
+                                <i className="fa-light fa-arrow-right-from-bracket mr-2"></i>
                                 Logout
                             </button>
 
@@ -287,7 +367,7 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openSettings}
                             >
-                                <i class="fa-light fa-gear mr-2"></i>
+                                <i className="fa-light fa-gear mr-2"></i>
                                 Settings
                             </button>
 
@@ -295,40 +375,39 @@ function AppContent({ onLogout }) {
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={openShareMenu}
                             >
-                                <i class="fa-light fa-share-from-square mr-2"></i>
+                                <i className="fa-light fa-share-from-square mr-2"></i>
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-right transition-transform duration-200 ease-out animate-slideDown"
+                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
                                     style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '4rem' }}
                                 >
                                     <a
-                                        href={getMailToLink()}
+                                        href={`mailto:?subject=${encodeURIComponent('Chat Transcript')}&body=${encodeURIComponent(messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n'))}`}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                     >
-                                        <i class="fa-light fa-envelope mr-2"></i>
+                                        <i className="fa-light fa-envelope mr-2"></i>
                                         Share via Email
                                     </a>
                                     <button
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={copyTranscriptToClipboard}
                                     >
-                                        <i class="fa-light fa-copy mr-2"></i>
+                                        <i className="fa-light fa-copy mr-2"></i>
                                         Copy Transcript
                                     </button>
                                     <button
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={downloadTranscriptDocx}
                                     >
-                                        <i class="fa-light fa-download mr-2"></i>
+                                        <i className="fa-light fa-download mr-2"></i>
                                         Download as .docx
                                     </button>
-                                    {/* New "Share URL" option */}
                                     <button
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                         onClick={() => setShareUrlPopupOpen(true)}
                                     >
-                                        <i class="fa-light fa-copy mr-2"></i>
+                                        <i className="fa-light fa-copy mr-2"></i>
                                         Share URL
                                     </button>
                                 </div>
@@ -384,7 +463,7 @@ function AppContent({ onLogout }) {
                             onClick={() => setSettingsOpen(false)}
                             className="absolute top-6 right-8 text-sm font-bold"
                         >
-                            <i class="fa-light fa-xmark-large"></i>
+                            <i className="fa-light fa-xmark-large"></i>
                         </button>
                         <div className="flex space-x-4 mb-4 pb-2"
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
@@ -393,35 +472,33 @@ function AppContent({ onLogout }) {
                                 className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('theme')}
                             >
-                                <i class="fa-light fa-ferris-wheel mr-2"></i>
+                                <i className="fa-light fa-ferris-wheel mr-2"></i>
                                 Theme
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('ai')}
                             >
-                                <i class="fa-light fa-head-side-gear mr-2"></i>
+                                <i className="fa-light fa-head-side-gear mr-2"></i>
                                 AI Instructions
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty1')}
                             >
-                                <i class="fa-light fa-empty-set mr-2"></i>
-                                EMPTY
+                                <i className="fa-light fa-address-book mr-2"></i>
+                                Contact Us
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty2')}
                             >
-                                <i class="fa-light fa-empty-set mr-2"></i>
                                 EMPTY
                             </button>
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
                                 onClick={() => setActiveTab('empty3')}
                             >
-                                <i class="fa-light fa-empty-set mr-2"></i>
                                 EMPTY
                             </button>
                         </div>
@@ -442,7 +519,6 @@ function AppContent({ onLogout }) {
                 </div>
             )}
 
-            {/* Share URL Popup */}
             {shareUrlPopupOpen && (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
@@ -463,7 +539,7 @@ function AppContent({ onLogout }) {
                                 onClick={() => setShareUrlPopupOpen(false)}
                                 className="text-sm font-bold"
                             >
-                                <i class="fa-light fa-xmark-large"></i>
+                                <i className="fa-light fa-xmark-large"></i>
                             </button>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -480,7 +556,7 @@ function AppContent({ onLogout }) {
                                 }}
                                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
                             >
-                                <i class="fa-light fa-copy mr-2"></i>
+                                <i className="fa-light fa-copy mr-2"></i>
                                 Copy URL
                             </button>
                         </div>
