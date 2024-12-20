@@ -223,10 +223,51 @@ def generate_report():
     filename = data.get('filename', 'report.docx')
     report_content = data.get('reportContent', 'No content provided')
 
+    lines = report_content.split('\n')
+    lines = [l.strip() for l in lines]
+
+    # Try to find a title line starting with '# '
+    doc_title = "Generated Report"
+    title_index = None
+    for i, line in enumerate(lines):
+        if line.startswith('# '):
+            doc_title = line[2:].strip()  # Extract the title text after '# '
+            title_index = i
+            break
+
+    # Remove the title line from normal processing if found
+    if title_index is not None:
+        lines.pop(title_index)
+
     doc = Document()
-    doc.add_heading('Your Generated Report', level=1)
-    for line in report_content.split('\n'):
-        doc.add_paragraph(line.strip())
+    # Use the extracted title as the main heading
+    doc.add_heading(doc_title, 0)
+
+    for line in lines:
+        if not line:
+            # Empty line
+            doc.add_paragraph('')
+            continue
+
+        # Check for headings
+        if line.startswith('### '):
+            doc.add_heading(line[4:].strip(), level=3)
+        elif line.startswith('## '):
+            doc.add_heading(line[3:].strip(), level=2)
+        elif line.startswith('# '):
+            # If another # line is found, treat it as level 1 heading now
+            doc.add_heading(line[2:].strip(), level=1)
+
+        # Check for lists
+        elif re.match(r'^\-\s', line):
+            # Bulleted list
+            doc.add_paragraph(line[2:].strip(), style='List Bullet')
+        elif re.match(r'^\d+\.\s', line):
+            # Numbered list
+            doc.add_paragraph(re.sub(r'^\d+\.\s', '', line).strip(), style='List Number')
+        else:
+            # Normal paragraph
+            doc.add_paragraph(line)
 
     byte_io = BytesIO()
     doc.save(byte_io)
