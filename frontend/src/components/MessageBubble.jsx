@@ -20,13 +20,16 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
 
-    // Detect if 'download://report.docx' was mentioned originally by the AI:
-    // Actually, we already removed it in the backend. If downloadUrl is provided, we know user requested a report.
-    // We'll append a simple button at the end of mainContent that triggers the download.
-    let encounteredDownloadRequest = (downloadUrl != null);
+    // Check if we have a downloadUrl from backend
+    const encounteredDownloadRequest = (downloadUrl != null);
 
-    // If encounteredDownloadRequest, append a placeholder text
+    // If we have a download request, remove any original download links the AI might have provided
     if (encounteredDownloadRequest) {
+        // This regex tries to remove any Markdown links that start with [Download
+        // You can refine this if needed.
+        mainContent = mainContent.replace(/\[Download[^\]]*\]\([^\)]*\)/gi, '');
+
+        // Now append our custom prompt
         mainContent += `\n\n*Ready to download your report?*`;
     }
 
