@@ -19,6 +19,11 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
 
+    // Remove `download://report.docx` if present
+    if (mainContent.includes('download://report.docx')) {
+        mainContent = mainContent.replace('download://report.docx', '').trim();
+    }
+
     // Remove unwanted links that point to the webapp URL
     const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
     mainContent = mainContent.replace(webAppUrlPattern, '');
@@ -59,15 +64,28 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         }
     };
 
-    // Function to handle the actual download via the downloadUrl
-    const handleDownload = () => {
+    // Function to handle the download button click using fetch and blob
+    const handleDownload = async () => {
         if (!downloadUrl) return;
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = 'report.docx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        try {
+            const res = await fetch(downloadUrl);
+            if (!res.ok) {
+                alert("Failed to download the report.");
+                return;
+            }
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'report.docx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error("Download error:", e);
+            alert("Error occurred while downloading the file.");
+        }
     };
 
     console.log("Final content mainContent:", mainContent);
@@ -75,7 +93,7 @@ export default function MessageBubble({ role, content, references, downloadUrl }
     console.log("MessageBubble: references:", references);
     console.log("MessageBubble: downloadUrl:", downloadUrl);
 
-    // Check if there are any relevant references to display
+    // Only show references if we have them and references is a non-empty array
     const hasRelevantReferences = references && references.length > 0;
 
     return (

@@ -22,6 +22,6 @@ body {
 /* Create a custom class for the slide-down animation */
 @layer utilities {
     .animate-slideDown {
-        animation: slideDown 0.5s ease-out;
+        animation: slideDown 0.2s ease-out;
     }
 }
