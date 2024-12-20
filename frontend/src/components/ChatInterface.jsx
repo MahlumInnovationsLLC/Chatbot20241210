@@ -9,12 +9,13 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [fileName, setFileName] = useState('');
+    const [file, setFile] = useState(null); // Keep track of the file object
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
     const sendMessage = async () => {
-        if (!userInput.trim()) return;
+        if (!userInput.trim() && !file) return;
         const userMsg = { role: 'user', content: userInput };
         setMessages(prev => [...prev, userMsg]);
         setUserInput('');
@@ -22,12 +23,28 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
         setIsLoading(true);
 
         try {
-            const res = await axios.post('/chat', { userMessage: userInput });
+            let res;
+            if (file) {
+                // Send multipart/form-data if file is present
+                const formData = new FormData();
+                formData.append('userMessage', userInput);
+                formData.append('file', file);
+                res = await axios.post('/chat', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+            } else {
+                // Send JSON if no file
+                res = await axios.post('/chat', { userMessage: userInput });
+            }
+
             const botMsg = {
                 role: 'assistant',
                 content: res.data.reply,
                 references: res.data.references,
-                downloadUrl: res.data.downloadUrl
+                downloadUrl: res.data.downloadUrl,
+                reportContent: res.data.reportContent
             };
 
             setMessages(prev => [...prev, botMsg]);
@@ -37,6 +54,8 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
             setMessages(prev => [...prev, errorMsg]);
         } finally {
             setIsLoading(false);
+            setFile(null);
+            setFileName('');
         }
     };
 
@@ -48,23 +67,22 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
     };
 
     const handleFileClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
+        if (fileInputRef.current) fileInputRef.current.click();
     };
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFileName(file.name);
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFileName(selectedFile.name);
+            setFile(selectedFile);
         } else {
             setFileName('');
+            setFile(null);
         }
     };
 
-    // Filter out system messages so they do not display in the UI.
+    // Filter out system messages
     const filteredMessages = messages.filter(m => m.role !== 'system');
-
     const showStartContent = filteredMessages.length === 0 && !isLoading;
 
     return (
@@ -88,6 +106,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                                 content={m.content}
                                 references={m.references}
                                 downloadUrl={m.downloadUrl}
+                                reportContent={m.reportContent}
                             />
                         ))}
                         {isLoading && <ThinkingBubble />}

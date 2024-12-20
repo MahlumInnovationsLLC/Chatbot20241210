@@ -7,7 +7,6 @@ import traceback
 import re
 from io import BytesIO
 from docx import Document
-import urllib.parse  # for URL encoding
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -30,6 +29,7 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
+    # Check request type
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -76,6 +76,7 @@ def chat_endpoint():
         }
     ]
 
+    # Handle file analysis if provided
     if file_bytes:
         if file_ext == 'pdf':
             app.logger.info("Extracting text from PDF...")
@@ -133,6 +134,7 @@ def chat_endpoint():
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
 
+    # Call Azure OpenAI
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -167,14 +169,14 @@ def chat_endpoint():
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
-        # Extract the link and then remove it from main_content
+        # Remove placeholder
         main_content = main_content.replace('download://report.docx', '').strip()
-        # Generate a more detailed report content. For now, we just enhance main_content.
+        # Generate more detailed report content
         report_content = main_content + "\n\nAdditional detailed analysis and insights here."
 
-        # Encode the report_content for URL
-        encoded_content = urllib.parse.quote(report_content)
-        download_url = f'/api/generateReport?filename=report.docx&content={encoded_content}'
+        # We'll send a POST request for downloading the doc. Just provide a known endpoint.
+        # The client will POST { filename: 'report.docx', reportContent } to /api/generateReport
+        download_url = '/api/generateReport'
 
     return jsonify({
         "reply": main_content,
@@ -183,10 +185,11 @@ def chat_endpoint():
         "reportContent": report_content
     })
 
-@app.route('/api/generateReport', methods=['GET'])
+@app.route('/api/generateReport', methods=['POST'])
 def generate_report():
-    filename = request.args.get('filename', 'report.docx')
-    report_content = request.args.get('content', 'No content provided')
+    data = request.get_json(force=True)
+    filename = data.get('filename', 'report.docx')
+    report_content = data.get('reportContent', 'No content provided')
 
     doc = Document()
     doc.add_heading('Your Generated Report', level=1)

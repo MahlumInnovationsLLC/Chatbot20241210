@@ -5,10 +5,10 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-export default function MessageBubble({ role, content, references, downloadUrl }) {
+export default function MessageBubble({ role, content, references, downloadUrl, reportContent }) {
     const isUser = role === 'user';
 
-    console.log("MessageBubble:", { role, content, references, downloadUrl });
+    console.log("MessageBubble:", { role, content, references, downloadUrl, reportContent });
 
     let mainContent = content || '';
     let referencesSection = null;
@@ -64,11 +64,15 @@ export default function MessageBubble({ role, content, references, downloadUrl }
         }
     };
 
-    // Function to handle the download button click using fetch and blob
+    // Function to handle the download button click using POST request with JSON
     const handleDownload = async () => {
-        if (!downloadUrl) return;
+        if (!downloadUrl || !reportContent) return;
         try {
-            const res = await fetch(downloadUrl);
+            const res = await fetch(downloadUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: 'report.docx', reportContent })
+            });
             if (!res.ok) {
                 alert("Failed to download the report.");
                 return;
@@ -132,7 +136,7 @@ export default function MessageBubble({ role, content, references, downloadUrl }
                 </div>
             )}
 
-            {downloadUrl && (
+            {downloadUrl && reportContent && (
                 <div className="mt-4">
                     <button
                         onClick={handleDownload}
