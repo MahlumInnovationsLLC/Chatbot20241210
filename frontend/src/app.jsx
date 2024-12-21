@@ -227,14 +227,16 @@ function AppContent({ onLogout }) {
             // RENAMED from 'theme' to 'general'
             case 'general':
                 return (
-                    <div className="flex flex-col space-y-4">
-                        {/* THEME DROPDOWN */}
-                        <div>
-                            <label className="block font-semibold mb-1">Theme</label>
+                    <div className="flex flex-col space-y-6">
+
+                        {/* Row: "Theme" + dropdown */}
+                        <div className="flex items-center justify-between">
+                            <label className="font-semibold mr-4">Theme</label>
                             <select
                                 value={selectedTheme}
                                 onChange={e => setSelectedTheme(e.target.value)}
-                                className="border p-2 rounded"
+                                // Make background white and text black for easy reading
+                                className="bg-white text-black border p-2 rounded w-44"
                             >
                                 <option value="dark">Dark</option>
                                 <option value="light">Light</option>
@@ -242,9 +244,11 @@ function AppContent({ onLogout }) {
                             </select>
                         </div>
 
-                        {/* ALWAYS SHOW CODE TOGGLE */}
-                        <div className="flex items-center space-x-2">
-                            <label className="font-semibold">Always show code when using data analyst</label>
+                        {/* Row: "Always show code..." + checkbox */}
+                        <div className="flex items-center justify-between">
+                            <label className="font-semibold mr-4">
+                                Always show code when using data analyst
+                            </label>
                             <input
                                 type="checkbox"
                                 checked={alwaysShowCode}
@@ -253,51 +257,63 @@ function AppContent({ onLogout }) {
                             />
                         </div>
 
-                        {/* LANGUAGE DROPDOWN */}
-                        <div>
-                            <label className="block font-semibold mb-1">Language</label>
+                        {/* Row: "Language" + dropdown */}
+                        <div className="flex items-center justify-between">
+                            <label className="font-semibold mr-4">Language</label>
                             <select
                                 value={selectedLanguage}
                                 onChange={e => setSelectedLanguage(e.target.value)}
-                                className="border p-2 rounded"
+                                className="bg-white text-black border p-2 rounded w-44"
                             >
                                 <option value="auto">Auto-detect</option>
                                 <option value="en">English</option>
                                 <option value="es">Spanish</option>
-                                {/* Add more as desired */}
+                                {/* Add more languages here */}
                             </select>
                         </div>
 
-                        {/* ARCHIVED CHATS: manage, archive, delete */}
-                        <div className="flex flex-col space-y-2 mt-4">
-                            <div className="flex items-center justify-between">
-                                <span className="font-semibold">Archived chats</span>
+                        {/* Archived chats section with Manage / Archive all / Delete all */}
+                        <div>
+                            <label className="font-semibold block mb-2">Archived chats</label>
+
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm text-gray-200 opacity-70">
+                                    (Placeholder for description if needed)
+                                </span>
                                 <button
                                     onClick={handleManageArchivedChats}
-                                    className="bg-gray-200 hover:bg-gray-300 px-4 py-1 rounded"
+                                    className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+                                    style={{ minWidth: '6rem' }}
                                 >
                                     Manage
                                 </button>
                             </div>
-                            <button
-                                onClick={handleArchiveAll}
-                                className="bg-gray-200 hover:bg-gray-300 px-4 py-1 rounded w-full text-left"
-                            >
-                                Archive all chats
-                            </button>
-                            <button
-                                onClick={handleDeleteAll}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded w-full text-left"
-                            >
-                                Delete all chats
-                            </button>
+
+                            <div className="flex flex-col space-y-2">
+                                <button
+                                    onClick={handleArchiveAll}
+                                    className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 text-left"
+                                    style={{ minWidth: '8rem' }}
+                                >
+                                    Archive all chats
+                                </button>
+
+                                <button
+                                    onClick={handleDeleteAll}
+                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-left"
+                                    style={{ minWidth: '8rem' }}
+                                >
+                                    Delete all chats
+                                </button>
+                            </div>
                         </div>
 
-                        {/* LOG OUT ON THIS DEVICE */}
-                        <div className="flex justify-end mt-4">
+                        {/* Log out on this device */}
+                        <div className="flex justify-end mt-6">
                             <button
                                 onClick={onLogout}
                                 className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+                                style={{ minWidth: '10rem' }}
                             >
                                 Log out on this device
                             </button>
@@ -624,7 +640,7 @@ function AppContent({ onLogout }) {
                                     }`}
                                 onClick={() => setActiveTab('general')}
                             >
-                                <i className="fa-light fa-ferris-wheel mr-2"></i>
+                                <i className="fa-light fa-gear mr-2"></i>
                                 General
                             </button>
 
