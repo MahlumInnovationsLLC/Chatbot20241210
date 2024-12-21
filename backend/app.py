@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, jsonify, send_file
+from flask import Flask, send_from_directory, request, jsonify, send_file, make_response
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
@@ -7,6 +7,7 @@ import traceback
 import re
 from io import BytesIO
 from docx import Document
+import urllib.parse
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -65,6 +66,7 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
+    # Detect if there's a file in multipart/form-data or standard JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -87,6 +89,7 @@ def chat_endpoint():
         user_input = data.get('userMessage', '')
         file_bytes = None
 
+    # Base system and user messages
     messages = [
         {
             "role": "system",
@@ -111,12 +114,12 @@ def chat_endpoint():
         }
     ]
 
+    # If a file was uploaded, process it
     if file_bytes:
         if file_ext == 'pdf':
             app.logger.info("Extracting text from PDF...")
             try:
                 extracted_text = extract_text_from_pdf(file_bytes)
-                app.logger.info("PDF text extracted successfully.")
                 messages.append({
                     "role": "system",
                     "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
@@ -168,7 +171,7 @@ def chat_endpoint():
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
 
-    # Call the main OpenAI API to get the assistant_reply
+    # First call to OpenAI to get a short or direct answer
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -179,6 +182,7 @@ def chat_endpoint():
         app.logger.error("Error calling Azure OpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
+    # Attempt to parse references
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -196,20 +200,27 @@ def chat_endpoint():
                         name = match.group(1)
                         url = match.group(2)
                         desc = match.group(3)
-                        references_list.append({"name": name, "url": url, "description": desc})
+                        references_list.append({
+                            "name": name, 
+                            "url": url, 
+                            "description": desc
+                        })
     else:
         references_list = []
 
+    # Check if user wants a downloadable report
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
-        # Remove placeholder
+        # Remove the placeholder from the displayed text
         main_content = main_content.replace('download://report.docx', '').strip()
-        # Produce a more in-depth, structured report based on main_content
+
+        # Make a second call to produce a more in-depth, structured "reportContent"
         report_content = generate_detailed_report(main_content)
-        # We'll use a POST request to /api/generateReport
+        # We'll use a POST request to /api/generateReport for final doc creation
         download_url = '/api/generateReport'
 
+    # Return JSON with either references, normal text, or a link for doc generation
     return jsonify({
         "reply": main_content,
         "references": references_list,
@@ -219,56 +230,67 @@ def chat_endpoint():
 
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
+    """
+    Expects JSON:
+    {
+      "filename": "report.docx",
+      "reportContent": "some detailed content with headings etc."
+    }
+    Returns a Word doc with bold items handled, headings, bullet points, etc.
+    """
     data = request.get_json(force=True)
     filename = data.get('filename', 'report.docx')
     report_content = data.get('reportContent', 'No content provided')
 
+    # We'll parse lines and handle headings or bullet points
     lines = report_content.split('\n')
-    lines = [l.strip() for l in lines]
-
-    # Try to find a title line starting with '# '
-    doc_title = "Generated Report"
-    title_index = None
-    for i, line in enumerate(lines):
-        if line.startswith('# '):
-            doc_title = line[2:].strip()  # Extract the title text after '# '
-            title_index = i
-            break
-
-    # Remove the title line from normal processing if found
-    if title_index is not None:
-        lines.pop(title_index)
+    lines = [l.rstrip() for l in lines]
 
     doc = Document()
-    # Use the extracted title as the main heading
+
+    # Attempt to locate a first-line heading
+    doc_title = "Generated Report"
+    if lines and lines[0].startswith('# '):
+        doc_title = lines[0][2:].strip()
+        # remove that line from normal processing
+        lines = lines[1:]
+
+    # Document Title
     doc.add_heading(doc_title, 0)
 
     for line in lines:
-        if not line:
-            # Empty line
+        stripped_line = line.strip()
+        if not stripped_line:
+            # Add a blank paragraph for empty lines
             doc.add_paragraph('')
             continue
 
-        # Check for headings
-        if line.startswith('### '):
-            doc.add_heading(line[4:].strip(), level=3)
-        elif line.startswith('## '):
-            doc.add_heading(line[3:].strip(), level=2)
-        elif line.startswith('# '):
-            # If another # line is found, treat it as level 1 heading now
-            doc.add_heading(line[2:].strip(), level=1)
-
-        # Check for lists
-        elif re.match(r'^\-\s', line):
-            # Bulleted list
-            doc.add_paragraph(line[2:].strip(), style='List Bullet')
-        elif re.match(r'^\d+\.\s', line):
-            # Numbered list
-            doc.add_paragraph(re.sub(r'^\d+\.\s', '', line).strip(), style='List Number')
+        # Check for heading tokens
+        if stripped_line.startswith('### '):
+            doc.add_heading(stripped_line[4:].strip(), level=3)
+        elif stripped_line.startswith('## '):
+            doc.add_heading(stripped_line[3:].strip(), level=2)
+        elif stripped_line.startswith('# '):
+            doc.add_heading(stripped_line[2:].strip(), level=1)
+        # Bullet points: lines starting with '- '
+        elif re.match(r'^-\s', stripped_line):
+            doc.add_paragraph(stripped_line[2:].strip(), style='List Bullet')
+        # Numbered list: e.g. "1. text"
+        elif re.match(r'^\d+\.\s', stripped_line):
+            doc.add_paragraph(re.sub(r'^\d+\.\s', '', stripped_line).strip(), style='List Number')
         else:
             # Normal paragraph
-            doc.add_paragraph(line)
+            # We can parse for bold segments using '**' pairs
+            p = doc.add_paragraph()
+            segments = stripped_line.split('**')
+            bold_toggle = False
+            for i, seg in enumerate(segments):
+                run = p.add_run(seg)
+                # If we are on an odd segment, that should be bold
+                if i % 2 == 1:
+                    run.bold = True
 
+    # Return the doc
     byte_io = BytesIO()
     doc.save(byte_io)
     byte_io.seek(0)
@@ -279,6 +301,38 @@ def generate_report():
         download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
+
+@app.route('/contact', methods=['POST'])
+def contact_endpoint():
+    """
+    Expects JSON:
+    {
+      "firstName": "...",
+      "lastName": "...",
+      "company": "...",
+      "email": "...",
+      "note": "..."
+    }
+    """
+    data = request.get_json(force=True)
+    firstName = data.get('firstName', '')
+    lastName = data.get('lastName', '')
+    company = data.get('company', '')
+    email = data.get('email', '')
+    note = data.get('note', '')
+
+    # Log or handle sending an actual email to colter@mahluminnovations.com
+    app.logger.info(
+        f"Contact form submission:\n"
+        f"Name: {firstName} {lastName}\n"
+        f"Company: {company}\n"
+        f"Email: {email}\n"
+        f"Note: {note}"
+    )
+
+    # In a real scenario, you'd integrate with a mail service or SMTP here.
+
+    return jsonify({"status": "success", "message": "Thank you for contacting us. Your message has been received."})
 
 @app.errorhandler(404)
 def not_found(e):

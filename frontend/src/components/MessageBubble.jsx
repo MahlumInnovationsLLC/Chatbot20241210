@@ -28,11 +28,10 @@ export default function MessageBubble({ role, content, references, downloadUrl, 
     const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
     mainContent = mainContent.replace(webAppUrlPattern, '');
 
-    // Remove the redundant phrase and link about "downloadable version"
-    // Assuming the AI output is something like:
-    // "For a downloadable version of this report, click the link below:\n[Download Report]()"
-    const redundantPattern = /For a downloadable version of this report, click the link below:\s*\n?\[Download Report\]\(.*?\)/gi;
-    mainContent = mainContent.replace(redundantPattern, '').trim();
+    // Remove any redundant phrase and link related to "For a downloadable version of this report"
+    // This is a guess at the phrase:
+    const redundantPhrasePattern = /For a downloadable version of this report[\s\S]*Download Report[\s\S]*?\n?/gi;
+    mainContent = mainContent.replace(redundantPhrasePattern, '').trim();
 
     const [showReferences, setShowReferences] = useState(false);
 

@@ -33,9 +33,13 @@ function AppContent({ onLogout }) {
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
+
+    // Change default from 'dark' if desired
     const [selectedTheme, setSelectedTheme] = useState('dark');
+
     const [messages, setMessages] = useState([]);
-    const [activeTab, setActiveTab] = useState('theme');
+    // Rename from 'theme' to 'general' in your new approach:
+    const [activeTab, setActiveTab] = useState('general');
 
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
@@ -43,8 +47,25 @@ function AppContent({ onLogout }) {
     const menuRef = useRef(null);
 
     const limeGreen = '#a2f4a2';
+    const customUrl = "https://gymaidinegine.com";
 
-    const customUrl = "https://gymaiengine.com";
+    // Additional states for new "General" tab settings:
+    const [alwaysShowCode, setAlwaysShowCode] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState('auto'); // 'auto' => Auto-detect
+
+    // For the new archived chats features:
+    const handleManageArchivedChats = () => {
+        // TODO: implement your own logic
+        console.log("Manage archived chats clicked...");
+    };
+    const handleArchiveAll = () => {
+        // TODO: implement your real logic
+        console.log("Archive all chats clicked...");
+    };
+    const handleDeleteAll = () => {
+        // TODO: implement your real logic
+        console.log("Delete all chats clicked...");
+    };
 
     // System message
     const systemMessage = {
@@ -75,8 +96,10 @@ function AppContent({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
+        // If theme is dark, setSelectedTheme('dark'), etc.
         setSelectedTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
-        setActiveTab('theme');
+        // Switch to the new "general" tab by default
+        setActiveTab('general');
         setSettingsOpen(true);
     };
 
@@ -85,6 +108,7 @@ function AppContent({ onLogout }) {
     };
 
     const saveSettings = () => {
+        // If user changed theme
         if (selectedTheme !== theme) {
             toggleTheme(selectedTheme);
         }
@@ -96,15 +120,22 @@ function AppContent({ onLogout }) {
     };
 
     const copyTranscriptToClipboard = () => {
-        const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
+        const allText = messages
+            .map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+            .join('\n\n');
         navigator.clipboard.writeText(allText).then(() => {
             alert('Transcript copied to clipboard!');
         });
     };
 
     const downloadTranscriptDocx = () => {
-        const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
-        const blob = new Blob([allText], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const allText = messages
+            .map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+            .join('\n\n');
+        const blob = new Blob(
+            [allText],
+            { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }
+        );
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -118,7 +149,12 @@ function AppContent({ onLogout }) {
     useEffect(() => {
         const handleClickOutside = (e) => {
             if ((menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen)) {
-                if (menuRef.current && !menuRef.current.contains(e.target) && !settingsOpen && !shareUrlPopupOpen) {
+                if (
+                    menuRef.current &&
+                    !menuRef.current.contains(e.target) &&
+                    !settingsOpen &&
+                    !shareUrlPopupOpen
+                ) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
                     setSettingsOpen(false);
@@ -136,6 +172,7 @@ function AppContent({ onLogout }) {
         };
     }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
+    // Load AI instructions from localStorage
     useEffect(() => {
         const savedData = localStorage.getItem(`ai_instructions_${userKey}`);
         if (savedData) {
@@ -184,43 +221,90 @@ function AppContent({ onLogout }) {
         }
     };
 
+    // RENDER SETTINGS CONTENT
     const renderSettingsContent = () => {
         switch (activeTab) {
-            case 'theme':
+            // RENAMED from 'theme' to 'general'
+            case 'general':
                 return (
                     <div className="flex flex-col space-y-4">
-                        <label className="flex items-center space-x-2">
+                        {/* THEME DROPDOWN */}
+                        <div>
+                            <label className="block font-semibold mb-1">Theme</label>
+                            <select
+                                value={selectedTheme}
+                                onChange={e => setSelectedTheme(e.target.value)}
+                                className="border p-2 rounded"
+                            >
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+
+                        {/* ALWAYS SHOW CODE TOGGLE */}
+                        <div className="flex items-center space-x-2">
+                            <label className="font-semibold">Always show code when using data analyst</label>
                             <input
-                                type="radio"
-                                name="theme"
-                                checked={selectedTheme === 'dark'}
-                                onChange={() => setSelectedTheme('dark')}
-                                className="form-radio h-5 w-5 text-blue-600"
+                                type="checkbox"
+                                checked={alwaysShowCode}
+                                onChange={e => setAlwaysShowCode(e.target.checked)}
+                                className="form-checkbox h-5 w-5 text-blue-600"
                             />
-                            <span className="text-lg">Dark Mode</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                            <input
-                                type="radio"
-                                name="theme"
-                                checked={selectedTheme === 'light'}
-                                onChange={() => setSelectedTheme('light')}
-                                className="form-radio h-5 w-5 text-blue-600"
-                            />
-                            <span className="text-lg">Light Mode</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                            <input
-                                type="radio"
-                                name="theme"
-                                checked={selectedTheme === 'system'}
-                                onChange={() => setSelectedTheme('system')}
-                                className="form-radio h-5 w-5 text-blue-600"
-                            />
-                            <span className="text-lg">System</span>
-                        </label>
+                        </div>
+
+                        {/* LANGUAGE DROPDOWN */}
+                        <div>
+                            <label className="block font-semibold mb-1">Language</label>
+                            <select
+                                value={selectedLanguage}
+                                onChange={e => setSelectedLanguage(e.target.value)}
+                                className="border p-2 rounded"
+                            >
+                                <option value="auto">Auto-detect</option>
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                {/* Add more as desired */}
+                            </select>
+                        </div>
+
+                        {/* ARCHIVED CHATS: manage, archive, delete */}
+                        <div className="flex flex-col space-y-2 mt-4">
+                            <div className="flex items-center justify-between">
+                                <span className="font-semibold">Archived chats</span>
+                                <button
+                                    onClick={handleManageArchivedChats}
+                                    className="bg-gray-200 hover:bg-gray-300 px-4 py-1 rounded"
+                                >
+                                    Manage
+                                </button>
+                            </div>
+                            <button
+                                onClick={handleArchiveAll}
+                                className="bg-gray-200 hover:bg-gray-300 px-4 py-1 rounded w-full text-left"
+                            >
+                                Archive all chats
+                            </button>
+                            <button
+                                onClick={handleDeleteAll}
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded w-full text-left"
+                            >
+                                Delete all chats
+                            </button>
+                        </div>
+
+                        {/* LOG OUT ON THIS DEVICE */}
+                        <div className="flex justify-end mt-4">
+                            <button
+                                onClick={onLogout}
+                                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+                            >
+                                Log out on this device
+                            </button>
+                        </div>
                     </div>
                 );
+
             case 'ai':
                 return (
                     <div className="flex flex-col space-y-4">
@@ -230,7 +314,8 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={aiMood}
                                 onChange={e => setAiMood(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="e.g., Friendly, Professional, Enthusiastic..."
                             />
                         </div>
@@ -239,7 +324,8 @@ function AppContent({ onLogout }) {
                             <textarea
                                 value={aiInstructions}
                                 onChange={e => setAiInstructions(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="Provide instructions for how the AI should behave..."
                                 rows={5}
                             />
@@ -254,7 +340,9 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-            case 'empty1': // REPLACED with Contact Us
+
+            // CONTACT US => empty1
+            case 'empty1':
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
@@ -264,7 +352,8 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={contactNameFirst}
                                 onChange={e => setContactNameFirst(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="First Name"
                             />
                         </div>
@@ -274,7 +363,8 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={contactNameLast}
                                 onChange={e => setContactNameLast(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="Last Name"
                             />
                         </div>
@@ -284,7 +374,8 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={contactCompany}
                                 onChange={e => setContactCompany(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="Company Name"
                             />
                         </div>
@@ -294,7 +385,8 @@ function AppContent({ onLogout }) {
                                 type="email"
                                 value={contactEmail}
                                 onChange={e => setContactEmail(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="Your Email"
                             />
                         </div>
@@ -303,7 +395,8 @@ function AppContent({ onLogout }) {
                             <textarea
                                 value={contactNote}
                                 onChange={e => setContactNote(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'}`}
+                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                    }`}
                                 placeholder="How can we help?"
                                 rows={5}
                             />
@@ -318,6 +411,7 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
+
             case 'empty2':
             case 'empty3':
                 return (
@@ -331,8 +425,16 @@ function AppContent({ onLogout }) {
     };
 
     return (
-        <div className={theme === 'dark' ? 'dark bg-gray-800 text-white min-h-screen flex flex-col' : 'bg-white text-black min-h-screen flex flex-col'}>
-            <div className="flex items-center justify-between w-full p-4"
+        <div
+            className={
+                theme === 'dark'
+                    ? 'dark bg-gray-800 text-white min-h-screen flex flex-col'
+                    : 'bg-white text-black min-h-screen flex flex-col'
+            }
+        >
+            {/* TOP BAR */}
+            <div
+                className="flex items-center justify-between w-full p-4"
                 style={{ borderBottom: `1px solid ${limeGreen}` }}
             >
                 <div className="flex items-center">
@@ -346,14 +448,31 @@ function AppContent({ onLogout }) {
                         style={{ width: '2rem', height: '2rem', border: `1px solid ${limeGreen}` }}
                     >
                         <div className="relative w-full h-full">
-                            <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 -translate-y-[0.4rem]'}`}></span>
-                            <span className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'opacity-0' : '-translate-x-1/2 -translate-y-1/2'}`}></span>
-                            <span className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'} transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? '-rotate-45 -translate-x-1/2 -translate-y-1/2' : '-translate-x-1/2 translate-y-[0.4rem]'}`}></span>
+                            <span
+                                className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'
+                                    } transform transition-all duration-300 ease-in-out origin-center ${menuOpen
+                                        ? 'rotate-45 -translate-x-1/2 -translate-y-1/2'
+                                        : '-translate-x-1/2 -translate-y-[0.4rem]'
+                                    }`}
+                            ></span>
+                            <span
+                                className={`absolute top-1/2 left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'
+                                    } transform transition-all duration-300 ease-in-out origin-center ${menuOpen ? 'opacity-0' : '-translate-x-1/2 -translate-y-1/2'
+                                    }`}
+                            ></span>
+                            <span
+                                className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'
+                                    } transform transition-all duration-300 ease-in-out origin-center ${menuOpen
+                                        ? '-rotate-45 -translate-x-1/2 -translate-y-1/2'
+                                        : '-translate-x-1/2 translate-y-[0.4rem]'
+                                    }`}
+                            ></span>
                         </div>
                     </button>
 
                     {menuOpen && (
-                        <div className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
+                        <div
+                            className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
                         >
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
@@ -379,11 +498,27 @@ function AppContent({ onLogout }) {
                                 Share
                             </button>
                             {shareMenuOpen && (
-                                <div className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
-                                    style={{ right: '100%', left: 'auto', marginLeft: '-10px', marginTop: '4rem' }}
+                                <div
+                                    className="absolute top-2 right-full bg-gray-700 text-white rounded shadow-lg py-2 w-48 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
+                                    style={{
+                                        right: '100%',
+                                        left: 'auto',
+                                        marginLeft: '-10px',
+                                        marginTop: '4rem'
+                                    }}
                                 >
                                     <a
-                                        href={`mailto:?subject=${encodeURIComponent('Chat Transcript')}&body=${encodeURIComponent(messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n'))}`}
+                                        href={`mailto:?subject=${encodeURIComponent(
+                                            'Chat Transcript'
+                                        )}&body=${encodeURIComponent(
+                                            messages
+                                                .map(
+                                                    m =>
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
+                                                        }`
+                                                )
+                                                .join('\n\n')
+                                        )}`}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                     >
                                         <i className="fa-light fa-envelope mr-2"></i>
@@ -417,8 +552,10 @@ function AppContent({ onLogout }) {
                 </div>
             </div>
 
+            {/* MAIN BODY */}
             <div className="flex-grow flex flex-col items-center justify-center p-4">
-                <div className="w-[85vw] h-[85vh] relative flex flex-col rounded-md p-4"
+                <div
+                    className="w-[85vw] h-[85vh] relative flex flex-col rounded-md p-4"
                     style={{ border: `1px solid ${limeGreen}` }}
                 >
                     <ChatInterface
@@ -434,17 +571,24 @@ function AppContent({ onLogout }) {
                     rel="noopener noreferrer"
                     className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
                     style={{
-                        backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)',
+                        backgroundColor:
+                            theme === 'dark'
+                                ? 'rgba(31, 41, 55, 0.9)'
+                                : 'rgba(255,255,255,0.9)',
                         border: `1px solid ${limeGreen}`
                     }}
                 >
                     <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
-                    <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    <span
+                        className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'
+                            }`}
+                    >
                         Powered by Mahlum Innovations, LLC
                     </span>
                 </a>
             </div>
 
+            {/* SETTINGS POPUP */}
             {settingsOpen && (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
@@ -454,7 +598,9 @@ function AppContent({ onLogout }) {
                         }
                     }}
                 >
-                    <div className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
+                    <div
+                        className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                            } w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
@@ -465,48 +611,68 @@ function AppContent({ onLogout }) {
                         >
                             <i className="fa-light fa-xmark-large"></i>
                         </button>
-                        <div className="flex space-x-4 mb-4 pb-2"
+
+                        {/* TAB BUTTONS */}
+                        <div
+                            className="flex space-x-4 mb-4 pb-2"
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'theme' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
-                                onClick={() => setActiveTab('theme')}
+                                className={`px-2 py-1 rounded ${activeTab === 'general'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
+                                    }`}
+                                onClick={() => setActiveTab('general')}
                             >
                                 <i className="fa-light fa-ferris-wheel mr-2"></i>
-                                Theme
+                                General
                             </button>
+
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'ai'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
+                                    }`}
                                 onClick={() => setActiveTab('ai')}
                             >
                                 <i className="fa-light fa-head-side-gear mr-2"></i>
                                 AI Instructions
                             </button>
+
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
+                                    }`}
                                 onClick={() => setActiveTab('empty1')}
                             >
                                 <i className="fa-light fa-address-book mr-2"></i>
                                 Contact Us
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
+                                    }`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'}`}
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
+                                    }`}
                                 onClick={() => setActiveTab('empty3')}
                             >
                                 EMPTY
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto">
-                            {renderSettingsContent()}
-                        </div>
+                        {/* TAB CONTENT */}
+                        <div className="flex-1 overflow-y-auto">{renderSettingsContent()}</div>
 
+                        {/* SAVE BUTTON (for some tab changes) */}
                         <div className="flex justify-end mt-4">
                             <button
                                 onClick={saveSettings}
@@ -519,6 +685,7 @@ function AppContent({ onLogout }) {
                 </div>
             )}
 
+            {/* SHARE URL POPUP */}
             {shareUrlPopupOpen && (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
@@ -529,7 +696,8 @@ function AppContent({ onLogout }) {
                     }}
                 >
                     <div
-                        className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'} w-auto h-auto rounded p-4 flex flex-col space-y-4 transform origin-top transition-transform duration-200 ease-out animate-slideDown`}
+                        className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                            } w-auto h-auto rounded p-4 flex flex-col space-y-4 transform origin-top transition-transform duration-200 ease-out animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}
                     >
