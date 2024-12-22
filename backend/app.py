@@ -7,7 +7,7 @@ import traceback
 import re
 from io import BytesIO
 from docx import Document
-import urllib.parse
+import urllib.parse  # for URL encoding if needed
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -19,6 +19,11 @@ client = AzureOpenAI(
 )
 
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual deployment name
+
+###############################################################################
+# Example in-memory store for user chat histories (in production, use a real DB)
+###############################################################################
+USER_CHATS = {}  # dict of userKey -> list of chat data (each item might be {content, role, archived, etc.})
 
 def generate_detailed_report(base_content):
     """
@@ -56,9 +61,11 @@ def generate_detailed_report(base_content):
         # Fallback to just using the base_content if detailed generation fails
         return base_content + "\n\n(Additional detailed analysis could not be generated due to an error.)"
 
+
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
+
 
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
@@ -66,7 +73,12 @@ def chat_endpoint():
     file_bytes = None
     file_ext = None
 
-    # Detect if there's a file in multipart/form-data or standard JSON
+    # Optionally capture userKey for storing chats
+    # e.g. from headers or request body:
+    user_key = request.args.get('userKey')  # or from form, JSON, etc.
+    if not user_key:
+        user_key = 'default_user'
+
     if request.content_type and 'multipart/form-data' in request.content_type:
         app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
@@ -87,9 +99,12 @@ def chat_endpoint():
         app.logger.info("Received JSON request.")
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
+        # Possibly read userKey from data as well
+        if 'userKey' in data:
+            user_key = data.get('userKey')
         file_bytes = None
 
-    # Base system and user messages
+    # Base system + user messages
     messages = [
         {
             "role": "system",
@@ -171,7 +186,7 @@ def chat_endpoint():
                     "content": "I encountered an error reading the DOCX file. Please try again."
                 })
 
-    # First call to OpenAI to get a short or direct answer
+    # Make the OpenAI call
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -201,8 +216,8 @@ def chat_endpoint():
                         url = match.group(2)
                         desc = match.group(3)
                         references_list.append({
-                            "name": name, 
-                            "url": url, 
+                            "name": name,
+                            "url": url,
                             "description": desc
                         })
     else:
@@ -215,18 +230,27 @@ def chat_endpoint():
         # Remove the placeholder from the displayed text
         main_content = main_content.replace('download://report.docx', '').strip()
 
-        # Make a second call to produce a more in-depth, structured "reportContent"
+        # Make a second call for a more detailed "reportContent"
         report_content = generate_detailed_report(main_content)
-        # We'll use a POST request to /api/generateReport for final doc creation
+        # We'll use a POST request to /api/generateReport
         download_url = '/api/generateReport'
 
-    # Return JSON with either references, normal text, or a link for doc generation
+    ##########################################################################
+    # Step 3: Store the user's prompt and the assistant's reply in memory
+    ##########################################################################
+    if user_key not in USER_CHATS:
+        USER_CHATS[user_key] = []
+    # For demonstration, we store just the roles + content
+    USER_CHATS[user_key].append({"role": "user", "content": user_input, "archived": False})
+    USER_CHATS[user_key].append({"role": "assistant", "content": assistant_reply, "archived": False})
+
     return jsonify({
         "reply": main_content,
         "references": references_list,
         "downloadUrl": download_url,
         "reportContent": report_content
     })
+
 
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
@@ -242,7 +266,6 @@ def generate_report():
     filename = data.get('filename', 'report.docx')
     report_content = data.get('reportContent', 'No content provided')
 
-    # We'll parse lines and handle headings or bullet points
     lines = report_content.split('\n')
     lines = [l.rstrip() for l in lines]
 
@@ -277,20 +300,20 @@ def generate_report():
             doc.add_paragraph(stripped_line[2:].strip(), style='List Bullet')
         # Numbered list: e.g. "1. text"
         elif re.match(r'^\d+\.\s', stripped_line):
-            doc.add_paragraph(re.sub(r'^\d+\.\s', '', stripped_line).strip(), style='List Number')
+            doc.add_paragraph(
+                re.sub(r'^\d+\.\s', '', stripped_line).strip(),
+                style='List Number'
+            )
         else:
-            # Normal paragraph
-            # We can parse for bold segments using '**' pairs
+            # Normal paragraph + parse for **bold** segments
             p = doc.add_paragraph()
             segments = stripped_line.split('**')
-            bold_toggle = False
             for i, seg in enumerate(segments):
                 run = p.add_run(seg)
-                # If we are on an odd segment, that should be bold
+                # If we're in an odd segment, set bold = True
                 if i % 2 == 1:
                     run.bold = True
 
-    # Return the doc
     byte_io = BytesIO()
     doc.save(byte_io)
     byte_io.seek(0)
@@ -301,6 +324,11 @@ def generate_report():
         download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
+
+
+###############################################################################
+# Additional routes for contact form, chat archiving, etc.
+###############################################################################
 
 @app.route('/contact', methods=['POST'])
 def contact_endpoint():
@@ -329,14 +357,57 @@ def contact_endpoint():
         f"Email: {email}\n"
         f"Note: {note}"
     )
-
     # In a real scenario, you'd integrate with a mail service or SMTP here.
 
-    return jsonify({"status": "success", "message": "Thank you for contacting us. Your message has been received."})
+    return jsonify({
+        "status": "success",
+        "message": "Thank you for contacting us. Your message has been received."
+    })
+
+
+# Return all chats for a user
+@app.route('/chats', methods=['GET'])
+def get_chats():
+    user_key = request.args.get('userKey', '')
+    if not user_key:
+        return jsonify({"chats": []}), 200
+
+    # Return the user’s existing chats or an empty list
+    chats = USER_CHATS.get(user_key, [])
+    return jsonify({"chats": chats}), 200
+
+
+@app.route('/archiveAllChats', methods=['POST'])
+def archive_all_chats():
+    data = request.get_json(force=True)
+    user_key = data.get('userKey', '')
+    if not user_key:
+        return jsonify({"error": "No userKey provided"}), 400
+
+    # Mark all user chats as archived
+    existing_chats = USER_CHATS.get(user_key, [])
+    for c in existing_chats:
+        c['archived'] = True
+    USER_CHATS[user_key] = existing_chats
+    return jsonify({"success": True}), 200
+
+
+@app.route('/deleteAllChats', methods=['POST'])
+def delete_all_chats():
+    data = request.get_json(force=True)
+    user_key = data.get('userKey', '')
+    if not user_key:
+        return jsonify({"error": "No userKey provided"}), 400
+
+    # Remove them from the in-memory store
+    USER_CHATS[user_key] = []
+    return jsonify({"success": True}), 200
+
 
 @app.errorhandler(404)
 def not_found(e):
     return send_from_directory('src/public', 'index.html')
+
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))

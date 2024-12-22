@@ -34,11 +34,13 @@ function AppContent({ onLogout }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
 
-    // Change default from 'dark' if desired
+    // For the "General" tab:
     const [selectedTheme, setSelectedTheme] = useState('dark');
+    const [alwaysShowCode, setAlwaysShowCode] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState('auto');
 
     const [messages, setMessages] = useState([]);
-    // Rename from 'theme' to 'general' in your new approach:
+    // Renamed from 'theme' to 'general'
     const [activeTab, setActiveTab] = useState('general');
 
     const [aiMood, setAiMood] = useState('');
@@ -49,22 +51,18 @@ function AppContent({ onLogout }) {
     const limeGreen = '#a2f4a2';
     const customUrl = "https://gymaidinegine.com";
 
-    // Additional states for new "General" tab settings:
-    const [alwaysShowCode, setAlwaysShowCode] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState('auto'); // 'auto' => Auto-detect
-
-    // For the new archived chats features:
+    // Archived chat actions
     const handleManageArchivedChats = () => {
-        // TODO: implement your own logic
         console.log("Manage archived chats clicked...");
+        // Implement or open a drawer if desired
     };
-    const handleArchiveAll = () => {
-        // TODO: implement your real logic
+    const handleArchiveAll = async () => {
         console.log("Archive all chats clicked...");
+        // example: await axios.post('/archiveAllChats', { userKey });
     };
-    const handleDeleteAll = () => {
-        // TODO: implement your real logic
+    const handleDeleteAll = async () => {
         console.log("Delete all chats clicked...");
+        // example: await axios.post('/deleteAllChats', { userKey });
     };
 
     // System message
@@ -77,14 +75,14 @@ function AppContent({ onLogout }) {
         )
     };
 
+    // Insert systemMessage if none
     useEffect(() => {
         if (messages.length === 0) {
             setMessages([systemMessage]);
-        } else {
-            if (messages[0].role !== 'system') {
-                setMessages(prev => [systemMessage, ...prev]);
-            }
+        } else if (messages[0].role !== 'system') {
+            setMessages(prev => [systemMessage, ...prev]);
         }
+        // eslint-disable-next-line
     }, []);
 
     const toggleMenu = () => {
@@ -96,9 +94,12 @@ function AppContent({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
-        // If theme is dark, setSelectedTheme('dark'), etc.
-        setSelectedTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
-        // Switch to the new "general" tab by default
+        // Reflect current theme in the dropdown
+        setSelectedTheme(
+            theme === 'dark' ? 'dark' :
+                (theme === 'light' ? 'light' : 'system')
+        );
+        // Switch to "general" tab
         setActiveTab('general');
         setSettingsOpen(true);
     };
@@ -119,6 +120,7 @@ function AppContent({ onLogout }) {
         setShareMenuOpen(!shareMenuOpen);
     };
 
+    // Copy transcript
     const copyTranscriptToClipboard = () => {
         const allText = messages
             .map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
@@ -128,6 +130,7 @@ function AppContent({ onLogout }) {
         });
     };
 
+    // Download transcript
     const downloadTranscriptDocx = () => {
         const allText = messages
             .map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
@@ -149,12 +152,8 @@ function AppContent({ onLogout }) {
     useEffect(() => {
         const handleClickOutside = (e) => {
             if ((menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen)) {
-                if (
-                    menuRef.current &&
-                    !menuRef.current.contains(e.target) &&
-                    !settingsOpen &&
-                    !shareUrlPopupOpen
-                ) {
+                if (menuRef.current && !menuRef.current.contains(e.target)
+                    && !settingsOpen && !shareUrlPopupOpen) {
                     setMenuOpen(false);
                     setShareMenuOpen(false);
                     setSettingsOpen(false);
@@ -183,15 +182,12 @@ function AppContent({ onLogout }) {
     }, [userKey]);
 
     const saveAiInstructions = () => {
-        const data = {
-            mood: aiMood,
-            instructions: aiInstructions
-        };
+        const data = { mood: aiMood, instructions: aiInstructions };
         localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
         alert('AI Instructions saved!');
     };
 
-    // New Contact Us tab state
+    // "Contact Us" states
     const [contactNameFirst, setContactNameFirst] = useState('');
     const [contactNameLast, setContactNameLast] = useState('');
     const [contactCompany, setContactCompany] = useState('');
@@ -224,18 +220,15 @@ function AppContent({ onLogout }) {
     // RENDER SETTINGS CONTENT
     const renderSettingsContent = () => {
         switch (activeTab) {
-            // RENAMED from 'theme' to 'general'
             case 'general':
                 return (
                     <div className="flex flex-col space-y-6">
-
-                        {/* Row: "Theme" + dropdown */}
+                        {/* THEME ROW */}
                         <div className="flex items-center justify-between">
                             <label className="font-semibold mr-4">Theme</label>
                             <select
                                 value={selectedTheme}
                                 onChange={e => setSelectedTheme(e.target.value)}
-                                // Make background white and text black for easy reading
                                 className="bg-white text-black border p-2 rounded w-44"
                             >
                                 <option value="dark">Dark</option>
@@ -244,7 +237,7 @@ function AppContent({ onLogout }) {
                             </select>
                         </div>
 
-                        {/* Row: "Always show code..." + checkbox */}
+                        {/* ALWAYS SHOW CODE */}
                         <div className="flex items-center justify-between">
                             <label className="font-semibold mr-4">
                                 Always show code when using data analyst
@@ -257,7 +250,7 @@ function AppContent({ onLogout }) {
                             />
                         </div>
 
-                        {/* Row: "Language" + dropdown */}
+                        {/* LANGUAGE ROW */}
                         <div className="flex items-center justify-between">
                             <label className="font-semibold mr-4">Language</label>
                             <select
@@ -268,18 +261,15 @@ function AppContent({ onLogout }) {
                                 <option value="auto">Auto-detect</option>
                                 <option value="en">English</option>
                                 <option value="es">Spanish</option>
-                                {/* Add more languages here */}
                             </select>
                         </div>
 
-                        {/* Archived chats section with Manage / Archive all / Delete all */}
+                        {/* ARCHIVED CHATS */}
                         <div>
                             <label className="font-semibold block mb-2">Archived chats</label>
-
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm text-gray-200 opacity-70">
-                                    (Placeholder for description if needed)
-                                </span>
+                                {/* Remove placeholder text as requested */}
+                                <span className="text-sm text-gray-200 opacity-0">.</span>
                                 <button
                                     onClick={handleManageArchivedChats}
                                     className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
@@ -288,27 +278,25 @@ function AppContent({ onLogout }) {
                                     Manage
                                 </button>
                             </div>
-
                             <div className="flex flex-col space-y-2">
                                 <button
                                     onClick={handleArchiveAll}
                                     className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 text-left"
-                                    style={{ minWidth: '8rem' }}
+                                    style={{ minWidth: '6rem' }}
                                 >
                                     Archive all chats
                                 </button>
-
                                 <button
                                     onClick={handleDeleteAll}
                                     className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-left"
-                                    style={{ minWidth: '8rem' }}
+                                    style={{ minWidth: '6rem' }}
                                 >
                                     Delete all chats
                                 </button>
                             </div>
                         </div>
 
-                        {/* Log out on this device */}
+                        {/* LOG OUT BUTTON */}
                         <div className="flex justify-end mt-6">
                             <button
                                 onClick={onLogout}
@@ -330,7 +318,9 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={aiMood}
                                 onChange={e => setAiMood(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="e.g., Friendly, Professional, Enthusiastic..."
                             />
@@ -340,7 +330,9 @@ function AppContent({ onLogout }) {
                             <textarea
                                 value={aiInstructions}
                                 onChange={e => setAiInstructions(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Provide instructions for how the AI should behave..."
                                 rows={5}
@@ -357,8 +349,8 @@ function AppContent({ onLogout }) {
                     </div>
                 );
 
-            // CONTACT US => empty1
             case 'empty1':
+                // CONTACT US
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
@@ -368,7 +360,9 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={contactNameFirst}
                                 onChange={e => setContactNameFirst(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="First Name"
                             />
@@ -379,7 +373,9 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={contactNameLast}
                                 onChange={e => setContactNameLast(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Last Name"
                             />
@@ -390,7 +386,9 @@ function AppContent({ onLogout }) {
                                 type="text"
                                 value={contactCompany}
                                 onChange={e => setContactCompany(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Company Name"
                             />
@@ -401,7 +399,9 @@ function AppContent({ onLogout }) {
                                 type="email"
                                 value={contactEmail}
                                 onChange={e => setContactEmail(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Your Email"
                             />
@@ -411,7 +411,9 @@ function AppContent({ onLogout }) {
                             <textarea
                                 value={contactNote}
                                 onChange={e => setContactNote(e.target.value)}
-                                className={`w-full p-2 rounded border ${theme === 'dark' ? 'border-gray-600 bg-gray-700 text-white' : 'border-gray-300 bg-white text-black'
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="How can we help?"
                                 rows={5}
@@ -460,7 +462,7 @@ function AppContent({ onLogout }) {
                 <div ref={menuRef}>
                     <button
                         onClick={toggleMenu}
-                        className={`relative z-50 focus:outline-none rounded p-1`}
+                        className="relative z-50 focus:outline-none rounded p-1"
                         style={{ width: '2rem', height: '2rem', border: `1px solid ${limeGreen}` }}
                     >
                         <div className="relative w-full h-full">
@@ -528,10 +530,9 @@ function AppContent({ onLogout }) {
                                             'Chat Transcript'
                                         )}&body=${encodeURIComponent(
                                             messages
-                                                .map(
-                                                    m =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
-                                                        }`
+                                                .map(m =>
+                                                    `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
+                                                    }`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -596,8 +597,7 @@ function AppContent({ onLogout }) {
                 >
                     <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
                     <span
-                        className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'
-                            }`}
+                        className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                     >
                         Powered by Mahlum Innovations, LLC
                     </span>
@@ -665,6 +665,7 @@ function AppContent({ onLogout }) {
                                 <i className="fa-light fa-address-book mr-2"></i>
                                 Contact Us
                             </button>
+
                             <button
                                 className={`px-2 py-1 rounded ${activeTab === 'empty2'
                                         ? 'bg-[#a2f4a2] text-black font-bold'
@@ -688,7 +689,7 @@ function AppContent({ onLogout }) {
                         {/* TAB CONTENT */}
                         <div className="flex-1 overflow-y-auto">{renderSettingsContent()}</div>
 
-                        {/* SAVE BUTTON (for some tab changes) */}
+                        {/* SAVE BUTTON */}
                         <div className="flex justify-end mt-4">
                             <button
                                 onClick={saveSettings}
