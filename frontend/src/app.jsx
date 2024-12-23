@@ -1,5 +1,7 @@
 ﻿import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
+import EmptyLeft from './components/EmptyLeft';
+import EmptyRight from './components/EmptyRight';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
@@ -20,18 +22,18 @@ async function generateChatTitle(messages) {
                 {
                     role: 'system',
                     content: `You are an assistant that creates short, descriptive conversation titles. 
-                    The user has a conversation, and we want a short (3-6 words) but descriptive title.`
+                    We want a short (3-6 words) but descriptive title (no quotes).`
                 },
                 ...snippet,
                 {
                     role: 'user',
-                    content: 'Please provide a concise, descriptive title for this conversation (no quotes).'
+                    content: 'Please provide a concise, descriptive title for this conversation.'
                 }
             ],
             model: 'YOUR_OPENAI_MODEL' // e.g. "gpt-3.5-turbo" or your Azure deployment name
         };
 
-        // Adjust your endpoint if using Azure (or if you have a separate route for generating titles):
+        // Adjust your endpoint if using Azure or a separate route for generating titles:
         const response = await axios.post('/generateChatTitle', requestBody);
         // Suppose the AI returns { title: "...some short title..." }
         return response.data.title || 'Untitled Chat';
@@ -63,40 +65,23 @@ function AppContent({ onLogout }) {
 
     const { theme, toggleTheme } = useContext(ThemeContext);
     const logoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
-    const bottomLogoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
+    const bottomLogoUrl =
+        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
 
-    // For the chat history side panel (Manage)
-    const [manageChatsOpen, setManageChatsOpen] = useState(false);
-
-    // Default theme can be "dark"
-    const [selectedTheme, setSelectedTheme] = useState('dark');
-
-    const [messages, setMessages] = useState([]);
-    const [activeTab, setActiveTab] = useState('general');
-
-    const [aiMood, setAiMood] = useState('');
-    const [aiInstructions, setAiInstructions] = useState('');
-
-    // Local or ephemeral store for old chats
-    const [archivedChats, setArchivedChats] = useState([]);
-
-    const menuRef = useRef(null);
-
     const limeGreen = '#a2f4a2';
     const customUrl = 'https://gymaidinegine.com';
 
-    // Use a distinct name for server-based user chats to avoid duplication
-    const [serverUserChats, setServerUserChats] = useState([]);
+    // Manage Chat: local and server side
+    const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
-    // For language drop-down
-    const [selectedLanguage, setSelectedLanguage] = useState('auto');
-
-    // System message for new chats
+    // The main messages used by ChatInterface
+    const [messages, setMessages] = useState([]);
+    // system message for new chats
     const systemMessage = {
         role: 'system',
         content:
@@ -114,95 +99,50 @@ function AppContent({ onLogout }) {
         }
     }, []);
 
-    /**
-     * Create a brand-new chat session:
-     *  1) Generate a short "title" using the existing conversation
-     *  2) Archive the conversation locally (or send to server)
-     *  3) Clear the messages array and re-insert the system message
-     */
+    // Create new chat logic
     const createNewChat = async () => {
         try {
             if (messages.length > 0) {
                 // 1) Generate a title from the current conversation
                 const chatTitle = await generateChatTitle(messages);
 
-                // 2) Archive (locally or server). For now we do local
-                const chatToArchive = {
-                    userKey,
-                    chatTimestamp: new Date().toISOString(),
-                    messages: [...messages],
-                    title: chatTitle
-                };
-
-                // If you wanted to store on the server instead:
-                // await axios.post('/archiveChatSession', chatToArchive);
-
-                setArchivedChats((prev) => [...prev, chatToArchive]);
+                // 2) Archive locally (or send to server). For now, local only
+                // For demonstration:
+                console.log("Archived old chat with title:", chatTitle);
             }
-
-            // 3) Clear out the conversation; re-insert system message
+            // 3) Clear out the conversation
             setMessages([systemMessage]);
         } catch (err) {
             console.error('Error archiving current chat before new chat:', err);
         }
     };
 
-    const toggleMenu = () => {
-        setMenuOpen(!menuOpen);
-        if (!menuOpen) {
-            setShareMenuOpen(false);
+    // Additional states
+    const [activeTab, setActiveTab] = useState('general');
+    const [selectedTheme, setSelectedTheme] = useState('dark');
+    const [aiMood, setAiMood] = useState('');
+    const [aiInstructions, setAiInstructions] = useState('');
+    const [archivedChats, setArchivedChats] = useState([]); // local archived
+
+    // For the server-based user chats
+    const [serverUserChats, setServerUserChats] = useState([]);
+    const fetchUserChats = async () => {
+        try {
+            const res = await axios.get('/chats', { params: { userKey } });
+            setServerUserChats(res.data.chats || []);
+        } catch (err) {
+            console.error('Failed to fetch user chats:', err);
         }
     };
-
-    const openSettings = () => {
-        setMenuOpen(false);
-        setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
-        setActiveTab('general');
-        setSettingsOpen(true);
-    };
-
-    const closeSettings = () => {
-        setSettingsOpen(false);
-    };
-
-    const saveSettings = () => {
-        if (selectedTheme !== theme) {
-            toggleTheme(selectedTheme);
+    // If manage panel is open, fetch server chats
+    useEffect(() => {
+        if (manageChatsOpen) {
+            fetchUserChats();
         }
-        closeSettings();
-    };
+    }, [manageChatsOpen]);
 
-    const openShareMenu = () => {
-        setShareMenuOpen(!shareMenuOpen);
-    };
-
-    const copyTranscriptToClipboard = () => {
-        const allText = messages
-            .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
-            .join('\n\n');
-        navigator.clipboard.writeText(allText).then(() => {
-            alert('Transcript copied to clipboard!');
-        });
-    };
-
-    const downloadTranscriptDocx = () => {
-        const allText = messages
-            .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
-            .join('\n\n');
-        const blob = new Blob([allText], {
-            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'transcript.docx';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
-    // Outside click closing logic
+    // For outside click on the top menu
+    const menuRef = useRef(null);
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen) {
@@ -229,7 +169,7 @@ function AppContent({ onLogout }) {
         };
     }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
-    // AI instructions from localStorage
+    // Save AI instructions in localStorage
     useEffect(() => {
         const savedData = localStorage.getItem(`ai_instructions_${userKey}`);
         if (savedData) {
@@ -245,7 +185,7 @@ function AppContent({ onLogout }) {
         alert('AI Instructions saved!');
     };
 
-    // Contact us tab
+    // Contact us
     const [contactNameFirst, setContactNameFirst] = useState('');
     const [contactNameLast, setContactNameLast] = useState('');
     const [contactCompany, setContactCompany] = useState('');
@@ -275,27 +215,10 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // For server-based user chats
-    const fetchUserChats = async () => {
-        try {
-            const res = await axios.get('/chats', { params: { userKey } });
-            setServerUserChats(res.data.chats || []);
-        } catch (err) {
-            console.error('Failed to fetch user chats:', err);
-        }
-    };
-
-    // On open/close manage panel
-    useEffect(() => {
-        if (manageChatsOpen) {
-            fetchUserChats();
-        }
-    }, [manageChatsOpen]);
-
+    // Archive + Delete
     const handleManageArchivedChats = () => {
         setManageChatsOpen(true);
     };
-
     const handleArchiveAll = async () => {
         try {
             await axios.post('/archiveAllChats', { userKey });
@@ -304,7 +227,6 @@ function AppContent({ onLogout }) {
             console.error('Error archiving chats:', err);
         }
     };
-
     const handleDeleteAll = async () => {
         try {
             await axios.post('/deleteAllChats', { userKey });
@@ -313,16 +235,111 @@ function AppContent({ onLogout }) {
             console.error('Error deleting chats:', err);
         }
     };
-
-    /**
-     * Loads a previously archived chat into the main interface
-     */
     const loadArchivedChat = (chat) => {
         setMessages(chat.messages);
         setManageChatsOpen(false);
     };
 
-    // SETTINGS TABS
+    // “Share” menu
+    const openShareMenu = () => {
+        setShareMenuOpen(!shareMenuOpen);
+    };
+    const copyTranscriptToClipboard = () => {
+        const allText = messages
+            .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+            .join('\n\n');
+        navigator.clipboard.writeText(allText).then(() => {
+            alert('Transcript copied to clipboard!');
+        });
+    };
+    const downloadTranscriptDocx = () => {
+        const allText = messages
+            .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+            .join('\n\n');
+        const blob = new Blob([allText], {
+            type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'transcript.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    // Settings
+    const openSettings = () => {
+        setMenuOpen(false);
+        setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
+        setActiveTab('general');
+        setSettingsOpen(true);
+    };
+    const closeSettings = () => setSettingsOpen(false);
+    const saveSettings = () => {
+        if (selectedTheme !== theme) {
+            toggleTheme(selectedTheme);
+        }
+        closeSettings();
+    };
+
+    //**  BEGIN HORIZONTAL-PAGING LOGIC  **/
+    // We'll define 3 pages: Left (EmptyLeft), Middle (ChatInterface), Right (EmptyRight).
+    // Then we maintain an `activePageIndex` in state: 0 => Left, 1 => Middle, 2 => Right.
+    const [activePageIndex, setActivePageIndex] = useState(1); // Start on middle page
+
+    // Our list of pages
+    const pages = [
+        {
+            title: 'Left Tool',
+            component: <EmptyLeft />
+        },
+        {
+            title: 'Chat',
+            component: (
+                <ChatInterface
+                    onLogout={onLogout}
+                    messages={messages}
+                    setMessages={setMessages}
+                />
+            )
+        },
+        {
+            title: 'Right Tool',
+            component: <EmptyRight />
+        }
+    ];
+
+    // Switch pages
+    const handleSwitchPage = (index) => {
+        setActivePageIndex(index);
+        // If you want any side effects, do them here
+    };
+
+    // We'll define the styling for the container with 3 pages side-by-side
+    // We'll do a simple 100vw * numberOfPages approach. Then a transform based on activePageIndex
+    const pageWidth = 100; // viewport widths
+    const containerStyle = {
+        width: `${pages.length * 100}vw`,
+        display: 'flex',
+        transition: 'transform 0.4s ease-in-out',
+        transform: `translateX(-${activePageIndex * pageWidth}vw)`
+    };
+
+    // The top bar “titles” that fade out for the non-active pages
+    // We'll keep them center, next to the menu icon. 
+    // We'll highlight the current page’s title in bright color, and fade out others
+    // Or we can do a mini horizontal scroll in the top bar as well.
+
+    const topBarTitlesStyle = {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '1rem'
+    };
+
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
@@ -536,6 +553,26 @@ function AppContent({ onLogout }) {
         }
     };
 
+    // The top bar "pages" with highlight
+    const topBarPages = pages.map((p, i) => (
+        <button
+            key={i}
+            className="px-2 py-1 rounded"
+            style={{
+                // If active, highlight with limeGreen, else fade
+                backgroundColor: i === activePageIndex ? limeGreen : 'transparent',
+                color: i === activePageIndex
+                    ? (theme === 'dark' ? 'black' : 'black')
+                    : (theme === 'dark' ? 'white' : 'black'),
+                opacity: i === activePageIndex ? 1 : 0.6,
+                fontWeight: i === activePageIndex ? 'bold' : 'normal'
+            }}
+            onClick={() => handleSwitchPage(i)}
+        >
+            {p.title}
+        </button>
+    ));
+
     return (
         <div
             className={
@@ -554,23 +591,33 @@ function AppContent({ onLogout }) {
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
 
-                {/* RIGHT SIDE: "Chat History" button + hamburger menu */}
+                {/* Middle portion: The 3-page "tool" nav */}
+                <div style={topBarTitlesStyle}>{topBarPages}</div>
+
+                {/* The standard menu at the right */}
                 <div ref={menuRef} className="flex items-center space-x-2">
-                    {/* 1) Chat History button with lime green border */}
+                    {/* Chat History button example (the user requested a new button) */}
                     <button
                         onClick={() => setManageChatsOpen(!manageChatsOpen)}
+                        style={{
+                            border: `2px solid ${limeGreen}`,
+                            color: theme === 'dark' ? 'white' : 'black'
+                        }}
                         className="relative focus:outline-none rounded p-1 mr-2"
-                        style={{ border: `2px solid ${limeGreen}`, color: limeGreen }}
                         title="Open Chat History"
                     >
                         Chat History
                     </button>
 
-                    {/* 2) Old hamburger menu icon */}
+                    {/* hamburger menu */}
                     <button
-                        onClick={toggleMenu}
-                        className={`relative z-50 focus:outline-none rounded p-1`}
-                        style={{ width: '2rem', height: '2rem', border: `1px solid ${limeGreen}` }}
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        className="relative z-50 focus:outline-none rounded p-1"
+                        style={{
+                            width: '2rem',
+                            height: '2rem',
+                            border: `1px solid ${limeGreen}`
+                        }}
                     >
                         <div className="relative w-full h-full">
                             <span
@@ -595,11 +642,12 @@ function AppContent({ onLogout }) {
                         </div>
                     </button>
 
+                    {/* The menu dropdown */}
                     {menuOpen && (
                         <div
                             className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-44 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
+                            style={{ marginRight: '0.5rem' }}
                         >
-                            {/* CREATE NEW CHAT button */}
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={createNewChat}
@@ -642,10 +690,14 @@ function AppContent({ onLogout }) {
                                     }}
                                 >
                                     <a
-                                        href={`mailto:?subject=${encodeURIComponent('Chat Transcript')}&body=${encodeURIComponent(
+                                        href={`mailto:?subject=${encodeURIComponent(
+                                            'Chat Transcript'
+                                        )}&body=${encodeURIComponent(
                                             messages
-                                                .map((m) =>
-                                                    `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
+                                                .map(
+                                                    (m) =>
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
+                                                        }`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -682,31 +734,43 @@ function AppContent({ onLogout }) {
                 </div>
             </div>
 
-            {/* MAIN BODY */}
-            <div className="flex-grow flex flex-col items-center justify-center p-4">
-                <div
-                    className="w-[85vw] h-[85vh] relative flex flex-col rounded-md p-4"
-                    style={{ border: `1px solid ${limeGreen}` }}
-                >
-                    <ChatInterface onLogout={onLogout} messages={messages} setMessages={setMessages} />
+            {/* MAIN BODY: a container that holds 3 pages side by side */}
+            <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+                <div style={containerStyle}>
+                    {pages.map((p, i) => (
+                        <div
+                            key={i}
+                            style={{
+                                minWidth: '100vw',
+                                height: '100%',
+                                overflow: 'auto' // allow each page to scroll internally
+                            }}
+                        >
+                            {p.component}
+                        </div>
+                    ))}
                 </div>
-
-                <a
-                    href="https://www.mahluminnovations.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
-                    style={{
-                        backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)',
-                        border: `1px solid ${limeGreen}`
-                    }}
-                >
-                    <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
-                    <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-                        Powered by Mahlum Innovations, LLC
-                    </span>
-                </a>
             </div>
+
+            {/* FOOTER / BOTTOM LOGO */}
+            <a
+                href="https://www.mahluminnovations.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
+                style={{
+                    backgroundColor:
+                        theme === 'dark'
+                            ? 'rgba(31, 41, 55, 0.9)'
+                            : 'rgba(255,255,255,0.9)',
+                    border: `1px solid ${limeGreen}`
+                }}
+            >
+                <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
+                <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    Powered by Mahlum Innovations, LLC
+                </span>
+            </a>
 
             {/* SETTINGS POPUP */}
             {settingsOpen && (
@@ -881,7 +945,6 @@ function AppContent({ onLogout }) {
                                     key={idx}
                                     className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
                                     onClick={() => {
-                                        // Load that chat into main interface
                                         setMessages(chat.messages);
                                         setManageChatsOpen(false);
                                     }}
@@ -890,7 +953,9 @@ function AppContent({ onLogout }) {
                                     <p className="font-bold">{chat.title || 'Chat from server'}</p>
                                     <p className="text-xs text-gray-300">
                                         {chat.userKey} |{' '}
-                                        {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
+                                        {chat.messages
+                                            ? `${chat.messages.length} msgs`
+                                            : '0 msgs'}
                                     </p>
                                 </div>
                             ))
@@ -908,7 +973,6 @@ function AppContent({ onLogout }) {
                                     className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
                                     onClick={() => loadArchivedChat(chat)}
                                 >
-                                    {/* Show AI generated title if we have it */}
                                     <p className="font-bold">{chat.title || 'Untitled chat'}</p>
                                     <p className="text-xs text-gray-300">
                                         {chat.userKey} | {chat.messages.length} msgs
