@@ -17,6 +17,8 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
       AZURE_BLOB_CONTAINER: ${{ secrets.AZURE_BLOB_CONTAINER }}
+      COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
+      COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -84,7 +86,8 @@ jobs:
 
       # Build single image that contains both frontend and backend
       - name: Build combined image
-        run: docker build -t ghcr.io/mahluminnovationsllc/chatbot-app:latest .
+        run: |
+          docker build -t ghcr.io/mahluminnovationsllc/chatbot-app:latest .
 
       - name: Push combined image
         run: docker push ghcr.io/mahluminnovationsllc/chatbot-app:latest
