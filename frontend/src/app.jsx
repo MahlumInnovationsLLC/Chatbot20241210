@@ -14,7 +14,7 @@ async function generateChatTitle(messages) {
         // Just take the last 10 messages, or the entire conversation if short
         const snippet = messages.slice(-10);
 
-        // Make a short prompt:
+        // Construct a short prompt for summarizing the conversation
         const requestBody = {
             messages: [
                 {
@@ -32,7 +32,7 @@ async function generateChatTitle(messages) {
             model: 'YOUR_OPENAI_MODEL' // e.g. "gpt-3.5-turbo" or your Azure deployment name
         };
 
-        // Adjust your endpoint if using Azure:
+        // Adjust your endpoint if using Azure (or if you have a separate route for generating titles):
         const response = await axios.post('/generateChatTitle', requestBody);
         // Suppose the AI returns { title: "...some short title..." }
         return response.data.title || 'Untitled Chat';
@@ -64,8 +64,7 @@ function AppContent({ onLogout }) {
 
     const { theme, toggleTheme } = useContext(ThemeContext);
     const logoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
-    const bottomLogoUrl =
-        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
+    const bottomLogoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
@@ -75,6 +74,7 @@ function AppContent({ onLogout }) {
     // For the chat history side panel (Manage)
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
+    // Default theme can be "dark"
     const [selectedTheme, setSelectedTheme] = useState('dark');
 
     const [messages, setMessages] = useState([]);
@@ -91,7 +91,7 @@ function AppContent({ onLogout }) {
     const limeGreen = '#a2f4a2';
     const customUrl = 'https://gymaidinegine.com';
 
-    // A possible user-chats from the server (RENAME to avoid duplication)
+    // Use a distinct name for server-based user chats to avoid duplication
     const [serverUserChats, setServerUserChats] = useState([]);
 
     // For language drop-down
@@ -110,18 +110,16 @@ function AppContent({ onLogout }) {
     useEffect(() => {
         if (messages.length === 0) {
             setMessages([systemMessage]);
-        } else {
-            if (messages[0].role !== 'system') {
-                setMessages((prev) => [systemMessage, ...prev]);
-            }
+        } else if (messages[0].role !== 'system') {
+            setMessages((prev) => [systemMessage, ...prev]);
         }
     }, []);
 
     /**
      * Create a brand-new chat session:
      *  1) Generate a short "title" using the existing conversation
-     *  2) Archive the conversation with that AI-generated title
-     *  3) Clear the messages array
+     *  2) Archive the conversation locally (or send to server)
+     *  3) Clear the messages array and re-insert the system message
      */
     const createNewChat = async () => {
         try {
@@ -137,7 +135,7 @@ function AppContent({ onLogout }) {
                     title: chatTitle
                 };
 
-                // Optionally store on server, e.g.:
+                // If you wanted to store on the server instead:
                 // await axios.post('/archiveChatSession', chatToArchive);
 
                 setArchivedChats((prev) => [...prev, chatToArchive]);
@@ -278,7 +276,7 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // For server-based user chats (renamed)
+    // For server-based user chats
     const fetchUserChats = async () => {
         try {
             const res = await axios.get('/chats', { params: { userKey } });
