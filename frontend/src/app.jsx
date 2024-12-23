@@ -91,8 +91,8 @@ function AppContent({ onLogout }) {
     const limeGreen = '#a2f4a2';
     const customUrl = 'https://gymaidinegine.com';
 
-    // A possible user-chats from server
-    const [userChats, setUserChats] = useState([]);
+    // A possible user-chats from the server (RENAME to avoid duplication)
+    const [serverUserChats, setServerUserChats] = useState([]);
 
     // For language drop-down
     const [selectedLanguage, setSelectedLanguage] = useState('auto');
@@ -278,13 +278,11 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // For the server-based user chats
-    const [userChats, setUserChats] = useState([]);
-
+    // For server-based user chats (renamed)
     const fetchUserChats = async () => {
         try {
             const res = await axios.get('/chats', { params: { userKey } });
-            setUserChats(res.data.chats || []);
+            setServerUserChats(res.data.chats || []);
         } catch (err) {
             console.error('Failed to fetch user chats:', err);
         }
@@ -333,7 +331,6 @@ function AppContent({ onLogout }) {
             case 'general':
                 return (
                     <div className="flex flex-col space-y-6">
-
                         {/* Row: Theme + dropdown */}
                         <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                             <label className="text-lg font-semibold mr-4 flex items-center">
@@ -361,7 +358,6 @@ function AppContent({ onLogout }) {
                                 <option value="auto">Auto-detect</option>
                                 <option value="en">English</option>
                                 <option value="es">Spanish</option>
-                                {/* ... add more as needed */}
                             </select>
                         </div>
 
@@ -730,7 +726,9 @@ function AppContent({ onLogout }) {
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'general' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'general'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('general')}
                             >
@@ -739,7 +737,9 @@ function AppContent({ onLogout }) {
                             </button>
 
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'ai'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('ai')}
                             >
@@ -748,7 +748,9 @@ function AppContent({ onLogout }) {
                             </button>
 
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('empty1')}
                             >
@@ -756,14 +758,18 @@ function AppContent({ onLogout }) {
                                 Contact Us
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3'
+                                        ? 'bg-[#a2f4a2] text-black font-bold'
+                                        : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('empty3')}
                             >
@@ -857,8 +863,8 @@ function AppContent({ onLogout }) {
                         </div>
 
                         <p className="text-lg mb-2">Server-based Chats:</p>
-                        {userChats && userChats.length > 0 ? (
-                            userChats.map((chat, idx) => (
+                        {serverUserChats && serverUserChats.length > 0 ? (
+                            serverUserChats.map((chat, idx) => (
                                 <div
                                     key={idx}
                                     className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
@@ -871,7 +877,8 @@ function AppContent({ onLogout }) {
                                     {/* AI-Generated Title or fallback */}
                                     <p className="font-bold">{chat.title || 'Chat from server'}</p>
                                     <p className="text-xs text-gray-300">
-                                        {chat.userKey} | {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
+                                        {chat.userKey} |{' '}
+                                        {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
                                     </p>
                                 </div>
                             ))
