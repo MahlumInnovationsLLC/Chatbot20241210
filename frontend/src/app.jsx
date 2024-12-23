@@ -25,8 +25,7 @@ async function generateChatTitle(messages) {
                 ...snippet,
                 {
                     role: 'user',
-                    content:
-                        'Please provide a concise, descriptive title for this conversation (no quotes).'
+                    content: 'Please provide a concise, descriptive title for this conversation (no quotes).'
                 }
             ],
             model: 'YOUR_OPENAI_MODEL' // e.g. "gpt-3.5-turbo" or your Azure deployment name
@@ -554,7 +553,20 @@ function AppContent({ onLogout }) {
                     <img src={logoUrl} alt="Logo" className="h-8 w-auto mr-2" />
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
-                <div ref={menuRef}>
+
+                {/* RIGHT SIDE: "Chat History" button + hamburger menu */}
+                <div ref={menuRef} className="flex items-center space-x-2">
+                    {/* 1) Chat History button with lime green border */}
+                    <button
+                        onClick={() => setManageChatsOpen(!manageChatsOpen)}
+                        className="relative focus:outline-none rounded p-1 mr-2"
+                        style={{ border: `2px solid ${limeGreen}`, color: limeGreen }}
+                        title="Open Chat History"
+                    >
+                        Chat History
+                    </button>
+
+                    {/* 2) Old hamburger menu icon */}
                     <button
                         onClick={toggleMenu}
                         className={`relative z-50 focus:outline-none rounded p-1`}
@@ -632,7 +644,9 @@ function AppContent({ onLogout }) {
                                     <a
                                         href={`mailto:?subject=${encodeURIComponent('Chat Transcript')}&body=${encodeURIComponent(
                                             messages
-                                                .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+                                                .map((m) =>
+                                                    `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
+                                                )
                                                 .join('\n\n')
                                         )}`}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"

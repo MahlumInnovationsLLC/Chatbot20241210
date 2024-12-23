@@ -1,26 +1,26 @@
 ﻿// ChatInterface.jsx
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
 
 /**
- * Optional helper to ask your server/AI to create a short descriptive title.
- * You could also import a helper from elsewhere. Adjust the endpoint/logic as needed.
+ * This helper can call your server to create a short, descriptive title
+ * from the user’s first message. Or you can expand it to analyze multiple messages.
  */
 async function generateChatTitle(messages) {
     try {
-        // Limit to last 10 messages (or entire conversation if short).
-        const snippet = messages.slice(-10);
+        // Just for demonstration: consider only the FIRST user message
+        // (or last 10 messages, or entire conversation if you prefer)
+        const snippet = messages.slice(0, 1);
 
-        // Example request body; adjust your endpoint or logic as needed:
         const requestBody = {
             messages: [
                 {
                     role: 'system',
-                    content: `You are an assistant that creates short, descriptive conversation titles.
-                    Provide a concise (3-6 words) but descriptive title. No quotes or punctuation.`
+                    content: `You are an assistant that creates short, descriptive conversation titles. 
+                    Provide a concise (3-6 words) but descriptive title. No quotes.`
                 },
                 ...snippet,
                 {
@@ -28,10 +28,11 @@ async function generateChatTitle(messages) {
                     content: 'Please provide a concise, descriptive title for this conversation.'
                 }
             ],
+            // If using Azure, you can rename this to your deployment name
             model: 'YOUR_OPENAI_MODEL'
         };
 
-        // Suppose you have an endpoint /generateChatTitle that returns { title: "Short Title" }
+        // Suppose you have an endpoint /generateChatTitle that returns { title: "...some short title..." }
         const response = await axios.post('/generateChatTitle', requestBody);
         return response.data.title || 'Untitled Chat';
     } catch (err) {
@@ -40,53 +41,60 @@ async function generateChatTitle(messages) {
     }
 }
 
-export default function ChatInterface({ onLogout, messages, setMessages }) {
+export default function ChatInterface({ onLogout, messages, setMessages, chatTitle, setChatTitle, userKey }) {
+    // `chatTitle` is passed in from the parent (e.g. AppContent),
+    // so we can store it in state at a higher level, or keep it local. 
+    // Here we assume it’s state-lifted so you can reset it from “new chat.”
+
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState(null);
 
     // Chat title + editing states
-    const [chatTitle, setChatTitle] = useState('');
-    const [isEditingTitle, setIsEditingTitle] = useState(false);
-    const [tempTitle, setTempTitle] = useState('');
-
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
-    // ------------------------------
-    // Title editing logic
-    // ------------------------------
-    const handleTitleEditClick = () => {
-        setTempTitle(chatTitle);      // Start with current title in our temp input
-        setIsEditingTitle(true);
-    };
+    // Track if we've generated a title yet for this conversation
+    const [hasGeneratedTitle, setHasGeneratedTitle] = useState(false);
 
-    const handleTitleChange = (e) => {
-        setTempTitle(e.target.value);
-    };
+    /**
+     * Called after we receive the bot’s response. If chatTitle is empty,
+     * we generate a title from the user’s first message, then store it in DB.
+     */
+    const maybeGenerateTitle = async (updatedMessages) => {
+        if (!hasGeneratedTitle) {
+            try {
+                // The first user message is at updatedMessages[0], if you place system messages aside.
+                // But your code might differ, so adjust accordingly. 
+                // We'll call generateChatTitle with the user’s first message. 
+                const title = await generateChatTitle(updatedMessages.filter(m => m.role === 'user'));
 
-    // Example function if you want to persist to server
-    const saveTitleToServer = async (newTitle) => {
-        // Optional: call an endpoint /renameChat if you wish
-        // e.g. await axios.post('/renameChat', { chatId, newTitle })
-        // For now, do nothing or just console.log
-        console.log('Saving new chat title to server: ', newTitle);
-    };
+                // Store it in React state
+                setChatTitle(title);
+                setHasGeneratedTitle(true);
 
-    const handleTitleSave = async () => {
-        setIsEditingTitle(false);
-        setChatTitle(tempTitle);
-        try {
-            await saveTitleToServer(tempTitle);
-        } catch (err) {
-            console.error('Error saving title:', err);
+                // Also call your rename endpoint to store it on server, e.g.:
+                // 
+                //   axios.post('/renameChat', {
+                //     userKey,
+                //     chatId: "singleSession_" + userKey, // or however you do it
+                //     newTitle: title
+                //   });
+                // 
+                await axios.post('/renameChat', {
+                    userKey,
+                    chatId: 'singleSession_' + userKey, // adjust if you have multiple chat IDs
+                    newTitle: title
+                });
+
+            } catch (err) {
+                console.error('Error auto-generating chat title:', err);
+            }
         }
     };
 
-    // ------------------------------
-    // Chat logic
-    // ------------------------------
+    // Send the user’s message
     const sendMessage = async () => {
         if (!userInput.trim() && !file) return;
 
@@ -104,13 +112,10 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                 formData.append('userMessage', userInput);
                 formData.append('file', file);
                 res = await axios.post('/chat', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
+                    headers: { 'Content-Type': 'multipart/form-data' }
                 });
             } else {
-                // Otherwise send standard JSON
-                res = await axios.post('/chat', { userMessage: userInput });
+                res = await axios.post('/chat', { userMessage: userInput, userKey });
             }
 
             const botMsg = {
@@ -124,12 +129,11 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
             // Append bot message
             setMessages(prev => [...prev, botMsg]);
 
-            // Generate a chat title if we don't have one yet
-            if (!chatTitle) {
-                const updatedConversation = [...messages, userMsg, botMsg];
-                const newTitle = await generateChatTitle(updatedConversation);
-                setChatTitle(newTitle);
-            }
+            // Attempt to generate a title if we haven’t yet
+            // We'll pass in the entire updated conversation for context
+            const updatedConversation = [...messages, userMsg, botMsg];
+            await maybeGenerateTitle(updatedConversation);
+
         } catch (e) {
             console.error(e);
             const errorMsg = { role: 'assistant', content: 'Error occurred: ' + e.message };
@@ -163,43 +167,41 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
         }
     };
 
-    // Filter out system messages so they don't appear in the chat bubble area
+    // Filter out system messages
     const filteredMessages = messages.filter(m => m.role !== 'system');
     const showStartContent = filteredMessages.length === 0 && !isLoading;
 
+    // If user manually edits chat title (the "pencil" icon), call rename endpoint
+    const handleTitleEdit = async () => {
+        const newTitle = prompt('Enter new chat title:', chatTitle || '');
+        if (newTitle && newTitle.trim() !== '') {
+            // Locally set
+            setChatTitle(newTitle.trim());
+            // Optionally rename on server
+            try {
+                await axios.post('/renameChat', {
+                    userKey,
+                    chatId: 'singleSession_' + userKey,
+                    newTitle: newTitle.trim()
+                });
+            } catch (err) {
+                console.error('Error renaming chat on server:', err);
+            }
+        }
+    };
+
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
-            {/* Display & Edit Chat Title */}
-            {chatTitle && (
-                <div className="px-4 py-2 mb-2">
-                    {!isEditingTitle ? (
-                        <h2 className="text-xl font-bold text-blue-400 flex items-center">
-                            Chat Title: {chatTitle}
-                            <button
-                                onClick={handleTitleEditClick}
-                                className="ml-2 text-sm text-gray-400 hover:text-gray-200"
-                            >
-                                <i className="fa-solid fa-pencil" />
-                            </button>
-                        </h2>
-                    ) : (
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="text"
-                                value={tempTitle}
-                                onChange={handleTitleChange}
-                                className="p-1 text-black rounded"
-                                style={{ maxWidth: '200px' }}
-                            />
-                            <button
-                                onClick={handleTitleSave}
-                                className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
-                            >
-                                Save
-                            </button>
-                        </div>
-                    )
-                    }
+            {/* Title row (only if there's any conversation) */}
+            {(filteredMessages.length > 0 || isLoading) && (
+                <div className="px-4 py-2 mb-2 flex items-center space-x-2">
+                    <h2 className="text-xl font-bold text-blue-400">
+                        Chat Title: {chatTitle || 'Untitled Chat'}
+                    </h2>
+                    {/* Pencil icon for editing */}
+                    <button onClick={handleTitleEdit} title="Edit Title">
+                        <i className="fa-light fa-pen-to-square text-gray-300 hover:text-gray-100"></i>
+                    </button>
                 </div>
             )}
 
@@ -244,8 +246,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                         title="Attach a file"
                     >
                         <i
-                            className={`fa-solid fa-paperclip ${theme === 'dark' ? 'text-white' : 'text-black'
-                                } w-5 h-5`}
+                            className={`fa-solid fa-paperclip ${theme === 'dark' ? 'text-white' : 'text-black'} w-5 h-5`}
                         ></i>
                     </button>
                     <input
@@ -256,8 +257,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                     />
                     {fileName && (
                         <span
-                            className={`text-sm truncate max-w-xs ${theme === 'dark' ? 'text-white' : 'text-black'
-                                }`}
+                            className={`text-sm truncate max-w-xs ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                         >
                             {fileName}
                         </span>
@@ -270,8 +270,8 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                     onKeyDown={handleKeyDown}
                     rows={3}
                     wrap="soft"
-                    className={`flex-1 p-6 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'
-                        } resize-none overflow-y-auto whitespace-pre-wrap`}
+                    className={`flex-1 p-6 rounded text-black ${theme === 'dark' ? '' : 'border border-gray-500'}
+            resize-none overflow-y-auto whitespace-pre-wrap`}
                     placeholder="I'm here to help! Ask me anything..."
                 />
                 <button
