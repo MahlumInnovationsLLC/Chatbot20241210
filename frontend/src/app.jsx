@@ -296,19 +296,6 @@ function AppContent({ onLogout }) {
                             </select>
                         </div>
 
-                        {/* Row: Always show code + checkbox */}
-                        <div className="flex items-center justify-between pr-2">
-                            <label className="font-semibold mr-4">
-                                Always show code when using data analyst
-                            </label>
-                            <input
-                                type="checkbox"
-                                checked={alwaysShowCode}
-                                onChange={e => setAlwaysShowCode(e.target.checked)}
-                                className="form-checkbox h-5 w-5 text-blue-600"
-                            />
-                        </div>
-
                         {/* Row: Language + dropdown */}
                         <div className="flex items-center justify-between pr-2">
                             <label className="font-semibold mr-4">Language</label>
@@ -560,7 +547,7 @@ function AppContent({ onLogout }) {
                                 onClick={createNewChat}
                             >
                                 <i className="fa-light fa-broom mr-2"></i>
-                                Create New Chat
+                                New Chat
                             </button>
 
                             <button
@@ -706,7 +693,7 @@ function AppContent({ onLogout }) {
                                     }`}
                                 onClick={() => setActiveTab('general')}
                             >
-                                <i className="fa-light fa-ferris-wheel mr-2"></i>
+                                <i className="fa-light fa-gears"></i>
                                 General
                             </button>
 
