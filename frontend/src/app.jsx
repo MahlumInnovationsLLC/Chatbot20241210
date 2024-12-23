@@ -5,12 +5,49 @@ import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
 import axios from 'axios';
 
+/**
+ * A small helper function to generate a short chat title using OpenAI (or your chosen AI).
+ * This is optional. Adjust the prompt as needed for your style.
+ */
+async function generateChatTitle(messages) {
+    try {
+        // Just take the last 10 messages, or the entire conversation if short
+        const snippet = messages.slice(-10);
+
+        // Make a short prompt:
+        const requestBody = {
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are an assistant that creates short, descriptive conversation titles. 
+                    The user has a conversation, and we want a short (3-6 words) but descriptive title.`
+                },
+                ...snippet,
+                {
+                    role: 'user',
+                    content:
+                        'Please provide a concise, descriptive title for this conversation (no quotes).'
+                }
+            ],
+            model: 'YOUR_OPENAI_MODEL' // e.g. "gpt-3.5-turbo" or your Azure deployment name
+        };
+
+        // Adjust your endpoint if using Azure:
+        const response = await axios.post('/generateChatTitle', requestBody);
+        // Suppose the AI returns { title: "...some short title..." }
+        return response.data.title || 'Untitled Chat';
+    } catch (err) {
+        console.error('Error generating chat title:', err);
+        return 'Untitled Chat';
+    }
+}
+
 export default function App() {
     const { instance } = useMsal();
 
     const logout = async () => {
         await instance.logoutRedirect();
-        console.log("Logged out of Microsoft credentials via MSAL.");
+        console.log('Logged out of Microsoft credentials via MSAL.');
     };
 
     return (
@@ -26,8 +63,9 @@ function AppContent({ onLogout }) {
     const userKey = account ? account.homeAccountId : 'default_user';
 
     const { theme, toggleTheme } = useContext(ThemeContext);
-    const logoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png";
-    const bottomLogoUrl = "https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png";
+    const logoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
+    const bottomLogoUrl =
+        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
@@ -37,7 +75,6 @@ function AppContent({ onLogout }) {
     // For the chat history side panel (Manage)
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
-    // Default theme can be "dark"
     const [selectedTheme, setSelectedTheme] = useState('dark');
 
     const [messages, setMessages] = useState([]);
@@ -46,63 +83,70 @@ function AppContent({ onLogout }) {
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
 
-    // Example local storage or ephemeral store for old chats
+    // Local or ephemeral store for old chats
     const [archivedChats, setArchivedChats] = useState([]);
 
     const menuRef = useRef(null);
 
     const limeGreen = '#a2f4a2';
-    const customUrl = "https://gymaidinegine.com";
+    const customUrl = 'https://gymaidinegine.com';
 
-    // Additional states for “General” tab settings
-    const [alwaysShowCode, setAlwaysShowCode] = useState(false);
+    // A possible user-chats from server
+    const [userChats, setUserChats] = useState([]);
+
+    // For language drop-down
     const [selectedLanguage, setSelectedLanguage] = useState('auto');
 
-    // System message
+    // System message for new chats
     const systemMessage = {
         role: 'system',
-        content: (
-            "You are an AI assistant that can produce downloadable reports in Markdown link format. "
-            + "If asked for a report, produce `download://report.docx` in your response. "
-            + "Use Markdown formatting, references if external sources used. If none, write `References: None`."
-        )
+        content:
+            'You are an AI assistant that can produce downloadable reports in Markdown link format. ' +
+            'If asked for a report, produce `download://report.docx` in your response. ' +
+            'Use Markdown formatting, references if external sources used. If none, write `References: None`.'
     };
 
+    // Insert system message if not present
     useEffect(() => {
         if (messages.length === 0) {
             setMessages([systemMessage]);
         } else {
             if (messages[0].role !== 'system') {
-                setMessages(prev => [systemMessage, ...prev]);
+                setMessages((prev) => [systemMessage, ...prev]);
             }
         }
     }, []);
 
-    // 1) Create new chat logic: 
-    //    - Archive current messages
-    //    - Clear messages to start fresh
+    /**
+     * Create a brand-new chat session:
+     *  1) Generate a short "title" using the existing conversation
+     *  2) Archive the conversation with that AI-generated title
+     *  3) Clear the messages array
+     */
     const createNewChat = async () => {
         try {
             if (messages.length > 0) {
-                // Example: store them in local state “archivedChats”
-                // OR send them to the server for archiving
+                // 1) Generate a title from the current conversation
+                const chatTitle = await generateChatTitle(messages);
+
+                // 2) Archive (locally or server). For now we do local
                 const chatToArchive = {
                     userKey,
                     chatTimestamp: new Date().toISOString(),
-                    messages: [...messages],  // store a copy
+                    messages: [...messages],
+                    title: chatTitle
                 };
 
-                // If you want to store them on the server:
+                // Optionally store on server, e.g.:
                 // await axios.post('/archiveChatSession', chatToArchive);
 
-                // For now, local state
-                setArchivedChats(prev => [...prev, chatToArchive]);
+                setArchivedChats((prev) => [...prev, chatToArchive]);
             }
 
-            // Clear current chat
-            setMessages([systemMessage]);  // Reset with system message again
+            // 3) Clear out the conversation; re-insert system message
+            setMessages([systemMessage]);
         } catch (err) {
-            console.error("Error archiving current chat before new chat:", err);
+            console.error('Error archiving current chat before new chat:', err);
         }
     };
 
@@ -115,7 +159,7 @@ function AppContent({ onLogout }) {
 
     const openSettings = () => {
         setMenuOpen(false);
-        setSelectedTheme(theme === 'dark' ? 'dark' : (theme === 'light' ? 'light' : 'system'));
+        setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
         setActiveTab('general');
         setSettingsOpen(true);
     };
@@ -136,14 +180,18 @@ function AppContent({ onLogout }) {
     };
 
     const copyTranscriptToClipboard = () => {
-        const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
+        const allText = messages
+            .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+            .join('\n\n');
         navigator.clipboard.writeText(allText).then(() => {
             alert('Transcript copied to clipboard!');
         });
     };
 
     const downloadTranscriptDocx = () => {
-        const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
+        const allText = messages
+            .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+            .join('\n\n');
         const blob = new Blob([allText], {
             type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
@@ -157,6 +205,7 @@ function AppContent({ onLogout }) {
         URL.revokeObjectURL(url);
     };
 
+    // Outside click closing logic
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen) {
@@ -183,7 +232,7 @@ function AppContent({ onLogout }) {
         };
     }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
-    // AI instructions from local storage
+    // AI instructions from localStorage
     useEffect(() => {
         const savedData = localStorage.getItem(`ai_instructions_${userKey}`);
         if (savedData) {
@@ -229,16 +278,15 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // Manage archived chats side panel
+    // For the server-based user chats
     const [userChats, setUserChats] = useState([]);
-    const [alwaysFetchChats, setAlwaysFetchChats] = useState(false); // or just fetch once
 
     const fetchUserChats = async () => {
         try {
             const res = await axios.get('/chats', { params: { userKey } });
             setUserChats(res.data.chats || []);
         } catch (err) {
-            console.error("Failed to fetch user chats:", err);
+            console.error('Failed to fetch user chats:', err);
         }
     };
 
@@ -256,19 +304,27 @@ function AppContent({ onLogout }) {
     const handleArchiveAll = async () => {
         try {
             await axios.post('/archiveAllChats', { userKey });
-            alert("All chats have been archived.");
+            alert('All chats have been archived.');
         } catch (err) {
-            console.error("Error archiving chats:", err);
+            console.error('Error archiving chats:', err);
         }
     };
 
     const handleDeleteAll = async () => {
         try {
             await axios.post('/deleteAllChats', { userKey });
-            alert("All chats have been deleted.");
+            alert('All chats have been deleted.');
         } catch (err) {
-            console.error("Error deleting chats:", err);
+            console.error('Error deleting chats:', err);
         }
+    };
+
+    /**
+     * Loads a previously archived chat into the main interface
+     */
+    const loadArchivedChat = (chat) => {
+        setMessages(chat.messages);
+        setManageChatsOpen(false);
     };
 
     // SETTINGS TABS
@@ -279,15 +335,13 @@ function AppContent({ onLogout }) {
                     <div className="flex flex-col space-y-6">
 
                         {/* Row: Theme + dropdown */}
-                        <div className="flex items-center justify-between pr-2">
-                            <label className="font-semibold mr-4 flex items-center">
-                                {/* Ferris wheel icon for theme */}
-                                <i className="fa-light fa-ferris-wheel mr-2"></i>
+                        <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
+                            <label className="text-lg font-semibold mr-4 flex items-center">
                                 Theme
                             </label>
                             <select
                                 value={selectedTheme}
-                                onChange={e => setSelectedTheme(e.target.value)}
+                                onChange={(e) => setSelectedTheme(e.target.value)}
                                 className="bg-white text-black border p-2 rounded w-44"
                             >
                                 <option value="dark">Dark</option>
@@ -297,11 +351,11 @@ function AppContent({ onLogout }) {
                         </div>
 
                         {/* Row: Language + dropdown */}
-                        <div className="flex items-center justify-between pr-2">
-                            <label className="font-semibold mr-4">Language</label>
+                        <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
+                            <label className="text-lg font-semibold mr-4">Language</label>
                             <select
                                 value={selectedLanguage}
-                                onChange={e => setSelectedLanguage(e.target.value)}
+                                onChange={(e) => setSelectedLanguage(e.target.value)}
                                 className="bg-white text-black border p-2 rounded w-44"
                             >
                                 <option value="auto">Auto-detect</option>
@@ -313,10 +367,8 @@ function AppContent({ onLogout }) {
 
                         {/* Archived chats */}
                         <div>
-                            <label className="font-semibold block mb-2">Archived chats</label>
-
-                            {/* Manage button row */}
-                            <div className="flex items-center justify-end mb-2 pr-2">
+                            <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
+                                <label className="text-lg font-semibold">Archived chats</label>
                                 <button
                                     onClick={handleManageArchivedChats}
                                     className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
@@ -327,10 +379,10 @@ function AppContent({ onLogout }) {
                             </div>
 
                             {/* Archive & Delete row, aligned right */}
-                            <div className="flex flex-col items-end space-y-2 pr-2">
+                            <div className="flex flex-col items-end space-y-2 pr-2 mt-2">
                                 <button
                                     onClick={handleArchiveAll}
-                                    className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 text-left"
+                                    className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
                                     style={{ width: '11rem' }}
                                 >
                                     Archive all chats
@@ -338,7 +390,7 @@ function AppContent({ onLogout }) {
 
                                 <button
                                     onClick={handleDeleteAll}
-                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-left"
+                                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                                     style={{ width: '11rem' }}
                                 >
                                     Delete all chats
@@ -367,7 +419,7 @@ function AppContent({ onLogout }) {
                             <input
                                 type="text"
                                 value={aiMood}
-                                onChange={e => setAiMood(e.target.value)}
+                                onChange={(e) => setAiMood(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -379,7 +431,7 @@ function AppContent({ onLogout }) {
                             <label className="text-lg font-semibold">AI Instructions:</label>
                             <textarea
                                 value={aiInstructions}
-                                onChange={e => setAiInstructions(e.target.value)}
+                                onChange={(e) => setAiInstructions(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -408,7 +460,7 @@ function AppContent({ onLogout }) {
                             <input
                                 type="text"
                                 value={contactNameFirst}
-                                onChange={e => setContactNameFirst(e.target.value)}
+                                onChange={(e) => setContactNameFirst(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -421,7 +473,7 @@ function AppContent({ onLogout }) {
                             <input
                                 type="text"
                                 value={contactNameLast}
-                                onChange={e => setContactNameLast(e.target.value)}
+                                onChange={(e) => setContactNameLast(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -434,7 +486,7 @@ function AppContent({ onLogout }) {
                             <input
                                 type="text"
                                 value={contactCompany}
-                                onChange={e => setContactCompany(e.target.value)}
+                                onChange={(e) => setContactCompany(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -447,7 +499,7 @@ function AppContent({ onLogout }) {
                             <input
                                 type="email"
                                 value={contactEmail}
-                                onChange={e => setContactEmail(e.target.value)}
+                                onChange={(e) => setContactEmail(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -459,7 +511,7 @@ function AppContent({ onLogout }) {
                             <label className="text-lg font-semibold">Note:</label>
                             <textarea
                                 value={contactNote}
-                                onChange={e => setContactNote(e.target.value)}
+                                onChange={(e) => setContactNote(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
                                         ? 'border-gray-600 bg-gray-700 text-white'
                                         : 'border-gray-300 bg-white text-black'
@@ -584,10 +636,10 @@ function AppContent({ onLogout }) {
                                     }}
                                 >
                                     <a
-                                        href={`mailto:?subject=${encodeURIComponent(
-                                            'Chat Transcript'
-                                        )}&body=${encodeURIComponent(
-                                            messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n')
+                                        href={`mailto:?subject=${encodeURIComponent('Chat Transcript')}&body=${encodeURIComponent(
+                                            messages
+                                                .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+                                                .join('\n\n')
                                         )}`}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                     >
@@ -628,11 +680,7 @@ function AppContent({ onLogout }) {
                     className="w-[85vw] h-[85vh] relative flex flex-col rounded-md p-4"
                     style={{ border: `1px solid ${limeGreen}` }}
                 >
-                    <ChatInterface
-                        onLogout={onLogout}
-                        messages={messages}
-                        setMessages={setMessages}
-                    />
+                    <ChatInterface onLogout={onLogout} messages={messages} setMessages={setMessages} />
                 </div>
 
                 <a
@@ -641,17 +689,12 @@ function AppContent({ onLogout }) {
                     rel="noopener noreferrer"
                     className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
                     style={{
-                        backgroundColor:
-                            theme === 'dark'
-                                ? 'rgba(31, 41, 55, 0.9)'
-                                : 'rgba(255,255,255,0.9)',
+                        backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)',
                         border: `1px solid ${limeGreen}`
                     }}
                 >
                     <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
-                    <span
-                        className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}
-                    >
+                    <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                         Powered by Mahlum Innovations, LLC
                     </span>
                 </a>
@@ -687,20 +730,16 @@ function AppContent({ onLogout }) {
                             style={{ borderBottom: `1px solid ${limeGreen}` }}
                         >
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'general'
-                                        ? 'bg-[#a2f4a2] text-black font-bold'
-                                        : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'general' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('general')}
                             >
-                                <i className="fa-light fa-gears"></i>
+                                <i className="fa-sharp fa-light fa-gear mr-2"></i>
                                 General
                             </button>
 
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'ai'
-                                        ? 'bg-[#a2f4a2] text-black font-bold'
-                                        : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'ai' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('ai')}
                             >
@@ -709,9 +748,7 @@ function AppContent({ onLogout }) {
                             </button>
 
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1'
-                                        ? 'bg-[#a2f4a2] text-black font-bold'
-                                        : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'empty1' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('empty1')}
                             >
@@ -719,18 +756,14 @@ function AppContent({ onLogout }) {
                                 Contact Us
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty2'
-                                        ? 'bg-[#a2f4a2] text-black font-bold'
-                                        : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'empty2' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('empty2')}
                             >
                                 EMPTY
                             </button>
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty3'
-                                        ? 'bg-[#a2f4a2] text-black font-bold'
-                                        : 'bg-gray-700 text-white'
+                                className={`px-2 py-1 rounded ${activeTab === 'empty3' ? 'bg-[#a2f4a2] text-black font-bold' : 'bg-gray-700 text-white'
                                     }`}
                                 onClick={() => setActiveTab('empty3')}
                             >
@@ -739,9 +772,7 @@ function AppContent({ onLogout }) {
                         </div>
 
                         {/* TAB CONTENT */}
-                        <div className="flex-1 overflow-y-auto">
-                            {renderSettingsContent()}
-                        </div>
+                        <div className="flex-1 overflow-y-auto">{renderSettingsContent()}</div>
 
                         {/* SAVE BUTTON */}
                         <div className="flex justify-end mt-4">
@@ -824,15 +855,24 @@ function AppContent({ onLogout }) {
                                 <i className="fa-light fa-xmark-large"></i>
                             </button>
                         </div>
-                        {/* Example: show userChats from server & archivedChats from local */}
-                        {/* userChats is from the server, archivedChats is local in this example */}
+
                         <p className="text-lg mb-2">Server-based Chats:</p>
                         {userChats && userChats.length > 0 ? (
                             userChats.map((chat, idx) => (
-                                <div key={idx} className="bg-gray-700 p-2 rounded mb-2">
-                                    <p className="text-xs text-gray-300">UserKey: {chat.userKey}</p>
-                                    {/* Show partial content or other info */}
-                                    <p className="text-sm">{chat.messages ? `(Messages: ${chat.messages.length})` : ''}</p>
+                                <div
+                                    key={idx}
+                                    className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
+                                    onClick={() => {
+                                        // Load that chat into main interface
+                                        setMessages(chat.messages);
+                                        setManageChatsOpen(false);
+                                    }}
+                                >
+                                    {/* AI-Generated Title or fallback */}
+                                    <p className="font-bold">{chat.title || 'Chat from server'}</p>
+                                    <p className="text-xs text-gray-300">
+                                        {chat.userKey} | {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
+                                    </p>
                                 </div>
                             ))
                         ) : (
@@ -844,10 +884,16 @@ function AppContent({ onLogout }) {
                         <p className="text-lg mb-2">Locally archived chats:</p>
                         {archivedChats && archivedChats.length > 0 ? (
                             archivedChats.map((chat, idx) => (
-                                <div key={idx} className="bg-gray-700 p-2 rounded mb-2">
-                                    <p className="text-xs text-gray-300">UserKey: {chat.userKey}</p>
-                                    <p className="text-xs text-gray-300">Timestamp: {chat.chatTimestamp}</p>
-                                    <p className="text-sm">{`(Messages: ${chat.messages.length})`}</p>
+                                <div
+                                    key={idx}
+                                    className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
+                                    onClick={() => loadArchivedChat(chat)}
+                                >
+                                    {/* Show AI generated title if we have it */}
+                                    <p className="font-bold">{chat.title || 'Untitled chat'}</p>
+                                    <p className="text-xs text-gray-300">
+                                        {chat.userKey} | {chat.messages.length} msgs
+                                    </p>
                                 </div>
                             ))
                         ) : (
