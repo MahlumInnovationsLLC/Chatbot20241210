@@ -1,4 +1,7 @@
-from flask import Flask, send_from_directory, request, jsonify, send_file, make_response
+###############################################################################
+# app.py
+###############################################################################
+from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
@@ -8,10 +11,36 @@ import re
 from io import BytesIO
 from docx import Document
 import urllib.parse  # for URL encoding if needed
+import uuid
+from azure.cosmos import CosmosClient, PartitionKey, exceptions  # NEW
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
-# Configure the AzureOpenAI client
+###############################################################################
+# 1. Cosmos DB Setup
+###############################################################################
+# Make sure you set these environment variables or define them in code
+COSMOS_ENDPOINT = os.environ.get("COSMOS_ENDPOINT")  # e.g. "https://<yourcosmos>.documents.azure.com:443/"
+COSMOS_KEY = os.environ.get("COSMOS_KEY")            # your primary key
+COSMOS_DATABASE_ID = "GYMAIEngineDB"
+COSMOS_CONTAINER_ID = "chats"
+
+# Initialize the Cosmos client
+cosmos_client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
+
+try:
+    # Get (or create) database
+    database = cosmos_client.create_database_if_not_exists(id=COSMOS_DATABASE_ID)
+    # Get (or create) container
+    container = database.create_container_if_not_exists(
+        id=COSMOS_CONTAINER_ID,
+        partition_key=PartitionKey(path="/userKey"),
+        offer_throughput=400  # optional
+    )
+except exceptions.CosmosHttpResponseError as e:
+    app.logger.error("Cosmos DB setup error: %s", e)
+
+# For calling AzureOpenAI
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
@@ -21,23 +50,17 @@ client = AzureOpenAI(
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual deployment name
 
 ###############################################################################
-# Example in-memory store for user chat histories (in production, use a real DB)
+# 2. Helper function to produce a more detailed "reportContent"
 ###############################################################################
-USER_CHATS = {}  # dict of userKey -> list of chat data (each item might be {content, role, archived, etc.})
-
 def generate_detailed_report(base_content):
-    """
-    Make a second OpenAI call to produce a more in-depth, structured, and detailed report
-    based on the main_content from the assistant.
-    """
     detail_messages = [
         {
             "role": "system",
             "content": (
                 "You are a helpful assistant that specializes in creating detailed, comprehensive reports. "
                 "Given some brief content about a topic, produce a thorough, well-structured, and in-depth written report. "
-                "Include headings, subheadings, bullet points, data-driven insights, best practices, examples, and potential future trends. "
-                "Write as if producing a professional whitepaper or industry analysis document."
+                "Include headings, subheadings, bullet points, data-driven insights, best practices, examples, "
+                "and potential future trends. Write as if producing a professional whitepaper or industry analysis document."
             )
         },
         {
@@ -48,7 +71,6 @@ def generate_detailed_report(base_content):
             )
         }
     ]
-
     try:
         detail_response = client.chat.completions.create(
             messages=detail_messages,
@@ -58,53 +80,47 @@ def generate_detailed_report(base_content):
         return detailed_report
     except Exception as e:
         app.logger.error("Error calling OpenAI for detailed report:", exc_info=True)
-        # Fallback to just using the base_content if detailed generation fails
         return base_content + "\n\n(Additional detailed analysis could not be generated due to an error.)"
 
-
+###############################################################################
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 
+###############################################################################
+# 3. Chat endpoint
+###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     user_input = None
     file_bytes = None
     file_ext = None
 
-    # Optionally capture userKey for storing chats
-    # e.g. from headers or request body:
-    user_key = request.args.get('userKey')  # or from form, JSON, etc.
-    if not user_key:
-        user_key = 'default_user'
+    # userKey from query params or JSON
+    user_key = request.args.get('userKey', 'default_user')
 
+    # If multipart, read from form + file
     if request.content_type and 'multipart/form-data' in request.content_type:
-        app.logger.info("Received multipart/form-data request.")
         user_input = request.form.get('userMessage', '')
-        file = request.files.get('file')
-        if file:
-            app.logger.info(f"Received file: {file.filename}")
-            file_bytes = file.read()
-            filename = file.filename.lower()
+        uploaded_file = request.files.get('file')
+        if uploaded_file:
+            file_bytes = uploaded_file.read()
+            filename = uploaded_file.filename.lower()
             if filename.endswith('.pdf'):
                 file_ext = 'pdf'
             elif filename.endswith(('.png', '.jpg', '.jpeg')):
                 file_ext = 'image'
             elif filename.endswith('.docx'):
                 file_ext = 'docx'
-            else:
-                file_ext = None
     else:
-        app.logger.info("Received JSON request.")
+        # JSON request
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
-        # Possibly read userKey from data as well
         if 'userKey' in data:
-            user_key = data.get('userKey')
-        file_bytes = None
+            user_key = data['userKey']
 
-    # Base system + user messages
+    # 3a) Create base messages
     messages = [
         {
             "role": "system",
@@ -113,10 +129,8 @@ def chat_endpoint():
                 "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
                 "when appropriate. Also, break down complex steps into bullet points or numbered lists "
                 "for clarity. End your responses with a friendly tone.\n\n"
-                
                 "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
                 "in the exact format: `download://report.docx` somewhere in your final response text.\n\n"
-
                 "If you use external sources, at the end provide:\n"
                 "References:\n"
                 "- [Name](URL): short description\n"
@@ -129,64 +143,44 @@ def chat_endpoint():
         }
     ]
 
-    # If a file was uploaded, process it
+    # 3b) If a file was uploaded, transform it into a system message
     if file_bytes:
-        if file_ext == 'pdf':
-            app.logger.info("Extracting text from PDF...")
-            try:
+        try:
+            if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
                 messages.append({
                     "role": "system",
-                    "content": f"This is the text extracted from the uploaded PDF:\n{extracted_text}"
+                    "content": f"This is the text extracted from the PDF:\n{extracted_text}"
                 })
-            except Exception as e:
-                app.logger.error("Error extracting text from PDF:", exc_info=True)
-                messages.append({
-                    "role": "assistant",
-                    "content": "I encountered an error reading the PDF. Please try again."
-                })
-
-        elif file_ext == 'image':
-            app.logger.info("Analyzing image data...")
-            try:
+            elif file_ext == 'image':
                 vision_result = analyze_image_from_bytes(file_bytes)
+                described_image = "No description available."
                 if vision_result.description and vision_result.description.captions:
                     described_image = vision_result.description.captions[0].text
-                else:
-                    described_image = "No description available."
                 messages.append({
                     "role": "system",
                     "content": f"Here's what the image seems to show: {described_image}"
                 })
-            except Exception as e:
-                app.logger.error("Error analyzing image:", exc_info=True)
-                messages.append({
-                    "role": "assistant",
-                    "content": "It seems there was an error analyzing the image."
-                })
-
-        elif file_ext == 'docx':
-            app.logger.info("Extracting text from DOCX file...")
-            try:
+            elif file_ext == 'docx':
                 extracted_text = extract_text_from_docx(file_bytes)
                 if extracted_text.strip():
                     messages.append({
                         "role": "system",
-                        "content": f"Text extracted from the uploaded DOCX:\n{extracted_text}"
+                        "content": f"Text extracted from the DOCX:\n{extracted_text}"
                     })
                 else:
                     messages.append({
                         "role": "assistant",
                         "content": "The DOCX file seems empty or unreadable."
                     })
-            except Exception as e:
-                app.logger.error("Error extracting text from DOCX:", exc_info=True)
-                messages.append({
-                    "role": "assistant",
-                    "content": "I encountered an error reading the DOCX file. Please try again."
-                })
+        except Exception as e:
+            app.logger.error("Error processing uploaded file:", exc_info=True)
+            messages.append({
+                "role": "assistant",
+                "content": f"Error reading uploaded file: {str(e)}"
+            })
 
-    # Make the OpenAI call
+    # 3c) Call AzureOpenAI
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -194,10 +188,10 @@ def chat_endpoint():
         )
         assistant_reply = response.choices[0].message.content
     except Exception as e:
-        app.logger.error("Error calling Azure OpenAI:", exc_info=True)
+        app.logger.error("Error calling AzureOpenAI:", exc_info=True)
         assistant_reply = f"Error occurred: {str(e)}"
 
-    # Attempt to parse references
+    # 3d) Parse references, remove them from displayed text
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -220,30 +214,61 @@ def chat_endpoint():
                             "url": url,
                             "description": desc
                         })
-    else:
-        references_list = []
 
-    # Check if user wants a downloadable report
+    # 3e) Check for downloadable report
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
-        # Remove the placeholder from the displayed text
         main_content = main_content.replace('download://report.docx', '').strip()
-
-        # Make a second call for a more detailed "reportContent"
         report_content = generate_detailed_report(main_content)
-        # We'll use a POST request to /api/generateReport
         download_url = '/api/generateReport'
 
-    ##########################################################################
-    # Step 3: Store the user's prompt and the assistant's reply in memory
-    ##########################################################################
-    if user_key not in USER_CHATS:
-        USER_CHATS[user_key] = []
-    # For demonstration, we store just the roles + content
-    USER_CHATS[user_key].append({"role": "user", "content": user_input, "archived": False})
-    USER_CHATS[user_key].append({"role": "assistant", "content": assistant_reply, "archived": False})
+    ###########################################################################
+    # 4. Store chat data in Cosmos DB
+    ###########################################################################
+    # We'll store or update a single doc representing this conversation. 
+    # For simplicity: One "chat session" per call. If you want multi-message sessions,
+    # you might do more advanced logic.
+    # We'll store the user's message + assistant reply in a single doc
+    # or in multiple docs. Example: single doc with an array. 
+    ###########################################################################
+    
+    # Let's define a chatDoc that has a chatId, userKey, messages array, etc.
+    # We'll keep a single "session" doc for now and append new messages to it.
+    # NOTE: This example might be simplified or adjusted to match your usage pattern.
 
+    chat_id = "singleSession_" + user_key  # or generate a new random chatId or param
+    partition_key = user_key               # because we set partition key to /userKey
+
+    # Step 1: Attempt to retrieve existing doc for this userKey & chatId
+    try:
+        chat_doc = container.read_item(item=chat_id, partition_key=partition_key)
+    except exceptions.CosmosResourceNotFoundError:
+        # If not found, create a new doc
+        chat_doc = {
+            "id": chat_id,
+            "userKey": user_key,
+            "messages": []  # array of {role, content}
+        }
+
+    # Add the user message
+    chat_doc["messages"].append({
+        "role": "user",
+        "content": user_input
+    })
+
+    # Add the assistant message
+    chat_doc["messages"].append({
+        "role": "assistant",
+        "content": assistant_reply
+    })
+
+    # Upsert the doc back to Cosmos
+    container.upsert_item(chat_doc)
+
+    ###########################################################################
+    # Return the JSON response
+    ###########################################################################
     return jsonify({
         "reply": main_content,
         "references": references_list,
@@ -251,17 +276,11 @@ def chat_endpoint():
         "reportContent": report_content
     })
 
-
+###############################################################################
+# Generate and send docx
+###############################################################################
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
-    """
-    Expects JSON:
-    {
-      "filename": "report.docx",
-      "reportContent": "some detailed content with headings etc."
-    }
-    Returns a Word doc with bold items handled, headings, bullet points, etc.
-    """
     data = request.get_json(force=True)
     filename = data.get('filename', 'report.docx')
     report_content = data.get('reportContent', 'No content provided')
@@ -271,46 +290,36 @@ def generate_report():
 
     doc = Document()
 
-    # Attempt to locate a first-line heading
     doc_title = "Generated Report"
     if lines and lines[0].startswith('# '):
         doc_title = lines[0][2:].strip()
-        # remove that line from normal processing
         lines = lines[1:]
-
-    # Document Title
     doc.add_heading(doc_title, 0)
 
     for line in lines:
         stripped_line = line.strip()
         if not stripped_line:
-            # Add a blank paragraph for empty lines
             doc.add_paragraph('')
             continue
 
-        # Check for heading tokens
         if stripped_line.startswith('### '):
             doc.add_heading(stripped_line[4:].strip(), level=3)
         elif stripped_line.startswith('## '):
             doc.add_heading(stripped_line[3:].strip(), level=2)
         elif stripped_line.startswith('# '):
             doc.add_heading(stripped_line[2:].strip(), level=1)
-        # Bullet points: lines starting with '- '
         elif re.match(r'^-\s', stripped_line):
             doc.add_paragraph(stripped_line[2:].strip(), style='List Bullet')
-        # Numbered list: e.g. "1. text"
         elif re.match(r'^\d+\.\s', stripped_line):
             doc.add_paragraph(
                 re.sub(r'^\d+\.\s', '', stripped_line).strip(),
                 style='List Number'
             )
         else:
-            # Normal paragraph + parse for **bold** segments
             p = doc.add_paragraph()
             segments = stripped_line.split('**')
             for i, seg in enumerate(segments):
                 run = p.add_run(seg)
-                # If we're in an odd segment, set bold = True
                 if i % 2 == 1:
                     run.bold = True
 
@@ -325,23 +334,11 @@ def generate_report():
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 
-
 ###############################################################################
-# Additional routes for contact form, chat archiving, etc.
+# Contact endpoint
 ###############################################################################
-
 @app.route('/contact', methods=['POST'])
 def contact_endpoint():
-    """
-    Expects JSON:
-    {
-      "firstName": "...",
-      "lastName": "...",
-      "company": "...",
-      "email": "...",
-      "note": "..."
-    }
-    """
     data = request.get_json(force=True)
     firstName = data.get('firstName', '')
     lastName = data.get('lastName', '')
@@ -349,7 +346,7 @@ def contact_endpoint():
     email = data.get('email', '')
     note = data.get('note', '')
 
-    # Log or handle sending an actual email to colter@mahluminnovations.com
+    # Log or handle sending an actual email
     app.logger.info(
         f"Contact form submission:\n"
         f"Name: {firstName} {lastName}\n"
@@ -357,26 +354,49 @@ def contact_endpoint():
         f"Email: {email}\n"
         f"Note: {note}"
     )
-    # In a real scenario, you'd integrate with a mail service or SMTP here.
 
     return jsonify({
         "status": "success",
         "message": "Thank you for contacting us. Your message has been received."
     })
 
-
-# Return all chats for a user
+###############################################################################
+# Return all chats for a user (READ from Cosmos)
+###############################################################################
 @app.route('/chats', methods=['GET'])
 def get_chats():
     user_key = request.args.get('userKey', '')
     if not user_key:
         return jsonify({"chats": []}), 200
 
-    # Return the user’s existing chats or an empty list
-    chats = USER_CHATS.get(user_key, [])
-    return jsonify({"chats": chats}), 200
+    # Query container for items matching userKey
+    query = f"SELECT * FROM c WHERE c.userKey=@userKey"
+    parameters = [{"name": "@userKey", "value": user_key}]
 
+    items = list(container.query_items(
+        query=query,
+        parameters=parameters,
+        enable_cross_partition_query=True  # might be needed if multi-partition
+    ))
 
+    # items is a list of docs. Each doc might be {id, userKey, messages, ...}
+    # We'll return them in a format your frontend expects
+    # Possibly you want to parse out just the needed info
+    chat_summaries = []
+    for doc in items:
+        chat_summaries.append({
+            "id": doc.get("id"),
+            "userKey": doc.get("userKey"),
+            "messages": doc.get("messages", []),
+            # If you store a 'title' or other metadata, you can include it here
+            "title": doc.get("title", None),
+        })
+
+    return jsonify({"chats": chat_summaries}), 200
+
+###############################################################################
+# Archive all
+###############################################################################
 @app.route('/archiveAllChats', methods=['POST'])
 def archive_all_chats():
     data = request.get_json(force=True)
@@ -384,14 +404,22 @@ def archive_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    # Mark all user chats as archived
-    existing_chats = USER_CHATS.get(user_key, [])
-    for c in existing_chats:
-        c['archived'] = True
-    USER_CHATS[user_key] = existing_chats
+    # Query all documents for userKey
+    query = f"SELECT * FROM c WHERE c.userKey=@userKey"
+    parameters = [{"name": "@userKey", "value": user_key}]
+    items = list(container.query_items(query=query, parameters=parameters))
+
+    # Mark them archived
+    for doc in items:
+        # Add or set an "archived" field
+        doc['archived'] = True
+        container.replace_item(doc, doc)
+
     return jsonify({"success": True}), 200
 
-
+###############################################################################
+# Delete all
+###############################################################################
 @app.route('/deleteAllChats', methods=['POST'])
 def delete_all_chats():
     data = request.get_json(force=True)
@@ -399,16 +427,23 @@ def delete_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    # Remove them from the in-memory store
-    USER_CHATS[user_key] = []
+    # Query all documents for userKey
+    query = f"SELECT * FROM c WHERE c.userKey=@userKey"
+    parameters = [{"name": "@userKey", "value": user_key}]
+    items = list(container.query_items(query=query, parameters=parameters))
+
+    # Delete them
+    for doc in items:
+        container.delete_item(item=doc['id'], partition_key=doc['userKey'])
+
     return jsonify({"success": True}), 200
 
-
+###############################################################################
 @app.errorhandler(404)
 def not_found(e):
     return send_from_directory('src/public', 'index.html')
 
-
+###############################################################################
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))
     app.run(host="0.0.0.0", port=port, debug=True)
