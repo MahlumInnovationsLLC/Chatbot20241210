@@ -34,11 +34,11 @@ function AppContent({ onLogout }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
 
-    // Changed from 'dark' if you want a different default
-    const [selectedTheme, setSelectedTheme] = useState('dark');
+    // For the chat history side panel (Manage)
+    const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
-    // We now have a brand new "manageChatsOpen" for the side panel
-    const [manageChatsOpen, setManageChatsOpen] = useState(false); // NEW
+    // Default theme can be "dark"
+    const [selectedTheme, setSelectedTheme] = useState('dark');
 
     const [messages, setMessages] = useState([]);
     const [activeTab, setActiveTab] = useState('general');
@@ -46,41 +46,17 @@ function AppContent({ onLogout }) {
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
 
+    // Example local storage or ephemeral store for old chats
+    const [archivedChats, setArchivedChats] = useState([]);
+
     const menuRef = useRef(null);
 
     const limeGreen = '#a2f4a2';
-    const customUrl = "https://gymaiengine.com";
+    const customUrl = "https://gymaidinegine.com";
 
-    // Additional states for new "General" tab settings
+    // Additional states for “General” tab settings
     const [alwaysShowCode, setAlwaysShowCode] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState('auto');
-
-    // For the new archived chats features
-    const handleManageArchivedChats = () => {
-        console.log("Manage archived chats clicked...");
-        // Slide in the right-side panel
-        setManageChatsOpen(true); // NEW
-    };
-    const handleArchiveAll = async () => {
-        console.log("Archive all chats clicked...");
-        try {
-            // Example POST to your /archiveAllChats route
-            await axios.post('/archiveAllChats', { userKey });
-            alert("All chats have been archived.");
-        } catch (err) {
-            console.error("Error archiving chats:", err);
-        }
-    };
-    const handleDeleteAll = async () => {
-        console.log("Delete all chats clicked...");
-        try {
-            // Example POST to your /deleteAllChats route
-            await axios.post('/deleteAllChats', { userKey });
-            alert("All chats have been deleted.");
-        } catch (err) {
-            console.error("Error deleting chats:", err);
-        }
-    };
 
     // System message
     const systemMessage = {
@@ -101,6 +77,34 @@ function AppContent({ onLogout }) {
             }
         }
     }, []);
+
+    // 1) Create new chat logic: 
+    //    - Archive current messages
+    //    - Clear messages to start fresh
+    const createNewChat = async () => {
+        try {
+            if (messages.length > 0) {
+                // Example: store them in local state “archivedChats”
+                // OR send them to the server for archiving
+                const chatToArchive = {
+                    userKey,
+                    chatTimestamp: new Date().toISOString(),
+                    messages: [...messages],  // store a copy
+                };
+
+                // If you want to store them on the server:
+                // await axios.post('/archiveChatSession', chatToArchive);
+
+                // For now, local state
+                setArchivedChats(prev => [...prev, chatToArchive]);
+            }
+
+            // Clear current chat
+            setMessages([systemMessage]);  // Reset with system message again
+        } catch (err) {
+            console.error("Error archiving current chat before new chat:", err);
+        }
+    };
 
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
@@ -132,18 +136,14 @@ function AppContent({ onLogout }) {
     };
 
     const copyTranscriptToClipboard = () => {
-        const allText = messages.map(m =>
-            `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
-        ).join('\n\n');
+        const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
         navigator.clipboard.writeText(allText).then(() => {
             alert('Transcript copied to clipboard!');
         });
     };
 
     const downloadTranscriptDocx = () => {
-        const allText = messages.map(m =>
-            `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
-        ).join('\n\n');
+        const allText = messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n');
         const blob = new Blob([allText], {
             type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         });
@@ -194,10 +194,7 @@ function AppContent({ onLogout }) {
     }, [userKey]);
 
     const saveAiInstructions = () => {
-        const data = {
-            mood: aiMood,
-            instructions: aiInstructions
-        };
+        const data = { mood: aiMood, instructions: aiInstructions };
         localStorage.setItem(`ai_instructions_${userKey}`, JSON.stringify(data));
         alert('AI Instructions saved!');
     };
@@ -232,9 +229,10 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // SIDEBAR to show archived chat management
-    // Here we assume you'll fetch from /chats?userKey=...
-    const [userChats, setUserChats] = useState([]); // NEW: store the fetched chats
+    // Manage archived chats side panel
+    const [userChats, setUserChats] = useState([]);
+    const [alwaysFetchChats, setAlwaysFetchChats] = useState(false); // or just fetch once
+
     const fetchUserChats = async () => {
         try {
             const res = await axios.get('/chats', { params: { userKey } });
@@ -244,24 +242,47 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // If manageChatsOpen is triggered, fetch the user’s chat history
+    // On open/close manage panel
     useEffect(() => {
         if (manageChatsOpen) {
             fetchUserChats();
         }
     }, [manageChatsOpen]);
 
-    // RENDER SETTINGS CONTENT
+    const handleManageArchivedChats = () => {
+        setManageChatsOpen(true);
+    };
+
+    const handleArchiveAll = async () => {
+        try {
+            await axios.post('/archiveAllChats', { userKey });
+            alert("All chats have been archived.");
+        } catch (err) {
+            console.error("Error archiving chats:", err);
+        }
+    };
+
+    const handleDeleteAll = async () => {
+        try {
+            await axios.post('/deleteAllChats', { userKey });
+            alert("All chats have been deleted.");
+        } catch (err) {
+            console.error("Error deleting chats:", err);
+        }
+    };
+
+    // SETTINGS TABS
     const renderSettingsContent = () => {
         switch (activeTab) {
-            // Renamed from "theme" to "general"
             case 'general':
                 return (
                     <div className="flex flex-col space-y-6">
+
                         {/* Row: Theme + dropdown */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between pr-2">
                             <label className="font-semibold mr-4 flex items-center">
-                                <i className="fa-light fa-gear mr-2"></i> {/* The gear icon */}
+                                {/* Ferris wheel icon for theme */}
+                                <i className="fa-light fa-ferris-wheel mr-2"></i>
                                 Theme
                             </label>
                             <select
@@ -276,7 +297,7 @@ function AppContent({ onLogout }) {
                         </div>
 
                         {/* Row: Always show code + checkbox */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between pr-2">
                             <label className="font-semibold mr-4">
                                 Always show code when using data analyst
                             </label>
@@ -289,7 +310,7 @@ function AppContent({ onLogout }) {
                         </div>
 
                         {/* Row: Language + dropdown */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between pr-2">
                             <label className="font-semibold mr-4">Language</label>
                             <select
                                 value={selectedLanguage}
@@ -299,31 +320,31 @@ function AppContent({ onLogout }) {
                                 <option value="auto">Auto-detect</option>
                                 <option value="en">English</option>
                                 <option value="es">Spanish</option>
-                                {/* add more as needed */}
+                                {/* ... add more as needed */}
                             </select>
                         </div>
 
-                        {/* Archived chats section */}
+                        {/* Archived chats */}
                         <div>
                             <label className="font-semibold block mb-2">Archived chats</label>
 
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm text-gray-200 opacity-70"></span>
-                                {/* Removed "Placeholder for description" per request */}
+                            {/* Manage button row */}
+                            <div className="flex items-center justify-end mb-2 pr-2">
                                 <button
                                     onClick={handleManageArchivedChats}
                                     className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
-                                    style={{ width: '11rem' }} // same as dropdown width
+                                    style={{ width: '11rem' }}
                                 >
                                     Manage
                                 </button>
                             </div>
 
-                            <div className="flex flex-col space-y-2">
+                            {/* Archive & Delete row, aligned right */}
+                            <div className="flex flex-col items-end space-y-2 pr-2">
                                 <button
                                     onClick={handleArchiveAll}
                                     className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 text-left"
-                                    style={{ width: '11rem' }} // same width as theme dropdown
+                                    style={{ width: '11rem' }}
                                 >
                                     Archive all chats
                                 </button>
@@ -331,7 +352,7 @@ function AppContent({ onLogout }) {
                                 <button
                                     onClick={handleDeleteAll}
                                     className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-left"
-                                    style={{ width: '11rem' }} // same width as theme dropdown
+                                    style={{ width: '11rem' }}
                                 >
                                     Delete all chats
                                 </button>
@@ -339,7 +360,7 @@ function AppContent({ onLogout }) {
                         </div>
 
                         {/* Log out on this device */}
-                        <div className="flex justify-end mt-6">
+                        <div className="flex justify-end mt-6 pr-2">
                             <button
                                 onClick={onLogout}
                                 className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
@@ -361,8 +382,8 @@ function AppContent({ onLogout }) {
                                 value={aiMood}
                                 onChange={e => setAiMood(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="e.g., Friendly, Professional, Enthusiastic..."
                             />
@@ -373,8 +394,8 @@ function AppContent({ onLogout }) {
                                 value={aiInstructions}
                                 onChange={e => setAiInstructions(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Provide instructions for how the AI should behave..."
                                 rows={5}
@@ -402,8 +423,8 @@ function AppContent({ onLogout }) {
                                 value={contactNameFirst}
                                 onChange={e => setContactNameFirst(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="First Name"
                             />
@@ -415,8 +436,8 @@ function AppContent({ onLogout }) {
                                 value={contactNameLast}
                                 onChange={e => setContactNameLast(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Last Name"
                             />
@@ -428,8 +449,8 @@ function AppContent({ onLogout }) {
                                 value={contactCompany}
                                 onChange={e => setContactCompany(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Company Name"
                             />
@@ -441,8 +462,8 @@ function AppContent({ onLogout }) {
                                 value={contactEmail}
                                 onChange={e => setContactEmail(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Your Email"
                             />
@@ -453,8 +474,8 @@ function AppContent({ onLogout }) {
                                 value={contactNote}
                                 onChange={e => setContactNote(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="How can we help?"
                                 rows={5}
@@ -531,8 +552,17 @@ function AppContent({ onLogout }) {
 
                     {menuOpen && (
                         <div
-                            className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-40 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
+                            className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-44 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
                         >
+                            {/* CREATE NEW CHAT button */}
+                            <button
+                                className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
+                                onClick={createNewChat}
+                            >
+                                <i className="fa-light fa-broom mr-2"></i>
+                                Create New Chat
+                            </button>
+
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={onLogout}
@@ -570,11 +600,7 @@ function AppContent({ onLogout }) {
                                         href={`mailto:?subject=${encodeURIComponent(
                                             'Chat Transcript'
                                         )}&body=${encodeURIComponent(
-                                            messages
-                                                .map(m =>
-                                                    `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
-                                                )
-                                                .join('\n\n')
+                                            messages.map(m => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`).join('\n\n')
                                         )}`}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                     >
@@ -637,8 +663,7 @@ function AppContent({ onLogout }) {
                 >
                     <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
                     <span
-                        className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'
-                            }`}
+                        className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                     >
                         Powered by Mahlum Innovations, LLC
                     </span>
@@ -681,7 +706,7 @@ function AppContent({ onLogout }) {
                                     }`}
                                 onClick={() => setActiveTab('general')}
                             >
-                                <i className="fa-light fa-gear mr-2"></i>
+                                <i className="fa-light fa-ferris-wheel mr-2"></i>
                                 General
                             </button>
 
@@ -727,9 +752,11 @@ function AppContent({ onLogout }) {
                         </div>
 
                         {/* TAB CONTENT */}
-                        <div className="flex-1 overflow-y-auto">{renderSettingsContent()}</div>
+                        <div className="flex-1 overflow-y-auto">
+                            {renderSettingsContent()}
+                        </div>
 
-                        {/* SAVE BUTTON (for some tab changes) */}
+                        {/* SAVE BUTTON */}
                         <div className="flex justify-end mt-4">
                             <button
                                 onClick={saveSettings}
@@ -789,7 +816,7 @@ function AppContent({ onLogout }) {
                 </div>
             )}
 
-            {/* NEW: RIGHT-SIDE MANAGE CHATS SIDEBAR */}
+            {/* RIGHT-SIDE Manage Chats SIDEBAR */}
             {manageChatsOpen && (
                 <div
                     className="fixed inset-0 z-50 flex justify-end"
@@ -800,10 +827,7 @@ function AppContent({ onLogout }) {
                         }
                     }}
                 >
-                    <div
-                        className={`bg-gray-900 text-white w-1/5 h-full p-4 transform transition-transform duration-300 ease-in-out overflow-y-auto`}
-                    >
-                        {/* HEADER */}
+                    <div className="bg-gray-900 text-white w-1/5 h-full p-4 transform transition-transform duration-300 ease-in-out overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-xl font-bold">Your Chats</h3>
                             <button
@@ -813,27 +837,35 @@ function AppContent({ onLogout }) {
                                 <i className="fa-light fa-xmark-large"></i>
                             </button>
                         </div>
-                        {/* DISPLAY THE USER_CHATS */}
-                        {/* In a real scenario, you'd map over userChats */}
-                        <div className="space-y-2">
-                            {userChats && userChats.length > 0 ? (
-                                userChats.map((chat, index) => (
-                                    <div
-                                        key={index}
-                                        className="bg-gray-700 p-2 rounded shadow-sm"
-                                    >
-                                        <p className="text-xs text-gray-300">
-                                            Role: {chat.role}
-                                        </p>
-                                        <p className="text-sm">
-                                            {chat.content?.substring(0, 60) || ''}
-                                        </p>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-400">No chats found.</p>
-                            )}
-                        </div>
+                        {/* Example: show userChats from server & archivedChats from local */}
+                        {/* userChats is from the server, archivedChats is local in this example */}
+                        <p className="text-lg mb-2">Server-based Chats:</p>
+                        {userChats && userChats.length > 0 ? (
+                            userChats.map((chat, idx) => (
+                                <div key={idx} className="bg-gray-700 p-2 rounded mb-2">
+                                    <p className="text-xs text-gray-300">UserKey: {chat.userKey}</p>
+                                    {/* Show partial content or other info */}
+                                    <p className="text-sm">{chat.messages ? `(Messages: ${chat.messages.length})` : ''}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-400">No server-based chats found.</p>
+                        )}
+
+                        <hr className="my-4 border-gray-600" />
+
+                        <p className="text-lg mb-2">Locally archived chats:</p>
+                        {archivedChats && archivedChats.length > 0 ? (
+                            archivedChats.map((chat, idx) => (
+                                <div key={idx} className="bg-gray-700 p-2 rounded mb-2">
+                                    <p className="text-xs text-gray-300">UserKey: {chat.userKey}</p>
+                                    <p className="text-xs text-gray-300">Timestamp: {chat.chatTimestamp}</p>
+                                    <p className="text-sm">{`(Messages: ${chat.messages.length})`}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-400">No locally archived chats yet.</p>
+                        )}
                     </div>
                 </div>
             )}
