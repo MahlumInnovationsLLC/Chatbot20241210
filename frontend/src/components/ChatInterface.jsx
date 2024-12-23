@@ -19,7 +19,7 @@ async function generateChatTitle(messages) {
             messages: [
                 {
                     role: 'system',
-                    content: `You are an assistant that creates short, descriptive conversation titles. 
+                    content: `You are an assistant that creates short, descriptive conversation titles.
                     Provide a concise (3-6 words) but descriptive title. No quotes or punctuation.`
                 },
                 ...snippet,
@@ -46,12 +46,47 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
     const [fileName, setFileName] = useState('');
     const [file, setFile] = useState(null);
 
-    // NEW: local state to store a short, AI-generated chat title
+    // Chat title + editing states
     const [chatTitle, setChatTitle] = useState('');
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [tempTitle, setTempTitle] = useState('');
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
+    // ------------------------------
+    // Title editing logic
+    // ------------------------------
+    const handleTitleEditClick = () => {
+        setTempTitle(chatTitle);      // Start with current title in our temp input
+        setIsEditingTitle(true);
+    };
+
+    const handleTitleChange = (e) => {
+        setTempTitle(e.target.value);
+    };
+
+    // Example function if you want to persist to server
+    const saveTitleToServer = async (newTitle) => {
+        // Optional: call an endpoint /renameChat if you wish
+        // e.g. await axios.post('/renameChat', { chatId, newTitle })
+        // For now, do nothing or just console.log
+        console.log('Saving new chat title to server: ', newTitle);
+    };
+
+    const handleTitleSave = async () => {
+        setIsEditingTitle(false);
+        setChatTitle(tempTitle);
+        try {
+            await saveTitleToServer(tempTitle);
+        } catch (err) {
+            console.error('Error saving title:', err);
+        }
+    };
+
+    // ------------------------------
+    // Chat logic
+    // ------------------------------
     const sendMessage = async () => {
         if (!userInput.trim() && !file) return;
 
@@ -89,8 +124,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
             // Append bot message
             setMessages(prev => [...prev, botMsg]);
 
-            // Generate a chat title if we don't have one yet.
-            // e.g., after the first Bot response, or once there's enough user content
+            // Generate a chat title if we don't have one yet
             if (!chatTitle) {
                 const updatedConversation = [...messages, userMsg, botMsg];
                 const newTitle = await generateChatTitle(updatedConversation);
@@ -135,12 +169,37 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
 
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
-            {/* Display a short Chat Title if we have one */}
+            {/* Display & Edit Chat Title */}
             {chatTitle && (
                 <div className="px-4 py-2 mb-2">
-                    <h2 className="text-xl font-bold text-blue-400">
-                        Chat Title: {chatTitle}
-                    </h2>
+                    {!isEditingTitle ? (
+                        <h2 className="text-xl font-bold text-blue-400 flex items-center">
+                            Chat Title: {chatTitle}
+                            <button
+                                onClick={handleTitleEditClick}
+                                className="ml-2 text-sm text-gray-400 hover:text-gray-200"
+                            >
+                                <i className="fa-solid fa-pencil" />
+                            </button>
+                        </h2>
+                    ) : (
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="text"
+                                value={tempTitle}
+                                onChange={handleTitleChange}
+                                className="p-1 text-black rounded"
+                                style={{ maxWidth: '200px' }}
+                            />
+                            <button
+                                onClick={handleTitleSave}
+                                className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    )
+                    }
                 </div>
             )}
 
@@ -175,6 +234,7 @@ export default function ChatInterface({ onLogout, messages, setMessages }) {
                 )}
             </div>
 
+            {/* Bottom input area */}
             <div className="flex space-x-2 items-end px-4 pb-4">
                 {/* Paperclip icon for file upload */}
                 <div className="relative flex items-center space-x-2">

@@ -12,7 +12,7 @@ from io import BytesIO
 from docx import Document
 import urllib.parse  # for URL encoding if needed
 import uuid
-from azure.cosmos import CosmosClient, PartitionKey, exceptions  # NEW
+from azure.cosmos import CosmosClient, PartitionKey, exceptions
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -86,7 +86,6 @@ def generate_detailed_report(base_content):
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
-
 
 ###############################################################################
 # 3. Chat endpoint
@@ -226,29 +225,21 @@ def chat_endpoint():
     ###########################################################################
     # 4. Store chat data in Cosmos DB
     ###########################################################################
-    # We'll store or update a single doc representing this conversation. 
-    # For simplicity: One "chat session" per call. If you want multi-message sessions,
-    # you might do more advanced logic.
-    # We'll store the user's message + assistant reply in a single doc
-    # or in multiple docs. Example: single doc with an array. 
+    # For simplicity, we store user & assistant messages in a single doc.
+    # In a real system you might store multiple chat sessions or so.
     ###########################################################################
     
-    # Let's define a chatDoc that has a chatId, userKey, messages array, etc.
-    # We'll keep a single "session" doc for now and append new messages to it.
-    # NOTE: This example might be simplified or adjusted to match your usage pattern.
-
-    chat_id = "singleSession_" + user_key  # or generate a new random chatId or param
+    chat_id = "singleSession_" + user_key  # Or generate a new random chatId
     partition_key = user_key               # because we set partition key to /userKey
 
-    # Step 1: Attempt to retrieve existing doc for this userKey & chatId
+    # Attempt to retrieve existing doc for this userKey & chatId
     try:
         chat_doc = container.read_item(item=chat_id, partition_key=partition_key)
     except exceptions.CosmosResourceNotFoundError:
-        # If not found, create a new doc
         chat_doc = {
             "id": chat_id,
             "userKey": user_key,
-            "messages": []  # array of {role, content}
+            "messages": []
         }
 
     # Add the user message
@@ -376,19 +367,15 @@ def get_chats():
     items = list(container.query_items(
         query=query,
         parameters=parameters,
-        enable_cross_partition_query=True  # might be needed if multi-partition
+        enable_cross_partition_query=True
     ))
 
-    # items is a list of docs. Each doc might be {id, userKey, messages, ...}
-    # We'll return them in a format your frontend expects
-    # Possibly you want to parse out just the needed info
     chat_summaries = []
     for doc in items:
         chat_summaries.append({
             "id": doc.get("id"),
             "userKey": doc.get("userKey"),
             "messages": doc.get("messages", []),
-            # If you store a 'title' or other metadata, you can include it here
             "title": doc.get("title", None),
         })
 
@@ -404,14 +391,11 @@ def archive_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    # Query all documents for userKey
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
     items = list(container.query_items(query=query, parameters=parameters))
 
-    # Mark them archived
     for doc in items:
-        # Add or set an "archived" field
         doc['archived'] = True
         container.replace_item(doc, doc)
 
@@ -427,16 +411,50 @@ def delete_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    # Query all documents for userKey
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
     items = list(container.query_items(query=query, parameters=parameters))
 
-    # Delete them
     for doc in items:
         container.delete_item(item=doc['id'], partition_key=doc['userKey'])
 
     return jsonify({"success": True}), 200
+
+###############################################################################
+# NEW: Rename Chat Title
+###############################################################################
+@app.route('/renameChat', methods=['POST'])
+def rename_chat():
+    """
+    Expects JSON:
+    {
+      "userKey": "...",
+      "chatId": "...",
+      "newTitle": "Some short title"
+    }
+    """
+    data = request.get_json(force=True)
+    user_key = data.get('userKey', 'default_user')
+    chat_id = data.get('chatId', '')
+    new_title = data.get('newTitle', '')
+
+    if not chat_id or not new_title:
+        return jsonify({"error": "chatId and newTitle are required"}), 400
+
+    try:
+        # Retrieve the doc
+        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
+        # Update/add the title field
+        chat_doc['title'] = new_title
+        # Upsert or replace
+        container.upsert_item(chat_doc)
+
+        return jsonify({"success": True, "message": "Title updated."}), 200
+    except exceptions.CosmosResourceNotFoundError:
+        return jsonify({"error": "Chat not found."}), 404
+    except Exception as e:
+        app.logger.error("Error renaming chat:", exc_info=True)
+        return jsonify({"error": str(e)}), 500
 
 ###############################################################################
 @app.errorhandler(404)
