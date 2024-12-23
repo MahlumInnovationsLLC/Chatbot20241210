@@ -1,0 +1,9 @@
+﻿{
+  "agentId": 21,
+  "agentName": "chatbot20241210-runner",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus24.actions.githubusercontent.com/klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl/",
+  "gitHubUrl": "https://github.com/MahlumInnovationsLLC/Chatbot20241210",
+  "workFolder": "_work"
+}

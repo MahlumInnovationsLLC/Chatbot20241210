@@ -1,0 +1,1318 @@
+[2024-12-20 18:54:21Z INFO HostContext] No proxy settings were found based on environmental variables (http_proxy/https_proxy/HTTP_PROXY/HTTPS_PROXY)
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'Runner': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner'
+[2024-12-20 18:54:21Z INFO Listener] Runner is built for Windows (X64) - win-x64.
+[2024-12-20 18:54:21Z INFO Listener] RuntimeInformation: Microsoft Windows 10.0.22631.
+[2024-12-20 18:54:21Z INFO Listener] Version: 2.321.0
+[2024-12-20 18:54:21Z INFO Listener] Commit: e249007931b7c8e857797fa259c167f0bd4f997a
+[2024-12-20 18:54:21Z INFO Listener] Culture: en-US
+[2024-12-20 18:54:21Z INFO Listener] UI Culture: en-US
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO Listener] Validating directory permissions for: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO CommandLineParser] Parse
+[2024-12-20 18:54:21Z INFO CommandLineParser] Parsing 1 args
+[2024-12-20 18:54:21Z INFO CommandLineParser] parsing argument
+[2024-12-20 18:54:21Z INFO CommandLineParser] HasArgs: False
+[2024-12-20 18:54:21Z INFO CommandLineParser] Adding Command: run
+[2024-12-20 18:54:21Z INFO Listener] Arguments parsed
+[2024-12-20 18:54:21Z INFO Runner] ExecuteCommand
+[2024-12-20 18:54:21Z INFO ConfigurationStore] currentAssemblyLocation: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Listener.dll
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] binPath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] RootFolder: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'Runner': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] ConfigFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] CredFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'MigratedCredentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_migrated'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] MigratedCredFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_migrated
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'Service': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.service'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] ServiceConfigFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.service
+[2024-12-20 18:54:21Z INFO CommandSettings] Flag 'help': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Flag 'version': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Flag 'commit': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Flag 'check': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Command 'configure': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Command 'remove': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Command 'warmup': 'False'
+[2024-12-20 18:54:21Z INFO ConfigurationManager] LoadSettings
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsConfigured()
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsConfigured: True
+[2024-12-20 18:54:21Z INFO ConfigurationManager] Is configured: True
+[2024-12-20 18:54:21Z INFO ConfigurationStore] Read setting file: 334 chars
+[2024-12-20 18:54:21Z INFO ConfigurationManager] Settings Loaded
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsServiceConfigured()
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsServiceConfigured: False
+[2024-12-20 18:54:21Z INFO CommandSettings] Command 'run': 'True'
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsConfigured()
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsConfigured: True
+[2024-12-20 18:54:21Z INFO ConfigurationManager] Is configured: True
+[2024-12-20 18:54:21Z INFO Runner] Could not parse the argument value '' for StartupType. Defaulting to Manual
+[2024-12-20 18:54:21Z INFO Runner] Set runner startup type - Manual
+[2024-12-20 18:54:21Z INFO CommandSettings] Flag 'once': 'False'
+[2024-12-20 18:54:21Z INFO CommandSettings] Flag 'once': 'False'
+[2024-12-20 18:54:21Z INFO Runner] RunAsync
+[2024-12-20 18:54:21Z INFO ConfigurationManager] LoadSettings
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsConfigured()
+[2024-12-20 18:54:21Z INFO ConfigurationStore] IsConfigured: True
+[2024-12-20 18:54:21Z INFO ConfigurationManager] Is configured: True
+[2024-12-20 18:54:21Z INFO ConfigurationManager] Settings Loaded
+[2024-12-20 18:54:21Z INFO MessageListener] {
+  "AgentId": 21,
+  "AgentName": "chatbot20241210-runner",
+  "PoolId": 1,
+  "PoolName": "Default",
+  "ServerUrl": "https://pipelinesghubeus24.actions.githubusercontent.com/klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl/",
+  "GitHubUrl": "https://github.com/MahlumInnovationsLLC/Chatbot20241210",
+  "WorkFolder": "_work"
+}
+[2024-12-20 18:54:21Z INFO MessageListener] Loading Credentials
+[2024-12-20 18:54:21Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 18:54:21Z INFO ConfigurationStore] stored True
+[2024-12-20 18:54:21Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 18:54:21Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 18:54:21Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:54:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:54:21Z INFO HostContext] Well known config file 'RSACredentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams'
+[2024-12-20 18:54:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:54:21Z INFO MessageListener] Attempt to create session.
+[2024-12-20 18:54:21Z INFO MessageListener] Connecting to the Runner Server...
+[2024-12-20 18:54:21Z INFO RunnerServer] EstablishVssConnection
+[2024-12-20 18:54:21Z INFO RunnerServer] Establish connection with 100 seconds timeout.
+[2024-12-20 18:54:21Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:54:21Z INFO RunnerServer] EstablishVssConnection
+[2024-12-20 18:54:21Z INFO RunnerServer] Establish connection with 60 seconds timeout.
+[2024-12-20 18:54:21Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:54:21Z INFO RunnerServer] EstablishVssConnection
+[2024-12-20 18:54:21Z INFO RunnerServer] Establish connection with 60 seconds timeout.
+[2024-12-20 18:54:21Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:54:21Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:54:21Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:54:21Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:54:22Z INFO MessageListener] VssConnection created
+[2024-12-20 18:54:22Z INFO Terminal] WRITE LINE: 
+[2024-12-20 18:54:22Z INFO Terminal] WRITE LINE: 
+[2024-12-20 18:54:22Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:54:22Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:54:22Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 18:54:22Z INFO MessageListener] Session created.
+[2024-12-20 18:54:22Z INFO Terminal] WRITE LINE: Current runner version: '2.321.0'
+[2024-12-20 18:54:22Z INFO Terminal] WRITE LINE: 2024-12-20 18:54:22Z: Listening for Jobs
+[2024-12-20 18:54:22Z INFO JobDispatcher] Set runner/worker IPC timeout to 30 seconds.
+[2024-12-20 18:54:22Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:54:23Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 18:57:10Z INFO MessageListener] Message '391229934780651371' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 18:57:10Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 18:57:10Z INFO ConfigurationStore] stored True
+[2024-12-20 18:57:10Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 18:57:10Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 18:57:10Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 18:57:10Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:57:10Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 18:57:10Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 18:57:10Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:57:11Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:57:11Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:57:11Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:57:11Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 18:57:12Z INFO JobDispatcher] Job request 591 for plan 86582e30-6c3a-4f1a-a655-6c833cb21c94 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 18:57:12Z INFO JobDispatcher] Pull OrchestrationId 86582e30-6c3a-4f1a-a655-6c833cb21c94.deploy.__default from JWT claims
+[2024-12-20 18:57:12Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 18:57:12Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 18:57:12Z INFO Terminal] WRITE LINE: 2024-12-20 18:57:12Z: Running job: deploy
+[2024-12-20 18:57:12Z INFO JobDispatcher] Start renew job request 591 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 18:57:12Z INFO JobDispatcher] Successfully renew job request 591, job is valid till 12/20/2024 7:07:12 PM
+[2024-12-20 18:57:12Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2256 1624'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 18:57:12Z INFO ProcessInvokerWrapper] Process started with process id 92040, waiting for process exit.
+[2024-12-20 18:57:12Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 18:57:12Z INFO ProcessChannel] Sending message of length 26126, with hash 'b14afe4bc3b813d29d99674e5cb31dfa2d166e0e65313e018853e53ac976de00'
+[2024-12-20 18:57:12Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 18:57:12Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 18:58:12Z INFO JobDispatcher] Successfully renew job request 591, job is valid till 12/20/2024 7:08:12 PM
+[2024-12-20 18:58:26Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 18:58:26Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 18:58:26Z INFO ProcessInvokerWrapper] Finished process 92040 with exit code 100, and elapsed time 00:01:14.0595554.
+[2024-12-20 18:58:26Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 18:58:26Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 18:58:26Z INFO Terminal] WRITE LINE: 2024-12-20 18:58:26Z: Job deploy completed with result: Succeeded
+[2024-12-20 18:58:26Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 18:58:26Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 591.
+[2024-12-20 18:58:26Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 18:58:26Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 18:58:26Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 19:19:43Z INFO MessageListener] Message '7250531091890283969' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 19:19:43Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 19:19:43Z INFO ConfigurationStore] stored True
+[2024-12-20 19:19:43Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 19:19:43Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 19:19:43Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 19:19:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:19:43Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 19:19:43Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 19:19:43Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 19:19:43Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 19:19:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:19:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:19:44Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 19:19:44Z INFO JobDispatcher] Job request 594 for plan 186aa42a-b381-402f-b258-9ef81edd5150 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 19:19:44Z INFO JobDispatcher] Pull OrchestrationId 186aa42a-b381-402f-b258-9ef81edd5150.deploy.__default from JWT claims
+[2024-12-20 19:19:44Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 19:19:44Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 19:19:44Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 19:19:44Z INFO Terminal] WRITE LINE: 2024-12-20 19:19:44Z: Running job: deploy
+[2024-12-20 19:19:44Z INFO JobDispatcher] Start renew job request 594 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 19:19:44Z INFO JobDispatcher] Successfully renew job request 594, job is valid till 12/20/2024 7:29:44 PM
+[2024-12-20 19:19:44Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2536 2576'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 19:19:44Z INFO ProcessInvokerWrapper] Process started with process id 7136, waiting for process exit.
+[2024-12-20 19:19:44Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 19:19:44Z INFO ProcessChannel] Sending message of length 26160, with hash 'cb53697b0e165f7181056eb1ba36742143986c7d03cfd8f344a59d73d2fab960'
+[2024-12-20 19:19:45Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 19:19:45Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 19:20:44Z INFO JobDispatcher] Successfully renew job request 594, job is valid till 12/20/2024 7:30:45 PM
+[2024-12-20 19:20:53Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 19:20:53Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 19:20:53Z INFO ProcessInvokerWrapper] Finished process 7136 with exit code 100, and elapsed time 00:01:08.2497700.
+[2024-12-20 19:20:53Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 19:20:53Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 19:20:53Z INFO Terminal] WRITE LINE: 2024-12-20 19:20:53Z: Job deploy completed with result: Succeeded
+[2024-12-20 19:20:53Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 19:20:53Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 594.
+[2024-12-20 19:20:53Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 19:20:53Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 19:20:53Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 19:40:52Z INFO MessageListener] Message '8000467067202242418' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 19:40:52Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 19:40:52Z INFO ConfigurationStore] stored True
+[2024-12-20 19:40:52Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 19:40:52Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 19:40:52Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 19:40:52Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:40:52Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 19:40:52Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 19:40:52Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 19:40:53Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 19:40:53Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:40:53Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:40:53Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 19:40:54Z INFO JobDispatcher] Job request 597 for plan 6c8a0c37-2c76-421f-a201-6ea72dc9fb2f job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 19:40:54Z INFO JobDispatcher] Pull OrchestrationId 6c8a0c37-2c76-421f-a201-6ea72dc9fb2f.deploy.__default from JWT claims
+[2024-12-20 19:40:54Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 19:40:54Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 19:40:54Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 19:40:54Z INFO Terminal] WRITE LINE: 2024-12-20 19:40:54Z: Running job: deploy
+[2024-12-20 19:40:54Z INFO JobDispatcher] Start renew job request 597 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 19:40:54Z INFO JobDispatcher] Successfully renew job request 597, job is valid till 12/20/2024 7:50:54 PM
+[2024-12-20 19:40:54Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2964 2976'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 19:40:54Z INFO ProcessInvokerWrapper] Process started with process id 95600, waiting for process exit.
+[2024-12-20 19:40:54Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 19:40:54Z INFO ProcessChannel] Sending message of length 26112, with hash 'fe828bf5ca68479d898029c57d0d0a36efa3795d9f7ae9a91549a6cdeda36a08'
+[2024-12-20 19:40:54Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 19:40:54Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 19:41:54Z INFO JobDispatcher] Successfully renew job request 597, job is valid till 12/20/2024 7:51:54 PM
+[2024-12-20 19:42:00Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 19:42:00Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 19:42:00Z INFO ProcessInvokerWrapper] Finished process 95600 with exit code 100, and elapsed time 00:01:06.1320783.
+[2024-12-20 19:42:00Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 19:42:00Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 19:42:00Z INFO Terminal] WRITE LINE: 2024-12-20 19:42:00Z: Job deploy completed with result: Succeeded
+[2024-12-20 19:42:00Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 19:42:00Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 597.
+[2024-12-20 19:42:00Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 19:42:00Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 19:42:00Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 19:45:07Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:45:07Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 19:50:10Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 19:50:11Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 20:11:10Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-20 20:16:12Z INFO MessageListener] Message '5941142940471443973' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 20:16:12Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 20:16:12Z INFO ConfigurationStore] stored True
+[2024-12-20 20:16:12Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 20:16:12Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 20:16:12Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 20:16:12Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:16:12Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 20:16:12Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 20:16:12Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 20:16:12Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 20:16:12Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:16:12Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:16:12Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 20:16:13Z INFO JobDispatcher] Job request 600 for plan e02a523a-33b0-4ed9-847e-6cf09d9c18fe job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 20:16:13Z INFO JobDispatcher] Pull OrchestrationId e02a523a-33b0-4ed9-847e-6cf09d9c18fe.deploy.__default from JWT claims
+[2024-12-20 20:16:13Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 20:16:13Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 20:16:13Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 20:16:13Z INFO Terminal] WRITE LINE: 2024-12-20 20:16:13Z: Running job: deploy
+[2024-12-20 20:16:13Z INFO JobDispatcher] Start renew job request 600 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:16:13Z INFO JobDispatcher] Successfully renew job request 600, job is valid till 12/20/2024 8:26:13 PM
+[2024-12-20 20:16:13Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2356 1800'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 20:16:13Z INFO ProcessInvokerWrapper] Process started with process id 6092, waiting for process exit.
+[2024-12-20 20:16:13Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:16:13Z INFO ProcessChannel] Sending message of length 26184, with hash 'c8ba6ef4153aa2535137a0b1d9d10cf9f0e79502fec4a8a487ad77f38de5bcc0'
+[2024-12-20 20:16:13Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 20:16:13Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 20:17:13Z INFO JobDispatcher] Successfully renew job request 600, job is valid till 12/20/2024 8:27:13 PM
+[2024-12-20 20:17:50Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 20:17:50Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 20:17:50Z INFO ProcessInvokerWrapper] Finished process 6092 with exit code 100, and elapsed time 00:01:36.6810312.
+[2024-12-20 20:17:50Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 20:17:50Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 20:17:50Z INFO Terminal] WRITE LINE: 2024-12-20 20:17:50Z: Job deploy completed with result: Succeeded
+[2024-12-20 20:17:50Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:17:50Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 600.
+[2024-12-20 20:17:50Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 20:17:50Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 20:17:50Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 20:35:33Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:35:33Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 20:38:51Z INFO MessageListener] Message '3962349289458377444' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 20:38:51Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 20:38:51Z INFO ConfigurationStore] stored True
+[2024-12-20 20:38:51Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 20:38:51Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 20:38:51Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 20:38:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:38:51Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 20:38:51Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 20:38:51Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 20:38:51Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 20:38:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:38:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:38:52Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 20:38:52Z INFO JobDispatcher] Job request 603 for plan dbe1036e-167b-4d46-abbf-4e083ad1d24c job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 20:38:52Z INFO JobDispatcher] Pull OrchestrationId dbe1036e-167b-4d46-abbf-4e083ad1d24c.deploy.__default from JWT claims
+[2024-12-20 20:38:52Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 20:38:52Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 20:38:52Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 20:38:52Z INFO Terminal] WRITE LINE: 2024-12-20 20:38:52Z: Running job: deploy
+[2024-12-20 20:38:52Z INFO JobDispatcher] Start renew job request 603 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:38:52Z INFO JobDispatcher] Successfully renew job request 603, job is valid till 12/20/2024 8:48:52 PM
+[2024-12-20 20:38:52Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 3076 3088'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 20:38:52Z INFO ProcessInvokerWrapper] Process started with process id 72372, waiting for process exit.
+[2024-12-20 20:38:52Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:38:52Z INFO ProcessChannel] Sending message of length 26136, with hash 'fc5dcef78a2b6e68064af485d26a05f25adce1c2571eba4f421ff68d3c64cd5a'
+[2024-12-20 20:38:52Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 20:38:52Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 20:39:52Z INFO JobDispatcher] Successfully renew job request 603, job is valid till 12/20/2024 8:49:52 PM
+[2024-12-20 20:40:09Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 20:40:09Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 20:40:09Z INFO ProcessInvokerWrapper] Finished process 72372 with exit code 100, and elapsed time 00:01:16.9606592.
+[2024-12-20 20:40:09Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 20:40:09Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 20:40:09Z INFO Terminal] WRITE LINE: 2024-12-20 20:40:09Z: Job deploy completed with result: Succeeded
+[2024-12-20 20:40:09Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:40:09Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 603.
+[2024-12-20 20:40:09Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 20:40:09Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 20:40:09Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 20:45:36Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:45:36Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 20:57:29Z INFO MessageListener] Message '6942467223341881281' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 20:57:29Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 20:57:29Z INFO ConfigurationStore] stored True
+[2024-12-20 20:57:29Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 20:57:29Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 20:57:29Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 20:57:29Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:57:29Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 20:57:29Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 20:57:29Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 20:57:29Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 20:57:29Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:57:29Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 20:57:30Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 20:57:30Z INFO JobDispatcher] Job request 606 for plan 6f0522c9-4837-46dd-a63f-5ef749ac6b76 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 20:57:30Z INFO JobDispatcher] Pull OrchestrationId 6f0522c9-4837-46dd-a63f-5ef749ac6b76.deploy.__default from JWT claims
+[2024-12-20 20:57:30Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 20:57:30Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 20:57:30Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 20:57:30Z INFO Terminal] WRITE LINE: 2024-12-20 20:57:30Z: Running job: deploy
+[2024-12-20 20:57:30Z INFO JobDispatcher] Start renew job request 606 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:57:30Z INFO JobDispatcher] Successfully renew job request 606, job is valid till 12/20/2024 9:07:31 PM
+[2024-12-20 20:57:30Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 1476 1804'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 20:57:30Z INFO ProcessInvokerWrapper] Process started with process id 103868, waiting for process exit.
+[2024-12-20 20:57:30Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:57:30Z INFO ProcessChannel] Sending message of length 26144, with hash '21f742bc31d665461edea8bc290d2fe8eea6343bba2a4e2b54831c3b74fd5da5'
+[2024-12-20 20:57:31Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 20:57:31Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 20:58:30Z INFO JobDispatcher] Successfully renew job request 606, job is valid till 12/20/2024 9:08:31 PM
+[2024-12-20 20:58:36Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 20:58:36Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 20:58:36Z INFO ProcessInvokerWrapper] Finished process 103868 with exit code 100, and elapsed time 00:01:05.6067726.
+[2024-12-20 20:58:36Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 20:58:36Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 20:58:36Z INFO Terminal] WRITE LINE: 2024-12-20 20:58:36Z: Job deploy completed with result: Succeeded
+[2024-12-20 20:58:36Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 20:58:36Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 606.
+[2024-12-20 20:58:36Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 20:58:36Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 20:58:36Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 21:04:11Z INFO MessageListener] Message '8616329648369292824' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 21:04:11Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 21:04:11Z INFO ConfigurationStore] stored True
+[2024-12-20 21:04:11Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 21:04:11Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 21:04:11Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 21:04:11Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:04:11Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 21:04:11Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 21:04:11Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 21:04:11Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 21:04:11Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:04:11Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:04:15Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 21:04:15Z WARN GitHubActionsService] Retrieving an AAD auth token took a long time (3.4113768 seconds)
+[2024-12-20 21:04:15Z INFO JobDispatcher] Job request 609 for plan 879e4db9-866f-4792-91a7-90c6de23494b job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 21:04:15Z INFO JobDispatcher] Pull OrchestrationId 879e4db9-866f-4792-91a7-90c6de23494b.deploy.__default from JWT claims
+[2024-12-20 21:04:15Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 21:04:15Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 21:04:15Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 21:04:15Z INFO Terminal] WRITE LINE: 2024-12-20 21:04:15Z: Running job: deploy
+[2024-12-20 21:04:15Z INFO JobDispatcher] Start renew job request 609 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 21:04:16Z INFO JobDispatcher] Successfully renew job request 609, job is valid till 12/20/2024 9:14:16 PM
+[2024-12-20 21:04:16Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2364 2380'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 21:04:16Z INFO ProcessInvokerWrapper] Process started with process id 16032, waiting for process exit.
+[2024-12-20 21:04:16Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 21:04:16Z INFO ProcessChannel] Sending message of length 26088, with hash 'd54bc4351a400f01fb9aaf786e5c2823f293abf0373f710c71d7408acfbf7ac5'
+[2024-12-20 21:04:16Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 21:04:16Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 21:05:16Z INFO JobDispatcher] Successfully renew job request 609, job is valid till 12/20/2024 9:15:16 PM
+[2024-12-20 21:05:25Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 21:05:25Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 21:05:25Z INFO ProcessInvokerWrapper] Finished process 16032 with exit code 100, and elapsed time 00:01:08.9533328.
+[2024-12-20 21:05:25Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 21:05:25Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 21:05:25Z INFO Terminal] WRITE LINE: 2024-12-20 21:05:25Z: Job deploy completed with result: Succeeded
+[2024-12-20 21:05:25Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 21:05:25Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 609.
+[2024-12-20 21:05:25Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 21:05:25Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 21:05:25Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 21:26:06Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:26:07Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 21:33:50Z INFO MessageListener] Message '4700339932458860803' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 21:33:50Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 21:33:50Z INFO ConfigurationStore] stored True
+[2024-12-20 21:33:50Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 21:33:50Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 21:33:50Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 21:33:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:33:50Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 21:33:50Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 21:33:50Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 21:33:51Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 21:33:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:33:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:33:51Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 21:33:51Z INFO JobDispatcher] Job request 612 for plan e8da35d0-461e-4fdc-aef4-2e2c4e629817 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 21:33:51Z INFO JobDispatcher] Pull OrchestrationId e8da35d0-461e-4fdc-aef4-2e2c4e629817.deploy.__default from JWT claims
+[2024-12-20 21:33:51Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 21:33:51Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 21:33:51Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 21:33:51Z INFO Terminal] WRITE LINE: 2024-12-20 21:33:51Z: Running job: deploy
+[2024-12-20 21:33:51Z INFO JobDispatcher] Start renew job request 612 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 21:33:52Z INFO JobDispatcher] Successfully renew job request 612, job is valid till 12/20/2024 9:43:52 PM
+[2024-12-20 21:33:52Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2608 2728'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 21:33:52Z INFO ProcessInvokerWrapper] Process started with process id 84544, waiting for process exit.
+[2024-12-20 21:33:52Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 21:33:52Z INFO ProcessChannel] Sending message of length 26134, with hash '6fc2bebcb2f610056ef052e777081a092bc4308cb291aecf262c49e8d90a79e8'
+[2024-12-20 21:33:52Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 21:33:52Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 21:34:52Z INFO JobDispatcher] Successfully renew job request 612, job is valid till 12/20/2024 9:44:52 PM
+[2024-12-20 21:34:59Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 21:34:59Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 21:34:59Z INFO ProcessInvokerWrapper] Finished process 84544 with exit code 100, and elapsed time 00:01:06.7219626.
+[2024-12-20 21:34:59Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 21:34:59Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 21:34:59Z INFO Terminal] WRITE LINE: 2024-12-20 21:34:59Z: Job deploy completed with result: Succeeded
+[2024-12-20 21:34:59Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 21:34:59Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 612.
+[2024-12-20 21:34:59Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 21:34:59Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 21:34:59Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 21:41:26Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 21:41:26Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 22:04:07Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-20 22:16:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 22:16:43Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 22:26:16Z INFO MessageListener] Message '4024362011449945982' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 22:26:16Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 22:26:16Z INFO ConfigurationStore] stored True
+[2024-12-20 22:26:16Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 22:26:16Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 22:26:16Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 22:26:16Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 22:26:16Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 22:26:16Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 22:26:16Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 22:26:16Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 22:26:16Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 22:26:16Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 22:26:17Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 22:26:17Z INFO JobDispatcher] Job request 615 for plan e6ace1f0-82b6-4051-82b1-d84079a9f14b job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 22:26:17Z INFO JobDispatcher] Pull OrchestrationId e6ace1f0-82b6-4051-82b1-d84079a9f14b.deploy.__default from JWT claims
+[2024-12-20 22:26:17Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 22:26:17Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 22:26:17Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 22:26:17Z INFO Terminal] WRITE LINE: 2024-12-20 22:26:17Z: Running job: deploy
+[2024-12-20 22:26:17Z INFO JobDispatcher] Start renew job request 615 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 22:26:17Z INFO JobDispatcher] Successfully renew job request 615, job is valid till 12/20/2024 10:36:18 PM
+[2024-12-20 22:26:17Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2412 3796'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 22:26:17Z INFO ProcessInvokerWrapper] Process started with process id 91296, waiting for process exit.
+[2024-12-20 22:26:17Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 22:26:17Z INFO ProcessChannel] Sending message of length 26124, with hash '4d2561ad2fd2fd80e31660ee6f47125e74b84455fbdde92269886a92c21d6999'
+[2024-12-20 22:26:18Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 22:26:18Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 22:27:18Z INFO JobDispatcher] Successfully renew job request 615, job is valid till 12/20/2024 10:37:18 PM
+[2024-12-20 22:27:35Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 22:27:35Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 22:27:35Z INFO ProcessInvokerWrapper] Finished process 91296 with exit code 100, and elapsed time 00:01:17.3641433.
+[2024-12-20 22:27:35Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 22:27:35Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 22:27:35Z INFO Terminal] WRITE LINE: 2024-12-20 22:27:35Z: Job deploy completed with result: Succeeded
+[2024-12-20 22:27:35Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 22:27:35Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 615.
+[2024-12-20 22:27:35Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 22:27:35Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 22:27:35Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 22:37:14Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 22:37:14Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 22:56:33Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-20 23:07:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:07:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 23:21:51Z INFO MessageListener] Message '8618175397847949643' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 23:21:51Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 23:21:51Z INFO ConfigurationStore] stored True
+[2024-12-20 23:21:51Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 23:21:51Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 23:21:51Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 23:21:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:21:51Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 23:21:51Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 23:21:51Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 23:21:51Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 23:21:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:21:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:21:52Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 23:21:52Z INFO JobDispatcher] Job request 618 for plan b186fda1-87e4-4dd1-8d73-11ed981d018b job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 23:21:52Z INFO JobDispatcher] Pull OrchestrationId b186fda1-87e4-4dd1-8d73-11ed981d018b.deploy.__default from JWT claims
+[2024-12-20 23:21:52Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 23:21:52Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 23:21:52Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 23:21:52Z INFO Terminal] WRITE LINE: 2024-12-20 23:21:52Z: Running job: deploy
+[2024-12-20 23:21:52Z INFO JobDispatcher] Start renew job request 618 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:21:52Z INFO JobDispatcher] Successfully renew job request 618, job is valid till 12/20/2024 11:31:53 PM
+[2024-12-20 23:21:52Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2472 1356'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 23:21:52Z INFO ProcessInvokerWrapper] Process started with process id 12380, waiting for process exit.
+[2024-12-20 23:21:52Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:21:52Z INFO ProcessChannel] Sending message of length 26118, with hash '1c38225577e5cc180c569103114b1c90ed104062d0a25597a16f036afea032bd'
+[2024-12-20 23:21:53Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 23:21:53Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 23:22:52Z INFO JobDispatcher] Successfully renew job request 618, job is valid till 12/20/2024 11:32:53 PM
+[2024-12-20 23:23:09Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 23:23:09Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 23:23:09Z INFO ProcessInvokerWrapper] Finished process 12380 with exit code 100, and elapsed time 00:01:16.8196500.
+[2024-12-20 23:23:09Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 23:23:09Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 23:23:09Z INFO Terminal] WRITE LINE: 2024-12-20 23:23:09Z: Job deploy completed with result: Succeeded
+[2024-12-20 23:23:09Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:23:09Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 618.
+[2024-12-20 23:23:09Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 23:23:09Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 23:23:09Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 23:32:48Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:32:48Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 23:35:19Z INFO MessageListener] Message '5042117895887640704' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 23:35:19Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 23:35:19Z INFO ConfigurationStore] stored True
+[2024-12-20 23:35:19Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 23:35:19Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 23:35:19Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 23:35:19Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:35:19Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 23:35:19Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 23:35:19Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 23:35:19Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 23:35:20Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:35:20Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:35:20Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 23:35:20Z INFO JobDispatcher] Job request 621 for plan ec2e6ce6-6f6c-41e6-a3ad-c00e6535ed05 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 23:35:20Z INFO JobDispatcher] Pull OrchestrationId ec2e6ce6-6f6c-41e6-a3ad-c00e6535ed05.deploy.__default from JWT claims
+[2024-12-20 23:35:20Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 23:35:20Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 23:35:20Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 23:35:20Z INFO Terminal] WRITE LINE: 2024-12-20 23:35:20Z: Running job: deploy
+[2024-12-20 23:35:20Z INFO JobDispatcher] Start renew job request 621 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:35:21Z INFO JobDispatcher] Successfully renew job request 621, job is valid till 12/20/2024 11:45:21 PM
+[2024-12-20 23:35:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2220 2992'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 23:35:21Z INFO ProcessInvokerWrapper] Process started with process id 63320, waiting for process exit.
+[2024-12-20 23:35:21Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:35:21Z INFO ProcessChannel] Sending message of length 26158, with hash '93486bf7b9d63cc73fb5a24e35737bacaef554e28f44405de1f5bc0cc11647c6'
+[2024-12-20 23:35:21Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 23:35:21Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 23:36:21Z INFO JobDispatcher] Successfully renew job request 621, job is valid till 12/20/2024 11:46:21 PM
+[2024-12-20 23:36:29Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 23:36:29Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 23:36:29Z INFO ProcessInvokerWrapper] Finished process 63320 with exit code 100, and elapsed time 00:01:08.0768942.
+[2024-12-20 23:36:29Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 23:36:29Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 23:36:29Z INFO Terminal] WRITE LINE: 2024-12-20 23:36:29Z: Job deploy completed with result: Succeeded
+[2024-12-20 23:36:29Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:36:29Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 621.
+[2024-12-20 23:36:29Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 23:36:29Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 23:36:29Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 23:51:10Z INFO MessageListener] Message '191642558873993705' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-20 23:51:10Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 23:51:10Z INFO ConfigurationStore] stored True
+[2024-12-20 23:51:10Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 23:51:10Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 23:51:10Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 23:51:10Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:51:10Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-20 23:51:10Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-20 23:51:10Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 23:51:10Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 23:51:10Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:51:10Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:51:11Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 23:51:11Z INFO JobDispatcher] Job request 624 for plan e53bd556-c876-4b16-8d3a-00b29e363aa0 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-20 23:51:11Z INFO JobDispatcher] Pull OrchestrationId e53bd556-c876-4b16-8d3a-00b29e363aa0.deploy.__default from JWT claims
+[2024-12-20 23:51:11Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-20 23:51:11Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-20 23:51:11Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-20 23:51:11Z INFO Terminal] WRITE LINE: 2024-12-20 23:51:11Z: Running job: deploy
+[2024-12-20 23:51:11Z INFO JobDispatcher] Start renew job request 624 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:51:11Z INFO JobDispatcher] Successfully renew job request 624, job is valid till 12/21/2024 12:01:11 AM
+[2024-12-20 23:51:11Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2484 3144'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-20 23:51:11Z INFO ProcessInvokerWrapper] Process started with process id 103808, waiting for process exit.
+[2024-12-20 23:51:11Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:51:11Z INFO ProcessChannel] Sending message of length 26088, with hash '633d9b7fc1f15bc82f94d66769e516c594bd646b66b2702c5a483aebe8b0411f'
+[2024-12-20 23:51:11Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-20 23:51:11Z INFO JobNotification] Entering StartMonitor
+[2024-12-20 23:52:11Z INFO JobDispatcher] Successfully renew job request 624, job is valid till 12/21/2024 12:02:11 AM
+[2024-12-20 23:52:15Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 23:52:15Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-20 23:52:15Z INFO ProcessInvokerWrapper] Finished process 103808 with exit code 100, and elapsed time 00:01:03.5620696.
+[2024-12-20 23:52:15Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-20 23:52:15Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-20 23:52:15Z INFO Terminal] WRITE LINE: 2024-12-20 23:52:15Z: Job deploy completed with result: Succeeded
+[2024-12-20 23:52:15Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-20 23:52:15Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 624.
+[2024-12-20 23:52:15Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-20 23:52:15Z INFO JobNotification] Entering EndMonitor
+[2024-12-20 23:52:15Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-20 23:57:55Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 23:57:55Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 00:21:26Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 00:28:09Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 00:28:10Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 00:48:19Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 00:48:19Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 00:51:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 01:21:55Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 01:23:35Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 01:23:36Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 01:38:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 01:38:43Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 01:52:09Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 02:19:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 02:19:02Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 02:22:24Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 02:29:07Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 02:29:08Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 02:52:38Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 03:14:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 03:14:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 03:19:31Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 03:19:31Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 03:22:53Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 03:53:06Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 04:09:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 04:09:55Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 04:09:55Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 04:09:55Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 04:23:21Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 04:53:35Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 05:00:18Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:00:18Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 05:05:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:05:21Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 05:07:11Z INFO MessageListener] Message '1133295453735655618' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-21 05:07:11Z INFO ConfigurationStore] HasCredentials()
+[2024-12-21 05:07:11Z INFO ConfigurationStore] stored True
+[2024-12-21 05:07:11Z INFO CredentialManager] GetCredentialProvider
+[2024-12-21 05:07:11Z INFO CredentialManager] Creating type OAuth
+[2024-12-21 05:07:11Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-21 05:07:11Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:07:11Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-21 05:07:11Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-21 05:07:11Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-21 05:07:12Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-21 05:07:12Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:07:12Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:07:12Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 05:07:13Z INFO JobDispatcher] Job request 627 for plan de245512-8b30-4a32-9a27-e7e692f2da51 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-21 05:07:13Z INFO JobDispatcher] Pull OrchestrationId de245512-8b30-4a32-9a27-e7e692f2da51.deploy.__default from JWT claims
+[2024-12-21 05:07:13Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-21 05:07:13Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-21 05:07:13Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-21 05:07:13Z INFO Terminal] WRITE LINE: 2024-12-21 05:07:13Z: Running job: deploy
+[2024-12-21 05:07:13Z INFO JobDispatcher] Start renew job request 627 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-21 05:07:13Z INFO JobDispatcher] Successfully renew job request 627, job is valid till 12/21/2024 5:17:13 AM
+[2024-12-21 05:07:13Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 1356 2996'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-21 05:07:13Z INFO ProcessInvokerWrapper] Process started with process id 3528, waiting for process exit.
+[2024-12-21 05:07:13Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-21 05:07:13Z INFO ProcessChannel] Sending message of length 26140, with hash '0949c8cf5b1c7c40f46dc679a6db8dd7833e8812d2c05fa4edcca0954cf5edd0'
+[2024-12-21 05:07:13Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-21 05:07:13Z INFO JobNotification] Entering StartMonitor
+[2024-12-21 05:08:13Z INFO JobDispatcher] Successfully renew job request 627, job is valid till 12/21/2024 5:18:13 AM
+[2024-12-21 05:09:00Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-21 05:09:00Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-21 05:09:00Z INFO ProcessInvokerWrapper] Finished process 3528 with exit code 100, and elapsed time 00:01:46.9118614.
+[2024-12-21 05:09:00Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-21 05:09:00Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-21 05:09:00Z INFO Terminal] WRITE LINE: 2024-12-21 05:09:00Z: Job deploy completed with result: Succeeded
+[2024-12-21 05:09:00Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-21 05:09:00Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 627.
+[2024-12-21 05:09:00Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-21 05:09:00Z INFO JobNotification] Entering EndMonitor
+[2024-12-21 05:09:00Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-21 05:35:54Z INFO MessageListener] Message '933781001997747306' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-21 05:35:54Z INFO ConfigurationStore] HasCredentials()
+[2024-12-21 05:35:54Z INFO ConfigurationStore] stored True
+[2024-12-21 05:35:54Z INFO CredentialManager] GetCredentialProvider
+[2024-12-21 05:35:54Z INFO CredentialManager] Creating type OAuth
+[2024-12-21 05:35:54Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-21 05:35:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:35:54Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-21 05:35:54Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-21 05:35:54Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-21 05:35:54Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-21 05:35:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:35:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:35:55Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 05:35:55Z INFO JobDispatcher] Job request 630 for plan 22e8095d-31b7-432f-a12a-a14c3fb29ca5 job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-21 05:35:55Z INFO JobDispatcher] Pull OrchestrationId 22e8095d-31b7-432f-a12a-a14c3fb29ca5.deploy.__default from JWT claims
+[2024-12-21 05:35:55Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-21 05:35:55Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-21 05:35:55Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-21 05:35:55Z INFO Terminal] WRITE LINE: 2024-12-21 05:35:55Z: Running job: deploy
+[2024-12-21 05:35:55Z INFO JobDispatcher] Start renew job request 630 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-21 05:35:55Z INFO JobDispatcher] Successfully renew job request 630, job is valid till 12/21/2024 5:45:56 AM
+[2024-12-21 05:35:55Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 4036 2816'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-21 05:35:55Z INFO ProcessInvokerWrapper] Process started with process id 64096, waiting for process exit.
+[2024-12-21 05:35:55Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-21 05:35:55Z INFO ProcessChannel] Sending message of length 26096, with hash '85b5020d903f2f18989b40e58ee248c76bd1a87cb864c579b63e92f18f665239'
+[2024-12-21 05:35:56Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-21 05:35:56Z INFO JobNotification] Entering StartMonitor
+[2024-12-21 05:36:56Z INFO JobDispatcher] Successfully renew job request 630, job is valid till 12/21/2024 5:46:56 AM
+[2024-12-21 05:37:01Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-21 05:37:01Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-21 05:37:01Z INFO ProcessInvokerWrapper] Finished process 64096 with exit code 100, and elapsed time 00:01:05.9564475.
+[2024-12-21 05:37:01Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-21 05:37:01Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-21 05:37:01Z INFO Terminal] WRITE LINE: 2024-12-21 05:37:01Z: Job deploy completed with result: Succeeded
+[2024-12-21 05:37:01Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-21 05:37:01Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 630.
+[2024-12-21 05:37:01Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-21 05:37:01Z INFO JobNotification] Entering EndMonitor
+[2024-12-21 05:37:01Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-21 05:51:03Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 05:51:04Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 06:01:08Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 06:01:09Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 06:06:11Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 06:36:25Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 06:41:27Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 06:41:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 06:56:35Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 06:56:35Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 07:06:40Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 07:31:51Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 07:31:52Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 07:36:54Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 07:52:01Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 07:52:01Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 08:07:08Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 08:22:15Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 08:22:16Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 08:37:22Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 08:47:27Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 08:47:27Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 09:07:37Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 09:12:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 09:12:40Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 09:37:51Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 09:42:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 09:42:54Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 10:03:04Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 10:03:04Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 10:08:06Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 10:38:20Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 10:38:20Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 10:38:21Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 10:53:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 10:53:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 11:08:35Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 11:33:46Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 11:33:47Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 11:38:49Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 11:43:52Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 11:43:52Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 12:09:03Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 12:29:13Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 12:29:13Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 12:34:16Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 12:34:16Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 12:39:18Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 13:09:32Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 13:24:39Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 13:24:39Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 13:24:39Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 13:24:40Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 13:39:46Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 14:10:00Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 14:15:03Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 14:15:03Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 14:20:05Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 14:20:06Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 14:40:15Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 15:05:27Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 15:05:27Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 15:10:29Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 15:15:32Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 15:15:32Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 15:40:43Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 15:55:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 15:55:51Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 16:10:58Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 16:10:58Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 16:10:58Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 16:41:12Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 16:46:14Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 16:46:15Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 17:06:24Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 17:06:24Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 17:11:26Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 17:36:38Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 17:36:39Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 17:41:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 18:01:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 18:01:50Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 18:11:55Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 18:27:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 18:27:02Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 18:42:09Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 18:57:16Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 18:57:16Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 19:12:23Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 19:17:26Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 19:17:26Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 19:42:38Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 19:52:42Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 19:52:43Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 20:07:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 20:07:50Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 20:12:53Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 20:43:07Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 20:48:09Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 20:48:09Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 20:58:14Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 20:58:15Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 21:13:21Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 21:43:35Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 21:43:35Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 21:43:36Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 21:48:38Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 21:48:39Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 22:13:50Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 22:39:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 22:39:02Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 22:39:02Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 22:39:03Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 22:44:05Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 23:14:18Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-21 23:29:26Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 23:29:26Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 23:34:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-21 23:34:29Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-21 23:44:33Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 00:14:47Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 00:19:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 00:19:50Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 00:29:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 00:29:55Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 00:45:01Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 01:10:13Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 01:10:13Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 01:15:16Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 01:25:20Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 01:25:21Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 01:45:30Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 02:00:37Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 02:00:37Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 02:15:44Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 02:20:47Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 02:20:47Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 02:45:59Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 02:51:01Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 02:51:02Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 03:16:13Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 03:16:13Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 03:16:13Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 03:41:25Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 03:41:25Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 03:46:27Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 04:11:39Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 04:11:39Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 04:16:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 04:31:48Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 04:31:49Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 04:46:56Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 05:07:05Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 05:07:05Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 05:17:10Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 05:22:13Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 05:22:13Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 05:47:25Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 06:02:32Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 06:02:32Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 06:12:37Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 06:12:38Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 06:17:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 06:47:55Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 06:58:00Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 06:58:00Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 07:03:03Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 07:03:03Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 07:18:10Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 07:48:25Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 07:53:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 07:53:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 07:53:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 07:53:29Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 08:18:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 08:43:53Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 08:43:53Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 08:48:55Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 08:48:55Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 08:48:56Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 09:19:10Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 09:34:17Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 09:34:17Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 09:44:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 09:44:22Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 09:49:24Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 10:19:38Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 10:24:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 10:24:41Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 10:39:47Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 10:39:48Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 10:49:52Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 11:15:04Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 11:15:04Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 11:20:06Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 11:35:13Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 11:35:13Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 11:50:20Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 12:05:37Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 12:05:38Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 12:20:44Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 12:30:49Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 12:30:49Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 12:50:58Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 12:56:01Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 12:56:01Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 13:21:13Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 13:26:15Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 13:26:15Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 13:46:25Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 13:46:25Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 13:51:27Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 14:21:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 14:21:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 14:21:42Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 14:36:49Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 14:36:49Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 14:51:56Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 15:13:40Z INFO MessageListener] Message '3132556419062824131' received from session '24059ba2-0b5e-41af-bb31-2f8185558418'.
+[2024-12-22 15:13:40Z INFO ConfigurationStore] HasCredentials()
+[2024-12-22 15:13:40Z INFO ConfigurationStore] stored True
+[2024-12-22 15:13:40Z INFO CredentialManager] GetCredentialProvider
+[2024-12-22 15:13:40Z INFO CredentialManager] Creating type OAuth
+[2024-12-22 15:13:40Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-22 15:13:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 15:13:40Z INFO ActionsRunServer] EstablishVssConnection
+[2024-12-22 15:13:40Z INFO ActionsRunServer] Establish connection with 100 seconds timeout.
+[2024-12-22 15:13:40Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-22 15:13:41Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-22 15:13:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 15:13:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 15:13:41Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 15:13:41Z INFO JobDispatcher] Job request 633 for plan c82638d3-785f-42f1-ae35-d9ea06a88dab job e07742bd-189a-5079-918b-43f8b2f94b89 received.
+[2024-12-22 15:13:41Z INFO JobDispatcher] Pull OrchestrationId c82638d3-785f-42f1-ae35-d9ea06a88dab.deploy.__default from JWT claims
+[2024-12-22 15:13:41Z INFO MessageListener] Received job status event. JobState: Busy
+[2024-12-22 15:13:41Z INFO MessageListener] _getMessagesTokenSource is already disposed.
+[2024-12-22 15:13:41Z INFO JobDispatcher] Job request e07742bd-189a-5079-918b-43f8b2f94b89 processed succeed.
+[2024-12-22 15:13:41Z INFO Terminal] WRITE LINE: 2024-12-22 15:13:41Z: Running job: deploy
+[2024-12-22 15:13:41Z INFO JobDispatcher] Start renew job request 633 for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-22 15:13:42Z INFO JobDispatcher] Successfully renew job request 633, job is valid till 12/22/2024 3:23:42 PM
+[2024-12-22 15:13:42Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper] Starting process:
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.exe'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Arguments: 'spawnclient 2872 3464'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'True'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Persist current code page: 'False'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper]   High priority process: 'True'
+[2024-12-22 15:13:42Z INFO ProcessInvokerWrapper] Process started with process id 109572, waiting for process exit.
+[2024-12-22 15:13:42Z INFO JobDispatcher] Send job request message to worker for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-22 15:13:42Z INFO ProcessChannel] Sending message of length 26154, with hash 'c74d9eb73cf1bc37678f1575f8427a18e241a7fcc9abfd77be48ea5d91685d36'
+[2024-12-22 15:13:42Z INFO JobNotification] Entering JobStarted Notification
+[2024-12-22 15:13:42Z INFO JobNotification] Entering StartMonitor
+[2024-12-22 15:14:42Z INFO JobDispatcher] Successfully renew job request 633, job is valid till 12/22/2024 3:24:42 PM
+[2024-12-22 15:14:46Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-22 15:14:46Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2024-12-22 15:14:46Z INFO ProcessInvokerWrapper] Finished process 109572 with exit code 100, and elapsed time 00:01:04.3906506.
+[2024-12-22 15:14:46Z INFO JobDispatcher] Worker finished for job e07742bd-189a-5079-918b-43f8b2f94b89. Code: 100
+[2024-12-22 15:14:46Z INFO JobDispatcher] finish job request for job e07742bd-189a-5079-918b-43f8b2f94b89 with result: Succeeded
+[2024-12-22 15:14:46Z INFO Terminal] WRITE LINE: 2024-12-22 15:14:46Z: Job deploy completed with result: Succeeded
+[2024-12-22 15:14:46Z INFO JobDispatcher] Stop renew job request for job e07742bd-189a-5079-918b-43f8b2f94b89.
+[2024-12-22 15:14:46Z INFO JobDispatcher] job renew has been cancelled, stop renew job request 633.
+[2024-12-22 15:14:46Z INFO JobNotification] Entering JobCompleted Notification
+[2024-12-22 15:14:46Z INFO JobNotification] Entering EndMonitor
+[2024-12-22 15:14:46Z INFO MessageListener] Received job status event. JobState: Online
+[2024-12-22 15:17:04Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 15:17:04Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 15:27:09Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 15:27:10Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 15:43:57Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 16:12:30Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 16:12:31Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 16:14:11Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 16:17:33Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 16:17:33Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 16:44:26Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 17:07:57Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 17:07:57Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 17:07:58Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 17:07:58Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 17:14:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 17:44:55Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 17:58:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 17:58:22Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 18:03:24Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 18:03:25Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 18:15:10Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 18:45:24Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 18:48:45Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 18:48:46Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 18:58:50Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 18:58:51Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 19:15:38Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 19:39:09Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 19:39:10Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 19:45:53Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 19:54:17Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 19:54:17Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 20:16:07Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 20:29:33Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 20:29:34Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 20:46:21Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 20:49:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 20:49:43Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 21:16:35Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 21:19:57Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 21:19:58Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 21:45:09Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 21:45:09Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 21:46:50Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 22:10:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 22:10:21Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 22:17:04Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 22:40:35Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 22:40:35Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 22:47:19Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 23:00:45Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 23:00:45Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 23:17:33Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 23:36:01Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 23:36:02Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-22 23:47:47Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-22 23:51:09Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-22 23:51:09Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 00:18:01Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 00:31:27Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 00:31:28Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 00:41:33Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 00:41:33Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 00:48:16Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 01:18:30Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 01:26:54Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 01:26:54Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 01:31:57Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 01:31:57Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 01:48:45Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 02:18:59Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 02:22:20Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 02:22:21Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 02:22:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 02:22:21Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 02:49:14Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 03:12:45Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 03:12:45Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 03:17:47Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 03:17:48Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 03:19:28Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 03:49:42Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 04:03:08Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 04:03:09Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 04:13:13Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 04:13:14Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 04:19:57Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 04:50:10Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 04:53:32Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 04:53:32Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 05:08:39Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 05:08:39Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 05:20:25Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 05:43:55Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 05:43:56Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 05:50:39Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 06:04:05Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 06:04:05Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 06:20:53Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 06:34:20Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 06:34:20Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 06:51:08Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 06:59:31Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 06:59:32Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 07:21:21Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 07:24:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 07:24:43Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 07:51:34Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 07:54:56Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 07:54:56Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 08:15:05Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 08:15:06Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 08:21:48Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 08:50:21Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 08:50:22Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 08:52:02Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 09:05:29Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 09:05:29Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 09:22:17Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 09:45:48Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 09:45:48Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 09:52:31Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 09:55:53Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 09:55:53Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 10:22:46Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 10:41:14Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 10:41:14Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 10:46:17Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 10:46:17Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 10:53:00Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 11:23:14Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 11:36:40Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 11:36:40Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 11:36:41Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 11:36:41Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 11:53:29Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 12:23:43Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 12:27:04Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 12:27:05Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 12:32:07Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 12:32:07Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 12:53:57Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 13:17:28Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 13:17:29Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 13:24:11Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 13:27:33Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 13:27:33Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 13:54:26Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 14:07:52Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 14:07:53Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 14:23:00Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 14:23:00Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-23 14:24:41Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 14:54:54Z INFO MessageListener] No message retrieved from session '24059ba2-0b5e-41af-bb31-2f8185558418' within last 30 minutes.
+[2024-12-23 14:58:16Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-23 14:58:17Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown

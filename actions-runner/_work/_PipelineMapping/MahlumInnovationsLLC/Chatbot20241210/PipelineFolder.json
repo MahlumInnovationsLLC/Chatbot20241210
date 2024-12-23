@@ -1,0 +1,12 @@
+﻿{
+  "repositoryName": "MahlumInnovationsLLC/Chatbot20241210",
+  "pipelineDirectory": "Chatbot20241210",
+  "workspaceDirectory": "Chatbot20241210\\Chatbot20241210",
+  "repositories": {
+    "MahlumInnovationsLLC/Chatbot20241210": {
+      "repositoryPath": "Chatbot20241210\\Chatbot20241210",
+      "lastRunOn": "12/20/2024 11:57:13 -07:00"
+    }
+  },
+  "lastRunOn": "12/22/2024 08:13:43 -07:00"
+}

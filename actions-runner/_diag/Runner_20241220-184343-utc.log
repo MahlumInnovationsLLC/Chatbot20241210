@@ -1,0 +1,192 @@
+[2024-12-20 18:43:43Z INFO HostContext] No proxy settings were found based on environmental variables (http_proxy/https_proxy/HTTP_PROXY/HTTPS_PROXY)
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'Runner': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner'
+[2024-12-20 18:43:43Z INFO Listener] Runner is built for Windows (X64) - win-x64.
+[2024-12-20 18:43:43Z INFO Listener] RuntimeInformation: Microsoft Windows 10.0.22631.
+[2024-12-20 18:43:43Z INFO Listener] Version: 2.321.0
+[2024-12-20 18:43:43Z INFO Listener] Commit: e249007931b7c8e857797fa259c167f0bd4f997a
+[2024-12-20 18:43:43Z INFO Listener] Culture: en-US
+[2024-12-20 18:43:43Z INFO Listener] UI Culture: en-US
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO Listener] Validating directory permissions for: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO CommandLineParser] Parse
+[2024-12-20 18:43:43Z INFO CommandLineParser] Parsing 1 args
+[2024-12-20 18:43:43Z INFO CommandLineParser] parsing argument
+[2024-12-20 18:43:43Z INFO CommandLineParser] HasArgs: False
+[2024-12-20 18:43:43Z INFO CommandLineParser] Adding Command: run
+[2024-12-20 18:43:43Z INFO Listener] Arguments parsed
+[2024-12-20 18:43:43Z INFO Runner] ExecuteCommand
+[2024-12-20 18:43:43Z INFO ConfigurationStore] currentAssemblyLocation: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Listener.dll
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] binPath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] RootFolder: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'Runner': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] ConfigFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] CredFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'MigratedCredentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_migrated'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] MigratedCredFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_migrated
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'Service': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.service'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] ServiceConfigFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.service
+[2024-12-20 18:43:43Z INFO CommandSettings] Flag 'help': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Flag 'version': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Flag 'commit': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Flag 'check': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Command 'configure': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Command 'remove': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Command 'warmup': 'False'
+[2024-12-20 18:43:43Z INFO ConfigurationManager] LoadSettings
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsConfigured()
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsConfigured: True
+[2024-12-20 18:43:43Z INFO ConfigurationManager] Is configured: True
+[2024-12-20 18:43:43Z INFO ConfigurationStore] Read setting file: 334 chars
+[2024-12-20 18:43:43Z INFO ConfigurationManager] Settings Loaded
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsServiceConfigured()
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsServiceConfigured: False
+[2024-12-20 18:43:43Z INFO CommandSettings] Command 'run': 'True'
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsConfigured()
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsConfigured: True
+[2024-12-20 18:43:43Z INFO ConfigurationManager] Is configured: True
+[2024-12-20 18:43:43Z INFO Runner] Could not parse the argument value '' for StartupType. Defaulting to Manual
+[2024-12-20 18:43:43Z INFO Runner] Set runner startup type - Manual
+[2024-12-20 18:43:43Z INFO CommandSettings] Flag 'once': 'False'
+[2024-12-20 18:43:43Z INFO CommandSettings] Flag 'once': 'False'
+[2024-12-20 18:43:43Z INFO Runner] RunAsync
+[2024-12-20 18:43:43Z INFO ConfigurationManager] LoadSettings
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsConfigured()
+[2024-12-20 18:43:43Z INFO ConfigurationStore] IsConfigured: True
+[2024-12-20 18:43:43Z INFO ConfigurationManager] Is configured: True
+[2024-12-20 18:43:43Z INFO ConfigurationManager] Settings Loaded
+[2024-12-20 18:43:43Z INFO MessageListener] {
+  "AgentId": 21,
+  "AgentName": "chatbot20241210-runner",
+  "PoolId": 1,
+  "PoolName": "Default",
+  "ServerUrl": "https://pipelinesghubeus24.actions.githubusercontent.com/klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl/",
+  "GitHubUrl": "https://github.com/MahlumInnovationsLLC/Chatbot20241210",
+  "WorkFolder": "_work"
+}
+[2024-12-20 18:43:43Z INFO MessageListener] Loading Credentials
+[2024-12-20 18:43:43Z INFO ConfigurationStore] HasCredentials()
+[2024-12-20 18:43:43Z INFO ConfigurationStore] stored True
+[2024-12-20 18:43:43Z INFO CredentialManager] GetCredentialProvider
+[2024-12-20 18:43:43Z INFO CredentialManager] Creating type OAuth
+[2024-12-20 18:43:43Z INFO CredentialManager] Creating credential type: OAuth
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2024-12-20 18:43:43Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2024-12-20 18:43:43Z INFO HostContext] Well known config file 'RSACredentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams'
+[2024-12-20 18:43:43Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:43:43Z INFO MessageListener] Attempt to create session.
+[2024-12-20 18:43:43Z INFO MessageListener] Connecting to the Runner Server...
+[2024-12-20 18:43:43Z INFO RunnerServer] EstablishVssConnection
+[2024-12-20 18:43:43Z INFO RunnerServer] Establish connection with 100 seconds timeout.
+[2024-12-20 18:43:43Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:43:43Z INFO RunnerServer] EstablishVssConnection
+[2024-12-20 18:43:43Z INFO RunnerServer] Establish connection with 60 seconds timeout.
+[2024-12-20 18:43:43Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:43:43Z INFO RunnerServer] EstablishVssConnection
+[2024-12-20 18:43:43Z INFO RunnerServer] Establish connection with 60 seconds timeout.
+[2024-12-20 18:43:43Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2024-12-20 18:43:44Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:43:44Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:43:44Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2024-12-20 18:43:44Z INFO MessageListener] VssConnection created
+[2024-12-20 18:43:44Z INFO Terminal] WRITE LINE: 
+[2024-12-20 18:43:44Z INFO Terminal] WRITE LINE: 
+[2024-12-20 18:43:44Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:43:44Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:43:44Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 18:43:45Z INFO MessageListener] Session created.
+[2024-12-20 18:43:45Z INFO Terminal] WRITE LINE: Current runner version: '2.321.0'
+[2024-12-20 18:43:45Z INFO Terminal] WRITE LINE: 2024-12-20 18:43:45Z: Listening for Jobs
+[2024-12-20 18:43:45Z INFO JobDispatcher] Set runner/worker IPC timeout to 30 seconds.
+[2024-12-20 18:43:45Z INFO RSAEncryptedFileKeyManager] Loading RSA key parameters from file C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_rsaparams
+[2024-12-20 18:43:46Z INFO GitHubActionsService] AAD Correlation ID for this token request: Unknown
+[2024-12-20 18:44:53Z INFO HostContext] Runner will be shutdown for UserCancelled
+[2024-12-20 18:44:53Z WARN GitHubActionsService] GET request to https://broker.actions.githubusercontent.com/message?sessionId=e7ed75c2-9c00-4275-81d0-3fed51f963ed&status=Online&runnerVersion=2.321.0&os=Windows&architecture=X64&disableUpdate=false has been cancelled.
+[2024-12-20 18:44:53Z ERR  BrokerServer] Catch exception during request
+[2024-12-20 18:44:53Z ERR  BrokerServer] System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithNtAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean isProxyAuth, HttpConnection connection, HttpConnectionPool connectionPool, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at GitHub.Services.Common.RawHttpMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at GitHub.Services.Common.VssHttpRetryMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpClient.HandleFailure(Exception e, Boolean telemetryStarted, HttpResponseMessage response, CancellationTokenSource cts, CancellationToken cancellationToken, CancellationTokenSource pendingRequestsCts)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+   at Sdk.WebApi.WebApi.RawHttpClientBase.SendAsync(HttpRequestMessage message, HttpCompletionOption completionOption, Object userState, CancellationToken cancellationToken)
+   at Sdk.WebApi.WebApi.RawHttpClientBase.SendAsync[T](HttpRequestMessage message, Boolean readErrorBody, Object userState, CancellationToken cancellationToken)
+   at Sdk.WebApi.WebApi.RawHttpClientBase.SendAsync[T](HttpMethod method, IEnumerable`1 additionalHeaders, Uri requestUri, HttpContent content, IEnumerable`1 queryParameters, Boolean readErrorBody, Object userState, CancellationToken cancellationToken)
+   at GitHub.Actions.RunService.WebApi.BrokerHttpClient.GetRunnerMessageAsync(Nullable`1 sessionId, String runnerVersion, Nullable`1 status, String os, String architecture, Nullable`1 disableUpdate, CancellationToken cancellationToken)
+   at GitHub.Runner.Common.BrokerServer.<>c__DisplayClass7_0.<<GetRunnerMessageAsync>b__0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at GitHub.Runner.Common.RunnerService.RetryRequest[T](Func`1 func, CancellationToken cancellationToken, Int32 maxRetryAttemptsCount, Func`2 shouldRetry)
+[2024-12-20 18:44:53Z ERR  BrokerServer] #####################################################
+[2024-12-20 18:44:53Z ERR  BrokerServer] System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+ ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithNtAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean isProxyAuth, HttpConnection connection, HttpConnectionPool connectionPool, CancellationToken cancellationToken)
+   at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+   at System.Net.Http.AuthenticationHelper.SendWithAuthAsync(HttpRequestMessage request, Uri authUri, Boolean async, ICredentials credentials, Boolean preAuthenticate, Boolean isProxyAuth, Boolean doRequestAuth, HttpConnectionPool pool, CancellationToken cancellationToken)
+   at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+   at GitHub.Services.Common.RawHttpMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at GitHub.Services.Common.VssHttpRetryMessageHandler.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+   at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+[2024-12-20 18:44:53Z ERR  BrokerServer] #####################################################
+[2024-12-20 18:44:53Z ERR  BrokerServer] System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+ ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+   --- End of inner exception stack trace ---
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+   at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.EnsureFullTlsFrameAsync[TIOAdapter](CancellationToken cancellationToken, Int32 estimatedSize)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Security.SslStream.ReadAsyncInternal[TIOAdapter](Memory`1 buffer, CancellationToken cancellationToken)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+[2024-12-20 18:44:53Z ERR  BrokerServer] #####################################################
+[2024-12-20 18:44:53Z ERR  BrokerServer] System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+[2024-12-20 18:44:53Z WARN BrokerServer] Back off 12.85 seconds before next retry. 4 attempt left.
+[2024-12-20 18:44:53Z INFO MessageListener] Get next message has been cancelled.
+[2024-12-20 18:44:53Z INFO JobDispatcher] Shutting down JobDispatcher. Make sure all WorkerDispatcher has finished.
+[2024-12-20 18:44:53Z INFO Runner] Deleting Runner Session...
+[2024-12-20 18:44:53Z INFO Listener] Runner execution been cancelled.
