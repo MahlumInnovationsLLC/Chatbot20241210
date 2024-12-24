@@ -293,9 +293,16 @@ function AppContent({ onLogout }) {
             component: (
                 <div
                     style={{
-                        width: '100%',
-                        height: '100%',
-                        border: `3px solid ${limeGreen}`, // lime border
+                        // Add your desired color
+                        border: `2px solid ${limeGreen}`,
+                        borderRadius: '8px',
+                        // Add margin so there's space between the chat and the top bar/sides
+                        margin: '1rem',
+                        // Or you can do padding if you want the green border plus some internal spacing
+                        padding: '1rem',
+                        // Make sure it expands vertically
+                        flex: 1,
+                        overflow: 'auto', // or whatever suits your layout
                         boxSizing: 'border-box'
                     }}
                 >
@@ -308,9 +315,16 @@ function AppContent({ onLogout }) {
             component: (
                 <div
                     style={{
-                        width: '100%',
-                        height: '100%',
-                        border: `3px solid ${limeGreen}`, // lime border
+                        // Add your desired color
+                        border: `2px solid ${limeGreen}`,
+                        borderRadius: '8px',
+                        // Add margin so there's space between the chat and the top bar/sides
+                        margin: '1rem',
+                        // Or you can do padding if you want the green border plus some internal spacing
+                        padding: '1rem',
+                        // Make sure it expands vertically
+                        flex: 1,
+                        overflow: 'auto', // or whatever suits your layout
                         boxSizing: 'border-box'
                     }}
                 >
@@ -327,9 +341,16 @@ function AppContent({ onLogout }) {
             component: (
                 <div
                     style={{
-                        width: '100%',
-                        height: '100%',
-                        border: `3px solid ${limeGreen}`, // lime border
+                        // Add your desired color
+                        border: `2px solid ${limeGreen}`,
+                        borderRadius: '8px',
+                        // Add margin so there's space between the chat and the top bar/sides
+                        margin: '1rem',
+                        // Or you can do padding if you want the green border plus some internal spacing
+                        padding: '1rem',
+                        // Make sure it expands vertically
+                        flex: 1,
+                        overflow: 'auto', // or whatever suits your layout
                         boxSizing: 'border-box'
                     }}
                 >
