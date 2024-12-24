@@ -13,7 +13,7 @@ from docx import Document
 import urllib.parse  # for URL encoding if needed
 import uuid
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
-import sendgrid
+import sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content # for sending email
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
