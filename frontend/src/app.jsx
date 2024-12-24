@@ -453,11 +453,11 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-            case 'empty1':
+            case 'empty1': // Contact Us
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
-                        {/* Contact form fields */}
+
                         <div className="flex flex-col space-y-2">
                             <label className="text-lg font-semibold">First Name:</label>
                             <input
@@ -471,8 +471,63 @@ function AppContent({ onLogout }) {
                                 placeholder="First Name"
                             />
                         </div>
-                        {/* last name, company, email, note... */}
-                        {/* ... etc. ... */}
+
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Last Name:</label>
+                            <input
+                                type="text"
+                                value={contactNameLast}
+                                onChange={(e) => setContactNameLast(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
+                                    }`}
+                                placeholder="Last Name"
+                            />
+                        </div>
+
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Company:</label>
+                            <input
+                                type="text"
+                                value={contactCompany}
+                                onChange={(e) => setContactCompany(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
+                                    }`}
+                                placeholder="Company Name"
+                            />
+                        </div>
+
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Email:</label>
+                            <input
+                                type="email"
+                                value={contactEmail}
+                                onChange={(e) => setContactEmail(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
+                                    }`}
+                                placeholder="Email Address"
+                            />
+                        </div>
+
+                        <div className="flex flex-col space-y-2">
+                            <label className="text-lg font-semibold">Note:</label>
+                            <textarea
+                                value={contactNote}
+                                onChange={(e) => setContactNote(e.target.value)}
+                                className={`w-full p-2 rounded border ${theme === 'dark'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
+                                    }`}
+                                placeholder="How can we help?"
+                                rows={5}
+                            />
+                        </div>
+
                         <div className="flex justify-center mt-4">
                             <button
                                 onClick={sendContactForm}
@@ -483,6 +538,7 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
+
             default:
                 return (
                     <div className="flex items-center justify-center h-full">
