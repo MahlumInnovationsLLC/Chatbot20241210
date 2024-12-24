@@ -1,7 +1,7 @@
 ﻿import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
-import EmptyLeft from './components/EmptyLeft';
-import EmptyRight from './components/EmptyRight';
+import LeftTool from './components/LeftTool';
+import RightTool from './components/RightTool';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
@@ -35,7 +35,6 @@ async function generateChatTitle(messages) {
 
         // Adjust your endpoint if using Azure or a separate route for generating titles:
         const response = await axios.post('/generateChatTitle', requestBody);
-        // Suppose the AI returns { title: "...some short title..." }
         return response.data.title || 'Untitled Chat';
     } catch (err) {
         console.error('Error generating chat title:', err);
@@ -105,9 +104,7 @@ function AppContent({ onLogout }) {
             if (messages.length > 0) {
                 // 1) Generate a title from the current conversation
                 const chatTitle = await generateChatTitle(messages);
-
                 // 2) Archive locally (or send to server). For now, local only
-                // For demonstration:
                 console.log("Archived old chat with title:", chatTitle);
             }
             // 3) Clear out the conversation
@@ -285,41 +282,70 @@ function AppContent({ onLogout }) {
     };
 
     //**  BEGIN HORIZONTAL-PAGING LOGIC  **/
-    // We'll define 3 pages: Left (EmptyLeft), Middle (ChatInterface), Right (EmptyRight).
+    // We'll define 3 pages: Left (LeftTool), Middle (ChatInterface), Right (RightTool).
     // Then we maintain an `activePageIndex` in state: 0 => Left, 1 => Middle, 2 => Right.
     const [activePageIndex, setActivePageIndex] = useState(1); // Start on middle page
 
-    // Our list of pages
+    // Our list of pages with lime‐green borders
     const pages = [
         {
             title: 'Left Tool',
-            component: <EmptyLeft />
+            component: (
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        border: `3px solid ${limeGreen}`, // lime border
+                        boxSizing: 'border-box'
+                    }}
+                >
+                    <LeftTool />
+                </div>
+            )
         },
         {
             title: 'Chat',
             component: (
-                <ChatInterface
-                    onLogout={onLogout}
-                    messages={messages}
-                    setMessages={setMessages}
-                />
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        border: `3px solid ${limeGreen}`, // lime border
+                        boxSizing: 'border-box'
+                    }}
+                >
+                    <ChatInterface
+                        onLogout={onLogout}
+                        messages={messages}
+                        setMessages={setMessages}
+                    />
+                </div>
             )
         },
         {
             title: 'Right Tool',
-            component: <EmptyRight />
+            component: (
+                <div
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        border: `3px solid ${limeGreen}`, // lime border
+                        boxSizing: 'border-box'
+                    }}
+                >
+                    <RightTool />
+                </div>
+            )
         }
     ];
 
     // Switch pages
     const handleSwitchPage = (index) => {
         setActivePageIndex(index);
-        // If you want any side effects, do them here
     };
 
     // We'll define the styling for the container with 3 pages side-by-side
-    // We'll do a simple 100vw * numberOfPages approach. Then a transform based on activePageIndex
-    const pageWidth = 100; // viewport widths
+    const pageWidth = 100; // each page is full viewport width
     const containerStyle = {
         width: `${pages.length * 100}vw`,
         display: 'flex',
@@ -328,10 +354,7 @@ function AppContent({ onLogout }) {
     };
 
     // The top bar “titles” that fade out for the non-active pages
-    // We'll keep them center, next to the menu icon. 
-    // We'll highlight the current page’s title in bright color, and fade out others
-    // Or we can do a mini horizontal scroll in the top bar as well.
-
+    // We'll keep them center, next to the menu icon, etc.
     const topBarTitlesStyle = {
         display: 'flex',
         flexDirection: 'row',
@@ -340,6 +363,26 @@ function AppContent({ onLogout }) {
         gap: '1rem'
     };
 
+    // Render a button for each page
+    const topBarPages = pages.map((p, i) => (
+        <button
+            key={i}
+            className="px-2 py-1 rounded"
+            style={{
+                backgroundColor: i === activePageIndex ? limeGreen : 'transparent',
+                color: i === activePageIndex
+                    ? (theme === 'dark' ? 'black' : 'black')
+                    : (theme === 'dark' ? 'white' : 'black'),
+                opacity: i === activePageIndex ? 1 : 0.6,
+                fontWeight: i === activePageIndex ? 'bold' : 'normal'
+            }}
+            onClick={() => handleSwitchPage(i)}
+        >
+            {p.title}
+        </button>
+    ));
+
+    // Renders the content for the Settings popup
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
@@ -365,8 +408,7 @@ function AppContent({ onLogout }) {
                         <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                             <label className="text-lg font-semibold mr-4">Language</label>
                             <select
-                                value={selectedLanguage}
-                                onChange={(e) => setSelectedLanguage(e.target.value)}
+                                // you can store this in state if you want
                                 className="bg-white text-black border p-2 rounded w-44"
                             >
                                 <option value="auto">Auto-detect</option>
@@ -420,7 +462,6 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-
             case 'ai':
                 return (
                     <div className="flex flex-col space-y-4">
@@ -460,7 +501,6 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-
             case 'empty1': // Contact Us
                 return (
                     <div className="flex flex-col space-y-4">
@@ -540,7 +580,6 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-
             case 'empty2':
             case 'empty3':
                 return (
@@ -552,26 +591,6 @@ function AppContent({ onLogout }) {
                 return null;
         }
     };
-
-    // The top bar "pages" with highlight
-    const topBarPages = pages.map((p, i) => (
-        <button
-            key={i}
-            className="px-2 py-1 rounded"
-            style={{
-                // If active, highlight with limeGreen, else fade
-                backgroundColor: i === activePageIndex ? limeGreen : 'transparent',
-                color: i === activePageIndex
-                    ? (theme === 'dark' ? 'black' : 'black')
-                    : (theme === 'dark' ? 'white' : 'black'),
-                opacity: i === activePageIndex ? 1 : 0.6,
-                fontWeight: i === activePageIndex ? 'bold' : 'normal'
-            }}
-            onClick={() => handleSwitchPage(i)}
-        >
-            {p.title}
-        </button>
-    ));
 
     return (
         <div
@@ -591,20 +610,19 @@ function AppContent({ onLogout }) {
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
 
-                {/* Middle portion: The 3-page "tool" nav */}
+                {/* The 3-page “tool” nav in the middle */}
                 <div style={topBarTitlesStyle}>{topBarPages}</div>
 
-                {/* The standard menu at the right */}
+                {/* Right side: Chat History + Menu */}
                 <div ref={menuRef} className="flex items-center space-x-2">
-                    {/* Chat History button example (the user requested a new button) */}
                     <button
                         onClick={() => setManageChatsOpen(!manageChatsOpen)}
                         style={{
                             border: `2px solid ${limeGreen}`,
-                            color: theme === 'dark' ? 'white' : 'black'
+                            color: theme === 'dark' ? 'white' : 'black',
+                            padding: '0.4rem 0.75rem',
+                            borderRadius: '6px'
                         }}
-                        className="relative focus:outline-none rounded p-1 mr-2"
-                        title="Open Chat History"
                     >
                         Chat History
                     </button>
@@ -642,7 +660,6 @@ function AppContent({ onLogout }) {
                         </div>
                     </button>
 
-                    {/* The menu dropdown */}
                     {menuOpen && (
                         <div
                             className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-44 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
@@ -696,8 +713,7 @@ function AppContent({ onLogout }) {
                                             messages
                                                 .map(
                                                     (m) =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
-                                                        }`
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -742,8 +758,8 @@ function AppContent({ onLogout }) {
                             key={i}
                             style={{
                                 minWidth: '100vw',
-                                height: '100%',
-                                overflow: 'auto' // allow each page to scroll internally
+                                height: '100%', // fill vertical space
+                                overflow: 'auto'
                             }}
                         >
                             {p.component}
