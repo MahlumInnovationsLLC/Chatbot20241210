@@ -31,7 +31,7 @@ COSMOS_CONTAINER_ID = "chats"
 # 1.2 Sendgrid Setup
 ###############################################################################
 # Make sure you set these environment variables or define them in code
-SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY') # for sending emails
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY") # for sending emails
 
 # Initialize the Cosmos client
 cosmos_client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
@@ -338,68 +338,47 @@ def generate_report():
 ###############################################################################
 @app.route('/contact', methods=['POST'])
 def contact_endpoint():
-    """
-    Expects JSON like:
-    {
-      "firstName": "...",
-      "lastName": "...",
-      "company": "...",
-      "email": "...",
-      "note": "..."
-    }
-    """
+    data = request.get_json(force=True)
+    firstName = data.get('firstName', '')
+    lastName = data.get('lastName', '')
+    company = data.get('company', '')
+    email = data.get('email', '')
+    note = data.get('note', '')
+
+    app.logger.info(
+        f"Contact form submission:\n"
+        f"Name: {firstName} {lastName}\n"
+        f"Company: {company}\n"
+        f"Email: {email}\n"
+        f"Note: {note}"
+    )
+
+    # Actually send email
     try:
-        data = request.get_json(force=True)
-        firstName = data.get('firstName', '')
-        lastName = data.get('lastName', '')
-        company = data.get('company', '')
-        email = data.get('email', '')
-        note = data.get('note', '')
-
-        app.logger.info(
-            f"Contact form submission:\n"
-            f"Name: {firstName} {lastName}\n"
-            f"Company: {company}\n"
-            f"Email: {email}\n"
-            f"Note: {note}"
-        )
-
-        # Actually send the email via SendGrid:
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-
-        # Build the message
-        from_email = Email("noreply@yourdomain.com")  # Replace with your "from" address
-        to_email = To("colter@mahluminnovations.com")  # The address you want to receive messages
+        from_email = Email("colter@mahluminnovations.com")
+        to_email = To("colter@mahluminnovations.com")  # set the destination
         subject = f"Contact Form from {firstName} {lastName}"
-        
         content_text = f"""
-Contact Form Submission:
-Name: {firstName} {lastName}
-Company: {company}
-Email: {email}
-Note: {note}
-"""
+        Contact Form Submission:
+        Name: {firstName} {lastName}
+        Company: {company}
+        Email: {email}
+        Note: {note}
+        """
         content = Content("text/plain", content_text)
+
         mail = Mail(from_email, to_email, subject, content)
-
-        # Send the email
         response = sg.client.mail.send.post(request_body=mail.get())
-
-        app.logger.info(f"SendGrid response status: {response.status_code}")
-        app.logger.info(f"SendGrid response body: {response.body}")
-        app.logger.info(f"SendGrid response headers: {response.headers}")
 
         return jsonify({
             "status": "success",
             "message": "Your message has been sent via SendGrid."
         }), 200
-    
+
     except Exception as e:
         app.logger.error("Error sending email via SendGrid", exc_info=True)
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 ###############################################################################
 # Return all chats for a user (READ from Cosmos)
