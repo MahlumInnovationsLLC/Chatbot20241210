@@ -31,8 +31,8 @@ COSMOS_CONTAINER_ID = "chats"
 # 1.2 Sendgrid Setup
 ###############################################################################
 # Make sure you set these environment variables or define them in code
-sendgrid_api_key = os.environ.get("SENDGRID_API_KEY")
-if not sendgrid_api_key:
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
+if not SENDGRID_API_KEY:
     raise RuntimeError("Missing SENDGRID_API_KEY!")
 
 # Initialize the Cosmos client
