@@ -281,6 +281,18 @@ function AppContent({ onLogout }) {
         closeSettings();
     };
 
+    // Somewhere near the top of your AppContent (or outside it):
+    const chatContainerStyle = {
+        height: '85vh',             // makes the container 85% of the viewport height
+        border: `2px solid ${limeGreen}`,
+        borderRadius: '0.5rem',
+        margin: '4rem',             // if you want a little spacing from edges
+        padding: '4rem',            // internal spacing for the chat area
+        overflow: 'hidden',         // prevents scrollbars from showing around container edges
+        display: 'flex',            // (optional) if you want ChatInterface to fill the container
+        flexDirection: 'column',    // (optional) if ChatInterface is column-based
+    };
+
     //**  BEGIN HORIZONTAL-PAGING LOGIC  **/
     // We'll define 3 pages: Left (LeftTool), Middle (ChatInterface), Right (RightTool).
     // Then we maintain an `activePageIndex` in state: 0 => Left, 1 => Middle, 2 => Right.
@@ -291,21 +303,7 @@ function AppContent({ onLogout }) {
         {
             title: 'Left Tool',
             component: (
-                <div
-                    style={{
-                        // Add your desired color
-                        border: `2px solid ${limeGreen}`,
-                        borderRadius: '8px',
-                        // Add margin so there's space between the chat and the top bar/sides
-                        margin: '1rem',
-                        // Or you can do padding if you want the green border plus some internal spacing
-                        padding: '1rem',
-                        // Make sure it expands vertically
-                        flex: 1,
-                        overflow: 'auto', // or whatever suits your layout
-                        boxSizing: 'border-box'
-                    }}
-                >
+                <div style={containerStyle}>
                     <LeftTool />
                 </div>
             )
@@ -313,21 +311,7 @@ function AppContent({ onLogout }) {
         {
             title: 'Chat',
             component: (
-                <div
-                    style={{
-                        // Add your desired color
-                        border: `2px solid ${limeGreen}`,
-                        borderRadius: '8px',
-                        // Add margin so there's space between the chat and the top bar/sides
-                        margin: '1rem',
-                        // Or you can do padding if you want the green border plus some internal spacing
-                        padding: '1rem',
-                        // Make sure it expands vertically
-                        flex: 1,
-                        overflow: 'auto', // or whatever suits your layout
-                        boxSizing: 'border-box'
-                    }}
-                >
+                <div style={containerStyle}>
                     <ChatInterface
                         onLogout={onLogout}
                         messages={messages}
@@ -339,21 +323,7 @@ function AppContent({ onLogout }) {
         {
             title: 'Right Tool',
             component: (
-                <div
-                    style={{
-                        // Add your desired color
-                        border: `2px solid ${limeGreen}`,
-                        borderRadius: '8px',
-                        // Add margin so there's space between the chat and the top bar/sides
-                        margin: '1rem',
-                        // Or you can do padding if you want the green border plus some internal spacing
-                        padding: '1rem',
-                        // Make sure it expands vertically
-                        flex: 1,
-                        overflow: 'auto', // or whatever suits your layout
-                        boxSizing: 'border-box'
-                    }}
-                >
+                <div style={containerStyle}>
                     <RightTool />
                 </div>
             )
