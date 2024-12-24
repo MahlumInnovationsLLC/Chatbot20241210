@@ -19,6 +19,7 @@ jobs:
       AZURE_BLOB_CONTAINER: ${{ secrets.AZURE_BLOB_CONTAINER }}
       COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
       COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
+      SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
