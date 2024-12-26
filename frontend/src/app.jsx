@@ -1,6 +1,6 @@
 ﻿import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
-import LeftTool from './components/LeftTool';
+import TrainDocTool from './components/TrainDocTool';
 import RightTool from './components/RightTool';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
@@ -273,10 +273,10 @@ function AppContent({ onLogout }) {
     const [activePageIndex, setActivePageIndex] = useState(1); // middle = Chat
     const pages = [
         {
-            title: 'Left Tool',
+            title: 'Training & Document Control',
             component: (
                 <div style={pageContentStyle}>
-                    <LeftTool />
+                    <TrainDocTool />
                 </div>
             )
         },
