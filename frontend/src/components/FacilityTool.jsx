@@ -1,7 +1,7 @@
-﻿// src/components/RightTool.jsx
+﻿// src/components/FacilityTool.jsx
 import React from 'react';
 
-export default function RightTool() {
+export default function FacilityTool() {
     return (
         <div className="w-full h-full flex items-center justify-center border-2"
             style={{ borderColor: '#a2f4a2' }}

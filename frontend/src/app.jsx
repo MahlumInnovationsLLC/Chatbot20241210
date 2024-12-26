@@ -1,7 +1,7 @@
 ﻿import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import TrainDocTool from './components/TrainDocTool';
-import RightTool from './components/RightTool';
+import FacilityTool from './components/FacilityTool';
 import FileUpload from './components/FileUpload';
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
@@ -293,10 +293,10 @@ function AppContent({ onLogout }) {
             )
         },
         {
-            title: 'Right Tool',
+            title: 'Club Control',
             component: (
                 <div style={pageContentStyle}>
-                    <RightTool />
+                    <FacilityTool />
                 </div>
             )
         }
