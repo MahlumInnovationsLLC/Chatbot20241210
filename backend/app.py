@@ -149,23 +149,24 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 3. Chat endpoint
+# 3. Chat endpoint (Multi-file version)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     user_key = request.args.get('userKey', 'default_user')
     user_input = ""
-    uploaded_file = None
 
     # parse the request
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
-        uploaded_file = request.files.get('file')
+        # ----- CHANGED: retrieve a list of uploaded files -----
+        uploaded_files = request.files.getlist('file')  # <input name="file" multiple />
     else:
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
         if 'userKey' in data:
             user_key = data['userKey']
+        uploaded_files = []  # no files if not multipart
 
     # Prepare conversation messages
     messages = [
@@ -183,7 +184,7 @@ def chat_endpoint():
         }
     ]
 
-    # Retrieve or create doc
+    # Retrieve or create the chat doc
     chat_id = "singleSession_" + user_key
     partition_key = user_key
     try:
@@ -196,84 +197,94 @@ def chat_endpoint():
             "files": []  # store any ephemeral uploads
         }
 
-    # If a file is uploaded, store it to TEMP container, parse text, etc.
-    if uploaded_file and temp_container_client:
-        try:
-            file_bytes = uploaded_file.read()
-            filename = uploaded_file.filename
-            lower_name = filename.lower()
+    # ----- CHANGED: loop over each file in uploaded_files -----
+    if uploaded_files and temp_container_client:
+        for up_file in uploaded_files:
+            try:
+                if not up_file or not up_file.filename:
+                    continue  # skip empty
 
-            if lower_name.endswith('.pdf'):
-                file_ext = 'pdf'
-            elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
-                file_ext = 'image'
-            elif lower_name.endswith('.docx'):
-                file_ext = 'docx'
-            else:
-                file_ext = 'other'
+                file_bytes = up_file.read()
+                filename = up_file.filename
+                lower_name = filename.lower()
 
-            # Upload to the "temp" container
-            blob_client = temp_container_client.get_blob_client(filename)
-            content_settings = None
-            if file_ext == 'pdf':
-                content_settings = ContentSettings(content_type="application/pdf")
-            elif file_ext == 'image':
-                content_settings = ContentSettings(content_type="image/jpeg")
-            elif file_ext == 'docx':
-                content_settings = ContentSettings(content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                # detect extension
+                if lower_name.endswith('.pdf'):
+                    file_ext = 'pdf'
+                elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
+                    file_ext = 'image'
+                elif lower_name.endswith('.docx'):
+                    file_ext = 'docx'
+                else:
+                    file_ext = 'other'
 
-            blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
+                # Upload to the temp container
+                blob_client = temp_container_client.get_blob_client(filename)
 
-            # Build ephemeral blob URL
-            base_url = temp_container_client.url  # e.g. https://<acct>.blob.core.windows.net/temp-uploads
-            blob_url = f"{base_url}/{filename}"
+                content_settings = None
+                if file_ext == 'pdf':
+                    content_settings = ContentSettings(content_type="application/pdf")
+                elif file_ext == 'image':
+                    # naive approach, if it's .png or .jpg
+                    content_settings = ContentSettings(content_type="image/jpeg")
+                elif file_ext == 'docx':
+                    content_settings = ContentSettings(
+                        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    )
 
-            # Optionally parse text
-            extracted_text = None
-            if file_ext == 'pdf':
-                extracted_text = extract_text_from_pdf(file_bytes)
-                messages.append({
-                    "role": "system",
-                    "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
+                blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
+
+                # Build ephemeral blob URL
+                base_url = temp_container_client.url  # e.g. https://<acct>.blob.core.windows.net/temp-uploads
+                blob_url = f"{base_url}/{filename}"
+
+                # Optionally parse text (pdf, docx, image)
+                extracted_text = None
+                if file_ext == 'pdf':
+                    extracted_text = extract_text_from_pdf(file_bytes)
+                    messages.append({
+                        "role": "system",
+                        "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
+                    })
+                elif file_ext == 'docx':
+                    extracted_text = extract_text_from_docx(file_bytes)
+                    messages.append({
+                        "role": "system",
+                        "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
+                    })
+                elif file_ext == 'image':
+                    vision_result = analyze_image_from_bytes(file_bytes)
+                    described_image = "No description available."
+                    if vision_result.description and vision_result.description.captions:
+                        described_image = vision_result.description.captions[0].text
+                    extracted_text = f"Image AI Description: {described_image}"
+                    messages.append({
+                        "role": "system",
+                        "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
+                    })
+
+                # Store ephemeral file data in cosmos doc
+                chat_doc["files"].append({
+                    "filename": filename,
+                    "blobUrl": blob_url,
+                    "fileExt": file_ext,
+                    "extractedText": extracted_text or ""
                 })
-            elif file_ext == 'docx':
-                extracted_text = extract_text_from_docx(file_bytes)
+
+            except Exception as e:
+                app.logger.error("Error uploading file to temp container or processing:", exc_info=True)
                 messages.append({
-                    "role": "system",
-                    "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
-                })
-            elif file_ext == 'image':
-                vision_result = analyze_image_from_bytes(file_bytes)
-                described_image = "No description available."
-                if vision_result.description and vision_result.description.captions:
-                    described_image = vision_result.description.captions[0].text
-                extracted_text = f"Image AI Description: {described_image}"
-                messages.append({
-                    "role": "system",
-                    "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
+                    "role": "assistant",
+                    "content": f"Error uploading file '{up_file.filename}': {str(e)}"
                 })
 
-            # Store ephemeral file data in cosmos doc
-            chat_doc["files"].append({
-                "filename": filename,
-                "blobUrl": blob_url,
-                "fileExt": file_ext,
-                "extractedText": extracted_text or ""
-            })
+        # after all files processed:
+        messages.append({
+            "role": "system",
+            "content": "File upload(s) successful. You can now ask questions about them."
+        })
 
-            messages.append({
-                "role": "system",
-                "content": "File upload successful. You can now ask questions about it."
-            })
-
-        except Exception as e:
-            app.logger.error("Error uploading file to temp container or processing:", exc_info=True)
-            messages.append({
-                "role": "assistant",
-                "content": f"Error uploading file: {str(e)}"
-            })
-
-    # Add the user input to doc
+    # Add user text message to doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input

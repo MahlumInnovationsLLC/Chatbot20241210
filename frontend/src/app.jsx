@@ -1,12 +1,19 @@
-﻿import React, { useContext, useState, useRef, useEffect } from 'react';
+﻿// App.jsx
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import TrainDocTool from './components/TrainDocTool';
 import FacilityTool from './components/FacilityTool';
-import FileUpload from './components/FileUpload';
+// Removed FileUpload import, as we no longer need it here
+// import FileUpload from './components/FileUpload'; <-- GONE
+
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
 import axios from 'axios';
 
+/**
+ * Optional function that can generate a short chat title from messages.
+ * E.g. you might call your /generateChatTitle endpoint.
+ */
 async function generateChatTitle(messages) {
     try {
         const snippet = messages.slice(-10);
@@ -34,10 +41,12 @@ async function generateChatTitle(messages) {
 
 export default function App() {
     const { instance } = useMsal();
+
     const logout = async () => {
         await instance.logoutRedirect();
         console.log('Logged out of Microsoft credentials via MSAL.');
     };
+
     return (
         <ThemeProvider>
             <AppContent onLogout={logout} />
@@ -52,28 +61,28 @@ function AppContent({ onLogout }) {
 
     const { theme, toggleTheme } = useContext(ThemeContext);
     const logoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
-    const bottomLogoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
+    const bottomLogoUrl =
+        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
     const limeGreen = '#a2f4a2';
 
-    // Top‐menu states
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
     const menuRef = useRef(null);
 
-    // Manage Chats panel
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
     // Chat messages
     const [messages, setMessages] = useState([]);
+    // We still have a "system" message inserted at first
     const systemMessage = {
         role: 'system',
         content:
             'You are an AI assistant that can produce downloadable reports in Markdown link format. If asked for a report, produce `download://report.docx`. Use Markdown formatting.'
     };
 
-    // Insert system message if not present
+    // Insert system message if needed
     useEffect(() => {
         if (messages.length === 0) {
             setMessages([systemMessage]);
@@ -82,12 +91,12 @@ function AppContent({ onLogout }) {
         }
     }, []);
 
-    // “Create New Chat”
+    // Create new chat
     const createNewChat = async () => {
         try {
             if (messages.length > 0) {
                 const chatTitle = await generateChatTitle(messages);
-                console.log("Archived old chat with title:", chatTitle);
+                console.log('Archived old chat with title:', chatTitle);
             }
             setMessages([systemMessage]);
         } catch (err) {
@@ -95,12 +104,12 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // Additional UI state for your Settings, AI instructions, etc.
+    // Additional states
     const [activeTab, setActiveTab] = useState('general');
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
-    const [archivedChats, setArchivedChats] = useState([]); // local
+    const [archivedChats, setArchivedChats] = useState([]);
 
     // Server-based user chats
     const [serverUserChats, setServerUserChats] = useState([]);
@@ -163,7 +172,7 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // Archive + Delete
+    // Archiving & Deleting
     const handleManageArchivedChats = () => setManageChatsOpen(true);
     const handleArchiveAll = async () => {
         try {
@@ -186,7 +195,7 @@ function AppContent({ onLogout }) {
         setManageChatsOpen(false);
     };
 
-    // Top-menu outside click
+    // Close menus on outside click
     useEffect(() => {
         function handleClickOutside(e) {
             if (menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen) {
@@ -211,7 +220,7 @@ function AppContent({ onLogout }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
-    // “Share” menu
+    // Share Menu
     const openShareMenu = () => setShareMenuOpen(!shareMenuOpen);
     const copyTranscriptToClipboard = () => {
         const allText = messages
@@ -238,7 +247,7 @@ function AppContent({ onLogout }) {
         URL.revokeObjectURL(url);
     };
 
-    // Settings logic
+    // Settings
     const openSettings = () => {
         setMenuOpen(false);
         setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
@@ -247,30 +256,29 @@ function AppContent({ onLogout }) {
     };
     const closeSettings = () => setSettingsOpen(false);
     const saveSettings = () => {
-        if (selectedTheme !== theme) toggleTheme(selectedTheme);
+        if (selectedTheme !== theme) {
+            toggleTheme(selectedTheme);
+        }
         closeSettings();
     };
 
-    // (IMPORTANT) The styling for the horizontal “slider” that holds all 3 pages side by side
+    // Horizontal slider for the 3 pages
+    const [activePageIndex, setActivePageIndex] = useState(1);
     const horizontalSliderStyle = {
-        width: `300vw`, // 3 pages * 100vw each
+        width: '300vw',
         display: 'flex',
         transition: 'transform 0.4s ease-in-out'
     };
-
-    // (IMPORTANT) The styling for each page’s lime‐green border
     const pageContentStyle = {
-        height: '85vh',             // fill 85% of the viewport height
+        height: '85vh',
         border: `2px solid ${limeGreen}`,
         borderRadius: '0.5rem',
-        margin: '2rem',             // margin around the edges
-        padding: '2rem',            // internal spacing
+        margin: '2rem',
+        padding: '2rem',
         boxSizing: 'border-box',
         overflow: 'auto'
     };
 
-    // (IMPORTANT) Our array of pages: Left, Chat, Right
-    const [activePageIndex, setActivePageIndex] = useState(1); // middle = Chat
     const pages = [
         {
             title: 'Training & Document Control',
@@ -288,6 +296,8 @@ function AppContent({ onLogout }) {
                         onLogout={onLogout}
                         messages={messages}
                         setMessages={setMessages}
+                    // If you want a “chatTitle” feature, pass it in:
+                    // chatTitle={...} setChatTitle={...} userKey={userKey}
                     />
                 </div>
             )
@@ -306,7 +316,6 @@ function AppContent({ onLogout }) {
         setActivePageIndex(index);
     };
 
-    // For the top bar. We highlight the active page, fade out the others
     const topBarTitlesStyle = {
         display: 'flex',
         flexDirection: 'row',
@@ -315,7 +324,6 @@ function AppContent({ onLogout }) {
         gap: '1rem'
     };
 
-    // Renders the 3 “tool tabs” in the center top
     const topBarPages = pages.map((p, i) => (
         <button
             key={i}
@@ -324,8 +332,12 @@ function AppContent({ onLogout }) {
                 backgroundColor: i === activePageIndex ? limeGreen : 'transparent',
                 color:
                     i === activePageIndex
-                        ? (theme === 'dark' ? 'black' : 'black')
-                        : (theme === 'dark' ? 'white' : 'black'),
+                        ? theme === 'dark'
+                            ? 'black'
+                            : 'black'
+                        : theme === 'dark'
+                            ? 'white'
+                            : 'black',
                 opacity: i === activePageIndex ? 1 : 0.6,
                 fontWeight: i === activePageIndex ? 'bold' : 'normal'
             }}
@@ -335,13 +347,11 @@ function AppContent({ onLogout }) {
         </button>
     ));
 
-    // The content for the Settings popup
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
                 return (
                     <div className="flex flex-col space-y-6">
-                        {/* Theme row */}
                         <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                             <label className="text-lg font-semibold mr-4 flex items-center">
                                 Theme
@@ -357,19 +367,15 @@ function AppContent({ onLogout }) {
                             </select>
                         </div>
 
-                        {/* Language row */}
                         <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                             <label className="text-lg font-semibold mr-4">Language</label>
-                            <select
-                                className="bg-white text-black border p-2 rounded w-44"
-                            >
+                            <select className="bg-white text-black border p-2 rounded w-44">
                                 <option value="auto">Auto-detect</option>
                                 <option value="en">English</option>
                                 <option value="es">Spanish</option>
                             </select>
                         </div>
 
-                        {/* Archived chats */}
                         <div>
                             <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                                 <label className="text-lg font-semibold">Archived chats</label>
@@ -382,7 +388,6 @@ function AppContent({ onLogout }) {
                                 </button>
                             </div>
 
-                            {/* Archive & Delete row */}
                             <div className="flex flex-col items-end space-y-2 pr-2 mt-2">
                                 <button
                                     onClick={handleArchiveAll}
@@ -402,7 +407,6 @@ function AppContent({ onLogout }) {
                             </div>
                         </div>
 
-                        {/* Log out on this device */}
                         <div className="flex justify-end mt-6 pr-2">
                             <button
                                 onClick={onLogout}
@@ -457,7 +461,6 @@ function AppContent({ onLogout }) {
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
-
                         <div className="flex flex-col space-y-2">
                             <label className="text-lg font-semibold">First Name:</label>
                             <input
@@ -471,7 +474,6 @@ function AppContent({ onLogout }) {
                                 placeholder="First Name"
                             />
                         </div>
-
                         <div className="flex flex-col space-y-2">
                             <label className="text-lg font-semibold">Last Name:</label>
                             <input
@@ -485,7 +487,6 @@ function AppContent({ onLogout }) {
                                 placeholder="Last Name"
                             />
                         </div>
-
                         <div className="flex flex-col space-y-2">
                             <label className="text-lg font-semibold">Company:</label>
                             <input
@@ -499,7 +500,6 @@ function AppContent({ onLogout }) {
                                 placeholder="Company Name"
                             />
                         </div>
-
                         <div className="flex flex-col space-y-2">
                             <label className="text-lg font-semibold">Email:</label>
                             <input
@@ -513,7 +513,6 @@ function AppContent({ onLogout }) {
                                 placeholder="Email Address"
                             />
                         </div>
-
                         <div className="flex flex-col space-y-2">
                             <label className="text-lg font-semibold">Note:</label>
                             <textarea
@@ -527,7 +526,6 @@ function AppContent({ onLogout }) {
                                 rows={5}
                             />
                         </div>
-
                         <div className="flex justify-center mt-4">
                             <button
                                 onClick={sendContactForm}
@@ -592,7 +590,6 @@ function AppContent({ onLogout }) {
                         }}
                     >
                         <div className="relative w-full h-full">
-                            {/* 3 lines transform for hamburger */}
                             <span
                                 className={`absolute top-[45%] left-1/2 block w-[1.2rem] h-[2px] ${theme === 'dark' ? 'bg-white' : 'bg-black'
                                     } transform transition-all duration-300 ease-in-out origin-center ${menuOpen
@@ -661,11 +658,16 @@ function AppContent({ onLogout }) {
                                         marginTop: '4rem'
                                     }}
                                 >
-                                    {/* Share sub-menu */}
                                     <a
-                                        href={`mailto:?subject=${encodeURIComponent('Chat Transcript')}&body=${encodeURIComponent(
+                                        href={`mailto:?subject=${encodeURIComponent(
+                                            'Chat Transcript'
+                                        )}&body=${encodeURIComponent(
                                             messages
-                                                .map((m) => `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`)
+                                                .map(
+                                                    (m) =>
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'
+                                                        } ${m.content}`
+                                                )
                                                 .join('\n\n')
                                         )}`}
                                         className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
@@ -703,14 +705,12 @@ function AppContent({ onLogout }) {
 
             {/* MAIN BODY: the horizontal slider container */}
             <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-                {/* (IMPORTANT) the horizontal slider */}
                 <div
                     style={{
                         ...horizontalSliderStyle,
                         transform: `translateX(-${activePageIndex * 100}vw)`
                     }}
                 >
-                    {/* Each page is 100vw wide */}
                     {pages.map((p, i) => (
                         <div
                             key={i}
@@ -922,7 +922,10 @@ function AppContent({ onLogout }) {
                                 >
                                     <p className="font-bold">{chat.title || 'Chat from server'}</p>
                                     <p className="text-xs text-gray-300">
-                                        {chat.userKey} | {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
+                                        {chat.userKey} |{' '}
+                                        {chat.messages
+                                            ? `${chat.messages.length} msgs`
+                                            : '0 msgs'}
                                     </p>
                                 </div>
                             ))
