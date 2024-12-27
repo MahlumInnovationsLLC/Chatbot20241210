@@ -5,7 +5,7 @@ from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
 from openai import AzureOpenAI
 from vision_api import analyze_image_from_bytes
-from document_processing import extract_text_from_pdf, extract_text_from_docx
+from document_processing import extract_text_from_docx  # We'll override PDF logic below
 import traceback
 import re
 from io import BytesIO
@@ -19,9 +19,12 @@ import sendgrid
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 
-# NEW: Azure Cognitive Search
+# Azure Cognitive Search
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
+
+# NEW: Azure Form Recognizer
+from azure.ai.formrecognizer import DocumentAnalysisClient
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
@@ -52,7 +55,15 @@ try:
 except exceptions.CosmosHttpResponseError as e:
     app.logger.error("Cosmos DB setup error: %s", e)
 
+###############################################################################
+# 1.3 Azure Form Recognizer Setup
+###############################################################################
+FORM_RECOGNIZER_ENDPOINT = os.environ.get("FORM_RECOGNIZER_ENDPOINT")
+FORM_RECOGNIZER_KEY = os.environ.get("FORM_RECOGNIZER_KEY")
+
+###############################################################################
 # For calling AzureOpenAI
+###############################################################################
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
@@ -69,16 +80,17 @@ def generate_detailed_report(base_content):
             "role": "system",
             "content": (
                 "You are a helpful assistant that specializes in creating detailed, comprehensive reports. "
-                "Given some brief content about a topic, produce a thorough, well-structured, and in-depth written report. "
-                "Include headings, subheadings, bullet points, data-driven insights, best practices, examples, "
-                "and potential future trends. Write as if producing a professional whitepaper or industry analysis document."
+                "Given some brief content about a topic, produce a thorough, well-structured, and in-depth "
+                "written report. Include headings, subheadings, bullet points, data-driven insights, best practices, "
+                "examples, and potential future trends. Write as if producing a professional whitepaper or analysis."
             )
         },
         {
             "role": "user",
             "content": (
                 "Here is a brief summary: " + base_content + "\n\n"
-                "Now please create a significantly more in-depth, expanded, and detailed report that covers the topic comprehensively."
+                "Now please create a significantly more in-depth, expanded, and detailed report that covers "
+                "the topic comprehensively."
             )
         }
     ]
@@ -92,6 +104,41 @@ def generate_detailed_report(base_content):
     except Exception as e:
         app.logger.error("Error calling OpenAI for detailed report:", exc_info=True)
         return base_content + "\n\n(Additional detailed analysis could not be generated due to an error.)"
+
+###############################################################################
+# 2.1 Overridden PDF extraction to use Form Recognizer
+###############################################################################
+def extract_text_from_pdf(file_bytes):
+    """
+    Replaces the old PDF extraction with Azure Form Recognizer, if credentials are set.
+    Otherwise, raises an Exception if no credentials are present.
+    """
+    if not FORM_RECOGNIZER_ENDPOINT or not FORM_RECOGNIZER_KEY:
+        raise ValueError("FORM_RECOGNIZER_ENDPOINT and FORM_RECOGNIZER_KEY must be set to use Form Recognizer.")
+
+    try:
+        # Create the DocumentAnalysisClient
+        document_client = DocumentAnalysisClient(
+            endpoint=FORM_RECOGNIZER_ENDPOINT,
+            credential=AzureKeyCredential(FORM_RECOGNIZER_KEY)
+        )
+
+        poller = document_client.begin_analyze_document(
+            "prebuilt-document",  # Or "prebuilt-read" if you want simpler approach
+            file_bytes
+        )
+        result = poller.result()
+
+        # Collect all text lines
+        all_text = []
+        for page in result.pages:
+            for line in page.lines:
+                all_text.append(line.content)
+        return "\n".join(all_text)
+
+    except Exception as ex:
+        app.logger.error("Form Recognizer PDF extraction failed:", exc_info=True)
+        raise RuntimeError(f"Error extracting text with Form Recognizer: {ex}")
 
 ###############################################################################
 @app.route('/')
@@ -157,8 +204,6 @@ def chat_endpoint():
     #     Also add a short system note that the file was successfully processed.
     if file_bytes:
         try:
-            # You might also do a size check to decide if you want chunking or direct read
-            # but for now we keep your original approach.
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
                 messages.append({
@@ -358,7 +403,6 @@ def contact_endpoint():
         f"Note: {note}"
     )
 
-    # Actually send email
     try:
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
         from_email = Email("colter@mahluminnovations.com")
@@ -485,18 +529,10 @@ def rename_chat():
 ###############################################################################
 # 5. Large File Upload + Chunking + Azure Cognitive Search
 ###############################################################################
-"""
-If your file is VERY large, you might want to chunk it and store chunks in
-Azure Cognitive Search (ACS). Then the user can ask questions, and you'll
-retrieve relevant chunks. This route demonstrates a simple example.
-"""
-
-# Environment variables for Azure Cognitive Search
 AZURE_SEARCH_ENDPOINT = os.environ.get("AZURE_SEARCH_ENDPOINT", "")
 AZURE_SEARCH_KEY = os.environ.get("AZURE_SEARCH_KEY", "")
 AZURE_SEARCH_INDEX = os.environ.get("AZURE_SEARCH_INDEX", "")
 
-# Minimal chunk function
 def chunk_text(text, chunk_size=1000):
     words = text.split()
     chunks = []
@@ -515,12 +551,6 @@ def chunk_text(text, chunk_size=1000):
 
 @app.route('/uploadLargeFile', methods=['POST'])
 def upload_large_file():
-    """
-    Example: 
-      1) /uploadLargeFile?userKey=someUser
-      2) multipart form-data with 'file'
-      3) This will parse the file, chunk it, store in ACS
-    """
     user_key = request.args.get('userKey', 'default_user')
 
     if request.content_type and 'multipart/form-data' in request.content_type:
@@ -532,15 +562,14 @@ def upload_large_file():
             file_bytes = uploaded_file.read()
             filename = uploaded_file.filename.lower()
             if filename.endswith('.pdf'):
+                # Now uses Form Recognizer-based function
                 extracted_text = extract_text_from_pdf(file_bytes)
             elif filename.endswith('.docx'):
                 extracted_text = extract_text_from_docx(file_bytes)
             else:
                 return jsonify({"error": "Unsupported file type for large chunking"}), 400
             
-            # Chunk the text
             chunks = chunk_text(extracted_text, chunk_size=500)
-            # Upsert them into Azure Cognitive Search
             success_count = upsert_chunks_to_search(chunks, user_key)
 
             return jsonify({
@@ -555,11 +584,6 @@ def upload_large_file():
         return jsonify({"error": "Please do a multipart/form-data upload"}), 400
 
 def upsert_chunks_to_search(chunks, user_key):
-    """
-    For each chunk, create a simple doc in ACS.
-    The doc might have fields like: id, userKey, content
-    In real usage, you'd store more metadata, handle vector fields, etc.
-    """
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
         app.logger.error("Azure Search env vars not set.")
         return 0
@@ -589,29 +613,18 @@ def upsert_chunks_to_search(chunks, user_key):
 ###############################################################################
 @app.route('/askDoc', methods=['POST'])
 def ask_doc():
-    """
-    Example route for user Q&A over large doc. We'll do a naive approach:
-      1) Take user question
-      2) Search the index by content
-      3) Combine top results into a prompt
-      4) Call Azure OpenAI
-    """
     data = request.get_json(force=True)
     question = data.get('question', '')
     user_key = data.get('userKey', 'default_user')
     if not question:
         return jsonify({"error": "No question provided"}), 400
 
-    # 6a) Search ACS
     top_chunks = search_in_azure_search(question, user_key, top_k=3)
     if not top_chunks:
-        # fallback
         prompt_content = "No relevant documents found."
     else:
-        # combine
         prompt_content = "\n\n".join([f"Chunk: {tc}" for tc in top_chunks])
 
-    # 6b) Build messages for AzureOpenAI
     messages = [
         {
             "role": "system",
@@ -627,7 +640,6 @@ def ask_doc():
         }
     ]
 
-    # 6c) Call AzureOpenAI
     try:
         response = client.chat.completions.create(
             messages=messages,
@@ -640,10 +652,6 @@ def ask_doc():
         return jsonify({"error": str(e)}), 500
 
 def search_in_azure_search(question, user_key, top_k=3):
-    """
-    A naive approach: do a simple keyword search. 
-    For advanced usage, you might use semantic search or vector search.
-    """
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
         app.logger.error("Azure Search env vars not set.")
         return []
@@ -654,13 +662,11 @@ def search_in_azure_search(question, user_key, top_k=3):
             index_name=AZURE_SEARCH_INDEX,
             credential=AzureKeyCredential(AZURE_SEARCH_KEY)
         )
-        # If semantic search is enabled, you can pass in 'query_type="semantic",query_language="en"'
         results = search_client.search(
             search_text=question,
             filter=f"userKey eq '{user_key}'",
             top=top_k
         )
-        # Collect content from top results
         chunks = []
         for r in results:
             ctext = r.get('content', '')

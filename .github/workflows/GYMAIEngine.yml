@@ -22,6 +22,8 @@ jobs:
       SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
       AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
       AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+      FORM_RECOGNIZER_KEY: ${{ secrets.FORM_RECOGNIZER_KEY }}
+      FORM_RECOGNIZER_ENDPOINT: ${{ secrets.FORM_RECOGNIZER_ENDPOINT }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
