@@ -20,6 +20,8 @@ jobs:
       COSMOS_ENDPOINT: ${{ secrets.COSMOS_ENDPOINT }}
       COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
       SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+      AZURE_SEARCH_KEY: ${{ secrets.AZURE_SEARCH_KEY }}
+      AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -94,7 +96,7 @@ jobs:
 
   deploy:
     needs: dockerize
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Azure Login
         uses: azure/login@v1.6.0

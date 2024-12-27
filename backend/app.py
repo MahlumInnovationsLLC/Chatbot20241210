@@ -12,41 +12,42 @@ from io import BytesIO
 from docx import Document
 import urllib.parse  # for URL encoding if needed
 import uuid
+
+# Cosmos + SendGrid
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 import sendgrid
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content # for sending email
+from sendgrid.helpers.mail import Mail, Email, To, Content
+
+# NEW: Azure Cognitive Search
+from azure.search.documents import SearchClient
+from azure.core.credentials import AzureKeyCredential
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
 ###############################################################################
 # 1. Cosmos DB Setup
 ###############################################################################
-# Make sure you set these environment variables or define them in code
 COSMOS_ENDPOINT = os.environ.get("COSMOS_ENDPOINT")  # e.g. "https://<yourcosmos>.documents.azure.com:443/"
-COSMOS_KEY = os.environ.get("COSMOS_KEY")            # your primary key
+COSMOS_KEY = os.environ.get("COSMOS_KEY")
 COSMOS_DATABASE_ID = "GYMAIEngineDB"
 COSMOS_CONTAINER_ID = "chats"
 
 ###############################################################################
-# 1.2 Sendgrid Setup
+# 1.2 SendGrid Setup
 ###############################################################################
-# Make sure you set these environment variables or define them in code
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
 if not SENDGRID_API_KEY:
     raise RuntimeError("Missing SENDGRID_API_KEY!")
 
 # Initialize the Cosmos client
 cosmos_client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
-
 try:
-    # Get (or create) database
     database = cosmos_client.create_database_if_not_exists(id=COSMOS_DATABASE_ID)
-    # Get (or create) container
     container = database.create_container_if_not_exists(
         id=COSMOS_CONTAINER_ID,
         partition_key=PartitionKey(path="/userKey"),
-        offer_throughput=400  # optional
+        offer_throughput=400
     )
 except exceptions.CosmosHttpResponseError as e:
     app.logger.error("Cosmos DB setup error: %s", e)
@@ -57,7 +58,6 @@ client = AzureOpenAI(
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
     api_version="2023-05-15"
 )
-
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual deployment name
 
 ###############################################################################
@@ -154,8 +154,11 @@ def chat_endpoint():
     ]
 
     # 3b) If a file was uploaded, transform it into a system message
+    #     Also add a short system note that the file was successfully processed.
     if file_bytes:
         try:
+            # You might also do a size check to decide if you want chunking or direct read
+            # but for now we keep your original approach.
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
                 messages.append({
@@ -183,6 +186,13 @@ def chat_endpoint():
                         "role": "assistant",
                         "content": "The DOCX file seems empty or unreadable."
                     })
+
+            # Add an extra system message for the user to see they've successfully uploaded.
+            messages.append({
+                "role": "system",
+                "content": "File upload successful. You can now ask questions about the document."
+            })
+
         except Exception as e:
             app.logger.error("Error processing uploaded file:", exc_info=True)
             messages.append({
@@ -236,14 +246,9 @@ def chat_endpoint():
     ###########################################################################
     # 4. Store chat data in Cosmos DB
     ###########################################################################
-    # For simplicity, we store user & assistant messages in a single doc.
-    # In a real system you might store multiple chat sessions or so.
-    ###########################################################################
-    
-    chat_id = "singleSession_" + user_key  # Or generate a new random chatId
-    partition_key = user_key               # because we set partition key to /userKey
+    chat_id = "singleSession_" + user_key
+    partition_key = user_key
 
-    # Attempt to retrieve existing doc for this userKey & chatId
     try:
         chat_doc = container.read_item(item=chat_id, partition_key=partition_key)
     except exceptions.CosmosResourceNotFoundError:
@@ -258,14 +263,11 @@ def chat_endpoint():
         "role": "user",
         "content": user_input
     })
-
     # Add the assistant message
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
-
-    # Upsert the doc back to Cosmos
     container.upsert_item(chat_doc)
 
     ###########################################################################
@@ -360,7 +362,7 @@ def contact_endpoint():
     try:
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
         from_email = Email("colter@mahluminnovations.com")
-        to_email = To("colter@mahluminnovations.com")  # set the destination
+        to_email = To("colter@mahluminnovations.com")
         subject = f"Contact Form from {firstName} {lastName}"
         content_text = f"""
         Contact Form Submission:
@@ -370,7 +372,6 @@ def contact_endpoint():
         Note: {note}
         """
         content = Content("text/plain", content_text)
-
         mail = Mail(from_email, to_email, subject, content)
         response = sg.client.mail.send.post(request_body=mail.get())
 
@@ -392,10 +393,8 @@ def get_chats():
     if not user_key:
         return jsonify({"chats": []}), 200
 
-    # Query container for items matching userKey
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
-
     items = list(container.query_items(
         query=query,
         parameters=parameters,
@@ -410,7 +409,6 @@ def get_chats():
             "messages": doc.get("messages", []),
             "title": doc.get("title", None),
         })
-
     return jsonify({"chats": chat_summaries}), 200
 
 ###############################################################################
@@ -474,19 +472,204 @@ def rename_chat():
         return jsonify({"error": "chatId and newTitle are required"}), 400
 
     try:
-        # Retrieve the doc
         chat_doc = container.read_item(item=chat_id, partition_key=user_key)
-        # Update/add the title field
         chat_doc['title'] = new_title
-        # Upsert or replace
         container.upsert_item(chat_doc)
-
         return jsonify({"success": True, "message": "Title updated."}), 200
     except exceptions.CosmosResourceNotFoundError:
         return jsonify({"error": "Chat not found."}), 404
     except Exception as e:
         app.logger.error("Error renaming chat:", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+###############################################################################
+# 5. Large File Upload + Chunking + Azure Cognitive Search
+###############################################################################
+"""
+If your file is VERY large, you might want to chunk it and store chunks in
+Azure Cognitive Search (ACS). Then the user can ask questions, and you'll
+retrieve relevant chunks. This route demonstrates a simple example.
+"""
+
+# Environment variables for Azure Cognitive Search
+AZURE_SEARCH_ENDPOINT = os.environ.get("AZURE_SEARCH_ENDPOINT", "")
+AZURE_SEARCH_KEY = os.environ.get("AZURE_SEARCH_KEY", "")
+AZURE_SEARCH_INDEX = os.environ.get("AZURE_SEARCH_INDEX", "")
+
+# Minimal chunk function
+def chunk_text(text, chunk_size=1000):
+    words = text.split()
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    for w in words:
+        current_chunk.append(w)
+        current_length += len(w) + 1
+        if current_length >= chunk_size:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = []
+            current_length = 0
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    return chunks
+
+@app.route('/uploadLargeFile', methods=['POST'])
+def upload_large_file():
+    """
+    Example: 
+      1) /uploadLargeFile?userKey=someUser
+      2) multipart form-data with 'file'
+      3) This will parse the file, chunk it, store in ACS
+    """
+    user_key = request.args.get('userKey', 'default_user')
+
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        uploaded_file = request.files.get('file')
+        if not uploaded_file:
+            return jsonify({"error": "No file uploaded"}), 400
+        
+        try:
+            file_bytes = uploaded_file.read()
+            filename = uploaded_file.filename.lower()
+            if filename.endswith('.pdf'):
+                extracted_text = extract_text_from_pdf(file_bytes)
+            elif filename.endswith('.docx'):
+                extracted_text = extract_text_from_docx(file_bytes)
+            else:
+                return jsonify({"error": "Unsupported file type for large chunking"}), 400
+            
+            # Chunk the text
+            chunks = chunk_text(extracted_text, chunk_size=500)
+            # Upsert them into Azure Cognitive Search
+            success_count = upsert_chunks_to_search(chunks, user_key)
+
+            return jsonify({
+                "status": "success",
+                "message": f"Uploaded and chunked {len(chunks)} segments. {success_count} upserted into Azure Search.",
+            }), 200
+
+        except Exception as e:
+            app.logger.error("Error reading or chunking the file:", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Please do a multipart/form-data upload"}), 400
+
+def upsert_chunks_to_search(chunks, user_key):
+    """
+    For each chunk, create a simple doc in ACS.
+    The doc might have fields like: id, userKey, content
+    In real usage, you'd store more metadata, handle vector fields, etc.
+    """
+    if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
+        app.logger.error("Azure Search env vars not set.")
+        return 0
+
+    try:
+        search_client = SearchClient(
+            endpoint=AZURE_SEARCH_ENDPOINT,
+            index_name=AZURE_SEARCH_INDEX,
+            credential=AzureKeyCredential(AZURE_SEARCH_KEY)
+        )
+        actions = []
+        for i, ctext in enumerate(chunks):
+            doc_id = f"{user_key}-{uuid.uuid4()}"
+            actions.append({
+                "id": doc_id,
+                "userKey": user_key,
+                "content": ctext
+            })
+        result = search_client.upload_documents(documents=actions)
+        return len(result)
+    except Exception as e:
+        app.logger.error("Error uploading to Azure Search:", exc_info=True)
+        return 0
+
+###############################################################################
+# 6. Searching the Azure Cognitive Search Index
+###############################################################################
+@app.route('/askDoc', methods=['POST'])
+def ask_doc():
+    """
+    Example route for user Q&A over large doc. We'll do a naive approach:
+      1) Take user question
+      2) Search the index by content
+      3) Combine top results into a prompt
+      4) Call Azure OpenAI
+    """
+    data = request.get_json(force=True)
+    question = data.get('question', '')
+    user_key = data.get('userKey', 'default_user')
+    if not question:
+        return jsonify({"error": "No question provided"}), 400
+
+    # 6a) Search ACS
+    top_chunks = search_in_azure_search(question, user_key, top_k=3)
+    if not top_chunks:
+        # fallback
+        prompt_content = "No relevant documents found."
+    else:
+        # combine
+        prompt_content = "\n\n".join([f"Chunk: {tc}" for tc in top_chunks])
+
+    # 6b) Build messages for AzureOpenAI
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are an AI that uses the following document context to answer questions.\n"
+                "If the user question is not answered by the context, say you don't have enough info.\n"
+                "Context:\n" + prompt_content
+            )
+        },
+        {
+            "role": "user",
+            "content": question
+        }
+    ]
+
+    # 6c) Call AzureOpenAI
+    try:
+        response = client.chat.completions.create(
+            messages=messages,
+            model=AZURE_DEPLOYMENT_NAME
+        )
+        answer = response.choices[0].message.content
+        return jsonify({"answer": answer}), 200
+    except Exception as e:
+        app.logger.error("Error calling AzureOpenAI with doc context:", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+def search_in_azure_search(question, user_key, top_k=3):
+    """
+    A naive approach: do a simple keyword search. 
+    For advanced usage, you might use semantic search or vector search.
+    """
+    if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
+        app.logger.error("Azure Search env vars not set.")
+        return []
+
+    try:
+        search_client = SearchClient(
+            endpoint=AZURE_SEARCH_ENDPOINT,
+            index_name=AZURE_SEARCH_INDEX,
+            credential=AzureKeyCredential(AZURE_SEARCH_KEY)
+        )
+        # If semantic search is enabled, you can pass in 'query_type="semantic",query_language="en"'
+        results = search_client.search(
+            search_text=question,
+            filter=f"userKey eq '{user_key}'",
+            top=top_k
+        )
+        # Collect content from top results
+        chunks = []
+        for r in results:
+            ctext = r.get('content', '')
+            if ctext:
+                chunks.append(ctext)
+        return chunks
+    except Exception as e:
+        app.logger.error("Error searching Azure Search:", exc_info=True)
+        return []
 
 ###############################################################################
 @app.errorhandler(404)
