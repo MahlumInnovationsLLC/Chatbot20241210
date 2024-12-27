@@ -7,20 +7,17 @@ import { ThemeContext } from '../ThemeContext';
 
 /**
  * This helper can call your server to create a short, descriptive title
- * from the user’s first message. Or you can expand it to analyze multiple messages.
+ * from the user’s first message. Or you can expand it for multiple messages.
  */
 async function generateChatTitle(messages) {
     try {
-        // Just for demonstration: consider only the FIRST user message
-        // (or last 10 messages, or entire conversation if you prefer)
+        // For demonstration: consider the FIRST user message
         const snippet = messages.slice(0, 1);
-
         const requestBody = {
             messages: [
                 {
                     role: 'system',
-                    content: `You are an assistant that creates short, descriptive conversation titles. 
-                    Provide a concise (3-6 words) but descriptive title. No quotes.`
+                    content: `You are an assistant that creates short, descriptive conversation titles. (3-6 words, no quotes).`
                 },
                 ...snippet,
                 {
@@ -28,11 +25,9 @@ async function generateChatTitle(messages) {
                     content: 'Please provide a concise, descriptive title for this conversation.'
                 }
             ],
-            // If using Azure, you can rename this to your deployment name
+            // or your Azure deployment name
             model: 'YOUR_OPENAI_MODEL'
         };
-
-        // Suppose you have an endpoint /generateChatTitle that returns { title: "...some short title..." }
         const response = await axios.post('/generateChatTitle', requestBody);
         return response.data.title || 'Untitled Chat';
     } catch (err) {
@@ -43,41 +38,42 @@ async function generateChatTitle(messages) {
 
 export default function ChatInterface({
     onLogout,
+    userKey,
+    chatId, // unique chat doc ID
     messages,
     setMessages,
     chatTitle,
-    setChatTitle,
-    userKey
+    setChatTitle
 }) {
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Instead of single file/fileName, store multiple files & names
+    // Instead of single file/fileName, store multiple
     const [files, setFiles] = useState([]);
     const [fileNames, setFileNames] = useState([]);
 
+    // Once we generate a title, we won't do it again
     const [hasGeneratedTitle, setHasGeneratedTitle] = useState(false);
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
     /**
-     * Called after we receive the bot’s response. If chatTitle is empty,
-     * we generate a title from the user’s first message, then store it in DB.
+     * Called after receiving the bot’s response. If we have no chat title yet,
+     * we try to generate it from the user’s first message, then rename on server.
      */
     const maybeGenerateTitle = async (updatedMessages) => {
         if (!hasGeneratedTitle) {
             try {
-                const title = await generateChatTitle(
-                    updatedMessages.filter((m) => m.role === 'user')
-                );
-                setChatTitle(title);
+                const userMessages = updatedMessages.filter((m) => m.role === 'user');
+                const title = await generateChatTitle(userMessages);
+                if (setChatTitle) setChatTitle(title);
                 setHasGeneratedTitle(true);
 
-                // Optionally rename on server
+                // Rename the doc in your DB, passing the actual chatId
                 await axios.post('/renameChat', {
                     userKey,
-                    chatId: 'singleSession_' + userKey,
+                    chatId,
                     newTitle: title
                 });
             } catch (err) {
@@ -87,11 +83,21 @@ export default function ChatInterface({
     };
 
     const sendMessage = async () => {
-        // No text & no files => do nothing
         if (!userInput.trim() && files.length === 0) return;
 
-        // 1) Add user message to the conversation
-        const userMsg = { role: 'user', content: userInput };
+        // 1) put user message in local conversation
+        const userMsg = {
+            role: 'user',
+            content: userInput,
+            // Step 1. If we want the UI to show which files user just attached
+            attachedFiles: files.map((f) => ({
+                filename: f.name,
+                // The server will eventually set the blobUrl
+                blobUrl: '',
+                fileExt: 'other'
+            }))
+        };
+
         setMessages((prev) => [...prev, userMsg]);
         setUserInput('');
         setIsLoading(true);
@@ -99,10 +105,12 @@ export default function ChatInterface({
         try {
             let res;
             if (files.length > 0) {
-                // We have one or more files => send multipart form-data
+                // multi-part form
                 const formData = new FormData();
                 formData.append('userMessage', userInput);
-                // Append all files
+                // pass chatId as a hidden field
+                formData.append('chatId', chatId);
+
                 files.forEach((f) => {
                     formData.append('file', f, f.name);
                 });
@@ -111,35 +119,43 @@ export default function ChatInterface({
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             } else {
-                // No files => send normal JSON
-                res = await axios.post('/chat', { userMessage: userInput, userKey });
+                // no files => send normal JSON
+                res = await axios.post('/chat', {
+                    userMessage: userInput,
+                    userKey,
+                    chatId
+                });
             }
 
+            // the response
             const botMsg = {
                 role: 'assistant',
                 content: res.data.reply,
                 references: res.data.references,
                 downloadUrl: res.data.downloadUrl,
-                reportContent: res.data.reportContent
+                reportContent: res.data.reportContent,
+                // Step 2. The server might not directly pass "files" here
+                // but if you want to attach them to the AI message, do so:
+                attachedFiles: []
             };
-
             setMessages((prev) => [...prev, botMsg]);
 
-            // Attempt to generate a title if we haven’t yet
+            // Possibly generate a conversation title
             const updatedConversation = [...messages, userMsg, botMsg];
             await maybeGenerateTitle(updatedConversation);
-        } catch (e) {
-            console.error(e);
-            const errorMsg = { role: 'assistant', content: 'Error occurred: ' + e.message };
+        } catch (err) {
+            console.error(err);
+            const errorMsg = { role: 'assistant', content: 'Error: ' + err.message };
             setMessages((prev) => [...prev, errorMsg]);
         } finally {
             setIsLoading(false);
-            // Clear file arrays
+            // Clear file states
             setFiles([]);
             setFileNames([]);
         }
     };
 
+    // Press Enter => send
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -147,32 +163,34 @@ export default function ChatInterface({
         }
     };
 
+    // For the paperclip icon
     const handleFileClick = () => {
         if (fileInputRef.current) fileInputRef.current.click();
     };
 
+    // For multiple files
     const handleFileChange = (e) => {
         const selectedFiles = Array.from(e.target.files || []);
         if (selectedFiles.length > 0) {
-            // Update arrays
             setFiles((prev) => [...prev, ...selectedFiles]);
             const newNames = selectedFiles.map((f) => f.name);
             setFileNames((prev) => [...prev, ...newNames]);
         }
     };
 
-    // Filter out system messages
+    // We hide system messages in the UI
     const filteredMessages = messages.filter((m) => m.role !== 'system');
     const showStartContent = filteredMessages.length === 0 && !isLoading;
 
+    // Let user rename the chat manually
     const handleTitleEdit = async () => {
         const newTitle = prompt('Enter new chat title:', chatTitle || '');
         if (newTitle && newTitle.trim() !== '') {
-            setChatTitle(newTitle.trim());
+            if (setChatTitle) setChatTitle(newTitle.trim());
             try {
                 await axios.post('/renameChat', {
                     userKey,
-                    chatId: 'singleSession_' + userKey,
+                    chatId,
                     newTitle: newTitle.trim()
                 });
             } catch (err) {
@@ -183,6 +201,7 @@ export default function ChatInterface({
 
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
+            {/* If conversation has started, show the chat title + pencil */}
             {(filteredMessages.length > 0 || isLoading) && (
                 <div className="px-4 py-2 mb-2 flex items-center space-x-2">
                     <h2 className="text-xl font-bold text-blue-400">
@@ -194,6 +213,7 @@ export default function ChatInterface({
                 </div>
             )}
 
+            {/* The scrollable chat window */}
             <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
                 {showStartContent && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
@@ -218,6 +238,8 @@ export default function ChatInterface({
                                 references={m.references}
                                 downloadUrl={m.downloadUrl}
                                 reportContent={m.reportContent}
+                                // Step 3: pass m.attachedFiles if present
+                                files={m.attachedFiles || []}
                             />
                         ))}
                         {isLoading && <ThinkingBubble />}
@@ -227,12 +249,12 @@ export default function ChatInterface({
 
             {/* Bottom input area */}
             <div className="flex space-x-2 items-end px-4 pb-4">
+                {/* Paperclip for multiple files */}
                 <div className="relative flex items-center space-x-2">
-                    {/* Paperclip icon */}
                     <button
                         onClick={handleFileClick}
                         className="p-2 focus:outline-none"
-                        title="Attach a file"
+                        title="Attach files"
                     >
                         <i
                             className={`fa-solid fa-paperclip ${theme === 'dark' ? 'text-white' : 'text-black'
@@ -246,7 +268,7 @@ export default function ChatInterface({
                         multiple
                         onChange={handleFileChange}
                     />
-                    {/* Show multiple filenames truncated */}
+                    {/* Show multiple file names */}
                     {fileNames.length > 0 && (
                         <div className="flex flex-col space-y-1 max-w-xs">
                             {fileNames.map((name, idx) => (

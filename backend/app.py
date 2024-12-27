@@ -76,7 +76,7 @@ if AZURE_STORAGE_CONNECTION_STRING:
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
         temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
-        temp_container_client.create_container()  # idempotent: won't error if container already exists
+        temp_container_client.create_container()  # idempotent
     except Exception as ex:
         app.logger.error("Error initializing BlobServiceClient for temp container: %s", ex)
 else:
@@ -153,20 +153,34 @@ def serve_frontend():
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
-    user_key = request.args.get('userKey', 'default_user')
+    """
+    We parse userKey + chatId from the request. If no chatId is provided,
+    we default to 'singleSession_<userKey>'.
+    """
+    user_key = "default_user"
+    chat_id = None
     user_input = ""
 
     # parse the request
     if request.content_type and 'multipart/form-data' in request.content_type:
+        # multipart => userMessage, chatId, multiple files
         user_input = request.form.get('userMessage', '')
-        # ----- CHANGED: retrieve a list of uploaded files -----
-        uploaded_files = request.files.getlist('file')  # <input name="file" multiple />
+        chat_id = request.form.get('chatId', '')
+        uploaded_files = request.files.getlist('file')  # multiple
     else:
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
-        if 'userKey' in data:
-            user_key = data['userKey']
-        uploaded_files = []  # no files if not multipart
+        user_key = data.get('userKey', 'default_user')
+        chat_id = data.get('chatId', '')
+        uploaded_files = []
+
+    # finalize userKey
+    if request.args.get('userKey'):
+        user_key = request.args.get('userKey')
+
+    # default chatId if none
+    if not chat_id:
+        chat_id = "singleSession_" + user_key
 
     # Prepare conversation messages
     messages = [
@@ -184,8 +198,7 @@ def chat_endpoint():
         }
     ]
 
-    # Retrieve or create the chat doc
-    chat_id = "singleSession_" + user_key
+    # Retrieve or create the doc
     partition_key = user_key
     try:
         chat_doc = container.read_item(chat_id, partition_key)
@@ -194,21 +207,20 @@ def chat_endpoint():
             "id": chat_id,
             "userKey": user_key,
             "messages": [],
-            "files": []  # store any ephemeral uploads
+            "files": []
         }
 
-    # ----- CHANGED: loop over each file in uploaded_files -----
+    # If we have files, process each
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             try:
                 if not up_file or not up_file.filename:
-                    continue  # skip empty
-
+                    continue
                 file_bytes = up_file.read()
                 filename = up_file.filename
                 lower_name = filename.lower()
 
-                # detect extension
+                # extension
                 if lower_name.endswith('.pdf'):
                     file_ext = 'pdf'
                 elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
@@ -220,12 +232,10 @@ def chat_endpoint():
 
                 # Upload to the temp container
                 blob_client = temp_container_client.get_blob_client(filename)
-
                 content_settings = None
                 if file_ext == 'pdf':
                     content_settings = ContentSettings(content_type="application/pdf")
                 elif file_ext == 'image':
-                    # naive approach, if it's .png or .jpg
                     content_settings = ContentSettings(content_type="image/jpeg")
                 elif file_ext == 'docx':
                     content_settings = ContentSettings(
@@ -234,11 +244,11 @@ def chat_endpoint():
 
                 blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
 
-                # Build ephemeral blob URL
-                base_url = temp_container_client.url  # e.g. https://<acct>.blob.core.windows.net/temp-uploads
+                # ephemeral blob URL
+                base_url = temp_container_client.url
                 blob_url = f"{base_url}/{filename}"
 
-                # Optionally parse text (pdf, docx, image)
+                # parse text if needed
                 extracted_text = None
                 if file_ext == 'pdf':
                     extracted_text = extract_text_from_pdf(file_bytes)
@@ -263,7 +273,7 @@ def chat_endpoint():
                         "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
                     })
 
-                # Store ephemeral file data in cosmos doc
+                # store ephemeral file data
                 chat_doc["files"].append({
                     "filename": filename,
                     "blobUrl": blob_url,
@@ -278,13 +288,12 @@ def chat_endpoint():
                     "content": f"Error uploading file '{up_file.filename}': {str(e)}"
                 })
 
-        # after all files processed:
         messages.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add user text message to doc
+    # add user text message
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
@@ -356,7 +365,7 @@ def generate_report():
     lines = [l.rstrip() for l in lines]
 
     # find a heading
-    doc_title = "Generated Report"
+    doc_title = "Generated_Report"
     for idx, line in enumerate(lines):
         s = line.strip()
         if s.startswith('# '):
@@ -401,7 +410,6 @@ def generate_report():
                 if i % 2 == 1:
                     run.bold = True
 
-    from io import BytesIO
     byte_io = BytesIO()
     doc.save(byte_io)
     byte_io.seek(0)
@@ -511,10 +519,8 @@ def delete_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    # Step 1: Connect to Azure Storage
     from azure.storage.blob import BlobServiceClient
 
-    # Environment variable should hold your Azure Storage connection string
     AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING", "")
     if not AZURE_STORAGE_CONNECTION_STRING:
         app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set. Unable to delete blobs.")
@@ -525,20 +531,14 @@ def delete_all_chats():
         except Exception as e:
             app.logger.error("Could not connect to Azure Storage container 'gymaitempcontainer':", exc_info=True)
             container_client = None
-    # If container_client is None, we won't attempt to delete blobs
 
-    # Step 2: Query all chat docs for this user
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
     items = list(container.query_items(query=query, parameters=parameters))
 
-    # Step 3: For each document, delete any associated temp blobs, then remove from Cosmos
     for doc in items:
-        # Retrieve references if they exist
         files_list = doc.get("files", [])
-
         if container_client is not None and files_list:
-            # Attempt to delete each referenced blob
             for f in files_list:
                 blob_name = f["filename"]  # or parse from f["blobUrl"]
                 try:
@@ -546,7 +546,7 @@ def delete_all_chats():
                     app.logger.info(f"Deleted blob '{blob_name}' from gymaitempcontainer.")
                 except Exception as ex:
                     app.logger.error(f"Error deleting blob '{blob_name}': {ex}", exc_info=True)
-        # Finally, delete the doc from Cosmos
+
         container.delete_item(item=doc['id'], partition_key=doc['userKey'])
 
     return jsonify({"success": True}), 200

@@ -5,19 +5,17 @@ import remarkBreaks from 'remark-breaks';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-// Example icons (optional). If you use react-icons:
-// npm install react-icons
-import { FaFilePdf, FaFileWord } from 'react-icons/fa';
+// Existing icons you have, plus one for images (we'll import from react-icons/fa)
+import { FaFilePdf, FaFileWord, FaFileImage } from 'react-icons/fa';
 import { AiFillFileUnknown } from 'react-icons/ai';
 
-// Adjust the props signature to accept a `files` array
 export default function MessageBubble({
     role,
     content,
     references,
     downloadUrl,
     reportContent,
-    files = [] // <-- default empty array if none
+    files = [] // keep default empty array if none
 }) {
     const isUser = role === 'user';
 
@@ -44,16 +42,17 @@ export default function MessageBubble({
         mainContent = mainContent.replace('download://report.docx', '').trim();
     }
 
-    // Remove unwanted links that point to the webapp URL
+    // Remove unwanted links pointing to the webapp URL
     const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
     mainContent = mainContent.replace(webAppUrlPattern, '');
 
-    // Remove any redundant phrase/link for "For a downloadable version of this report..."
+    // Remove redundant phrase/link about "For a downloadable version of this report"
     const redundantPhrasePattern = /For a downloadable version of this report[\s\S]*Download Report[\s\S]*?\n?/gi;
     mainContent = mainContent.replace(redundantPhrasePattern, '').trim();
 
     const [showReferences, setShowReferences] = useState(false);
 
+    // Code block syntax highlighting
     const components = {
         code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
@@ -88,7 +87,7 @@ export default function MessageBubble({
         }
     };
 
-    // Handle download button
+    // Handle the "Download report" button
     const handleDownload = async () => {
         if (!downloadUrl || !reportContent) return;
         try {
@@ -123,24 +122,23 @@ export default function MessageBubble({
 
     const hasRelevantReferences = references && references.length > 0;
 
-    // Helper to decide if a file is an "image" based on extension
+    // Simple helper to guess if file is an image
     const isImageFile = (fileObj) => {
-        return (
-            fileObj.fileExt === 'image' ||
-            (fileObj.filename || '').match(/\.(png|jpe?g|gif|webp)$/i)
-        );
+        if (fileObj.fileExt === 'image') return true;
+        const fname = (fileObj.filename || '').toLowerCase();
+        return fname.endsWith('.png') || fname.endsWith('.jpg') || fname.endsWith('.jpeg') || fname.endsWith('.gif') || fname.endsWith('.webp');
     };
 
-    // Helper to render each file preview
+    // Renders a mini preview or icon link for a single file
     const renderFilePreview = (fileObj, idx) => {
-        // If an image, show a small thumbnail
+        // If image, show thumbnail
         if (isImageFile(fileObj)) {
             return (
                 <div key={idx} className="mr-2 mb-2">
                     <img
                         src={fileObj.blobUrl}
                         alt={fileObj.filename}
-                        className="w-24 h-auto rounded"
+                        className="w-24 h-auto rounded border border-gray-500"
                     />
                     <p className="text-xs mt-1 truncate">{fileObj.filename}</p>
                 </div>
@@ -148,7 +146,7 @@ export default function MessageBubble({
         }
 
         // If PDF
-        if (fileObj.fileExt === 'pdf' || (fileObj.filename || '').endsWith('.pdf')) {
+        if (fileObj.fileExt === 'pdf' || (fileObj.filename || '').toLowerCase().endsWith('.pdf')) {
             return (
                 <div key={idx} className="mr-2 mb-2 flex items-center space-x-1">
                     <FaFilePdf className="text-red-500" />
@@ -167,7 +165,7 @@ export default function MessageBubble({
         // If DOCX
         if (
             fileObj.fileExt === 'docx' ||
-            (fileObj.filename || '').match(/\.(docx|doc)$/i)
+            (fileObj.filename || '').toLowerCase().match(/\.(docx|doc)$/i)
         ) {
             return (
                 <div key={idx} className="mr-2 mb-2 flex items-center space-x-1">
@@ -184,7 +182,7 @@ export default function MessageBubble({
             );
         }
 
-        // Fallback for other file types
+        // Otherwise unknown
         return (
             <div key={idx} className="mr-2 mb-2 flex items-center space-x-1">
                 <AiFillFileUnknown className="text-gray-300" />
@@ -207,10 +205,10 @@ export default function MessageBubble({
         >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
 
-            {/* If this message has files, show previews or icons */}
+            {/* If this message has files, show them above the text */}
             {files && files.length > 0 && (
                 <div className="flex flex-wrap mb-3">
-                    {files.map((f, i) => renderFilePreview(f, i))}
+                    {files.map((fileObj, i) => renderFilePreview(fileObj, i))}
                 </div>
             )}
 
@@ -224,7 +222,7 @@ export default function MessageBubble({
                 {mainContent}
             </ReactMarkdown>
 
-            {/* If references are present, show or hide them */}
+            {/* If references are present, show/hide them with a button */}
             {hasRelevantReferences && (
                 <div className="mt-2">
                     <button

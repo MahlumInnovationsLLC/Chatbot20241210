@@ -3,8 +3,6 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import TrainDocTool from './components/TrainDocTool';
 import FacilityTool from './components/FacilityTool';
-// Removed FileUpload import, as we no longer need it here
-// import FileUpload from './components/FileUpload'; <-- GONE
 
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
@@ -61,8 +59,7 @@ function AppContent({ onLogout }) {
 
     const { theme, toggleTheme } = useContext(ThemeContext);
     const logoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
-    const bottomLogoUrl =
-        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
+    const bottomLogoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
     const limeGreen = '#a2f4a2';
 
     const [menuOpen, setMenuOpen] = useState(false);
@@ -73,17 +70,23 @@ function AppContent({ onLogout }) {
 
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
-    // Chat messages
+    // We store the chat messages
     const [messages, setMessages] = useState([]);
-    // We still have a "system" message inserted at first
+    // We'll also store a distinct chat ID
+    const [currentChatId, setCurrentChatId] = useState(null);
+
+    // Insert system message if needed
     const systemMessage = {
         role: 'system',
         content:
             'You are an AI assistant that can produce downloadable reports in Markdown link format. If asked for a report, produce `download://report.docx`. Use Markdown formatting.'
     };
 
-    // Insert system message if needed
+    // On mount, if we don’t have a chat ID, create one. Also ensure system message is first.
     useEffect(() => {
+        if (!currentChatId) {
+            createNewChat(); // automatically start a new chat
+        }
         if (messages.length === 0) {
             setMessages([systemMessage]);
         } else if (messages[0].role !== 'system') {
@@ -91,16 +94,23 @@ function AppContent({ onLogout }) {
         }
     }, []);
 
-    // Create new chat
+    // “Create New Chat”
     const createNewChat = async () => {
         try {
-            if (messages.length > 0) {
+            if (messages.length > 1) { // i.e. there's actual content beyond system
+                // Optionally generate a chat title for the old conversation before discarding
                 const chatTitle = await generateChatTitle(messages);
                 console.log('Archived old chat with title:', chatTitle);
             }
+            // 1) generate a random new chat ID
+            const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+            // 2) reset messages
             setMessages([systemMessage]);
+            // 3) store the new ID in state
+            setCurrentChatId(newId);
+            console.log('Created new chat:', newId);
         } catch (err) {
-            console.error('Error archiving current chat before new chat:', err);
+            console.error('Error creating new chat:', err);
         }
     };
 
@@ -172,7 +182,7 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // Archiving & Deleting
+    // Archive & Delete
     const handleManageArchivedChats = () => setManageChatsOpen(true);
     const handleArchiveAll = async () => {
         try {
@@ -193,6 +203,8 @@ function AppContent({ onLogout }) {
     const loadArchivedChat = (chat) => {
         setMessages(chat.messages);
         setManageChatsOpen(false);
+        // Optionally also setCurrentChatId to chat.id
+        setCurrentChatId(chat.id);
     };
 
     // Close menus on outside click
@@ -279,6 +291,7 @@ function AppContent({ onLogout }) {
         overflow: 'auto'
     };
 
+    // Now we pass currentChatId into ChatInterface
     const pages = [
         {
             title: 'Training & Document Control',
@@ -294,10 +307,10 @@ function AppContent({ onLogout }) {
                 <div style={pageContentStyle}>
                     <ChatInterface
                         onLogout={onLogout}
+                        userKey={userKey}
+                        chatId={currentChatId} /* <-- pass ID so the server uses it */
                         messages={messages}
                         setMessages={setMessages}
-                    // If you want a “chatTitle” feature, pass it in:
-                    // chatTitle={...} setChatTitle={...} userKey={userKey}
                     />
                 </div>
             )
@@ -665,8 +678,8 @@ function AppContent({ onLogout }) {
                                             messages
                                                 .map(
                                                     (m) =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'
-                                                        } ${m.content}`
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
+                                                        }`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -734,12 +747,17 @@ function AppContent({ onLogout }) {
                 className="fixed bottom-4 right-4 flex items-center space-x-2 bg-opacity-90 rounded p-2"
                 style={{
                     backgroundColor:
-                        theme === 'dark' ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255,255,255,0.9)',
+                        theme === 'dark'
+                            ? 'rgba(31, 41, 55, 0.9)'
+                            : 'rgba(255,255,255,0.9)',
                     border: `1px solid ${limeGreen}`
                 }}
             >
                 <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
-                <span className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                <span
+                    className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'
+                        }`}
+                >
                     Powered by Mahlum Innovations, LLC
                 </span>
             </a>
@@ -755,7 +773,9 @@ function AppContent({ onLogout }) {
                     }}
                 >
                     <div
-                        className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                        className={`${theme === 'dark'
+                                ? 'bg-gray-800 text-white'
+                                : 'bg-white text-black'
                             } w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}
@@ -918,9 +938,10 @@ function AppContent({ onLogout }) {
                                     onClick={() => {
                                         setMessages(chat.messages);
                                         setManageChatsOpen(false);
+                                        setCurrentChatId(chat.id); // optional if you want to continue that doc
                                     }}
                                 >
-                                    <p className="font-bold">{chat.title || 'Chat from server'}</p>
+                                    <p className="font-bold">{chat.title || 'Untitled Chat'}</p>
                                     <p className="text-xs text-gray-300">
                                         {chat.userKey} |{' '}
                                         {chat.messages
