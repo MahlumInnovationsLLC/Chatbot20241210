@@ -3,17 +3,21 @@
 ###############################################################################
 from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
-from openai import AzureOpenAI
-from vision_api import analyze_image_from_bytes
-from document_processing import extract_text_from_docx  # We'll override PDF logic below
-import traceback
 import re
+import uuid
+import traceback
 from io import BytesIO
 from docx import Document
-import urllib.parse  # for URL encoding if needed
-import uuid
 
-# Cosmos + SendGrid
+from openai import AzureOpenAI
+
+# For reading images, DOCX, PDF (via Form Recognizer)
+from vision_api import analyze_image_from_bytes
+from document_processing import extract_text_from_docx
+from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.core.credentials import AzureKeyCredential
+
+# Azure Cosmos + SendGrid
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 import sendgrid
 from sendgrid import SendGridAPIClient
@@ -23,29 +27,21 @@ from sendgrid.helpers.mail import Mail, Email, To, Content
 from azure.search.documents import SearchClient
 from azure.core.credentials import AzureKeyCredential
 
-# NEW: Azure Form Recognizer
-from azure.ai.formrecognizer import DocumentAnalysisClient
+# Azure Blob (temp container)
+from azure.storage.blob import BlobServiceClient, ContentSettings
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
 ###############################################################################
 # 1. Cosmos DB Setup
 ###############################################################################
-COSMOS_ENDPOINT = os.environ.get("COSMOS_ENDPOINT")  # e.g. "https://<yourcosmos>.documents.azure.com:443/"
-COSMOS_KEY = os.environ.get("COSMOS_KEY")
+COSMOS_ENDPOINT = os.environ.get("COSMOS_ENDPOINT", "")
+COSMOS_KEY = os.environ.get("COSMOS_KEY", "")
 COSMOS_DATABASE_ID = "GYMAIEngineDB"
 COSMOS_CONTAINER_ID = "chats"
 
-###############################################################################
-# 1.2 SendGrid Setup
-###############################################################################
-SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY")
-if not SENDGRID_API_KEY:
-    raise RuntimeError("Missing SENDGRID_API_KEY!")
-
-# Initialize the Cosmos client
-cosmos_client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
 try:
+    cosmos_client = CosmosClient(COSMOS_ENDPOINT, credential=COSMOS_KEY)
     database = cosmos_client.create_database_if_not_exists(id=COSMOS_DATABASE_ID)
     container = database.create_container_if_not_exists(
         id=COSMOS_CONTAINER_ID,
@@ -56,10 +52,35 @@ except exceptions.CosmosHttpResponseError as e:
     app.logger.error("Cosmos DB setup error: %s", e)
 
 ###############################################################################
+# 1.2 SendGrid Setup
+###############################################################################
+SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
+if not SENDGRID_API_KEY:
+    app.logger.warning("Missing SENDGRID_API_KEY (sendgrid usage might fail).")
+
+###############################################################################
 # 1.3 Azure Form Recognizer Setup
 ###############################################################################
-FORM_RECOGNIZER_ENDPOINT = os.environ.get("FORM_RECOGNIZER_ENDPOINT")
-FORM_RECOGNIZER_KEY = os.environ.get("FORM_RECOGNIZER_KEY")
+FORM_RECOGNIZER_ENDPOINT = os.environ.get("FORM_RECOGNIZER_ENDPOINT", "")
+FORM_RECOGNIZER_KEY = os.environ.get("FORM_RECOGNIZER_KEY", "")
+
+###############################################################################
+# 1.4 Azure Storage (Temp Container) Setup
+###############################################################################
+AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING", "")
+AZURE_TEMP_CONTAINER = os.environ.get("AZURE_TEMP_CONTAINER", "temp-uploads")
+
+blob_service_client = None
+temp_container_client = None
+if AZURE_STORAGE_CONNECTION_STRING:
+    try:
+        blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+        temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
+        temp_container_client.create_container()  # idempotent: won't error if container already exists
+    except Exception as ex:
+        app.logger.error("Error initializing BlobServiceClient for temp container: %s", ex)
+else:
+    app.logger.warning("No AZURE_STORAGE_CONNECTION_STRING found. Temp file uploads will fail.")
 
 ###############################################################################
 # For calling AzureOpenAI
@@ -69,28 +90,24 @@ client = AzureOpenAI(
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
     api_version="2023-05-15"
 )
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Ensure this matches your actual deployment name
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
 
 ###############################################################################
-# 2. Helper function to produce a more detailed "reportContent"
+# 2. Helper: Detailed report
 ###############################################################################
 def generate_detailed_report(base_content):
     detail_messages = [
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant that specializes in creating detailed, comprehensive reports. "
-                "Given some brief content about a topic, produce a thorough, well-structured, and in-depth "
-                "written report. Include headings, subheadings, bullet points, data-driven insights, best practices, "
-                "examples, and potential future trends. Write as if producing a professional whitepaper or analysis."
+                "You are a helpful assistant that specializes in creating detailed, comprehensive reports."
             )
         },
         {
             "role": "user",
             "content": (
                 "Here is a brief summary: " + base_content + "\n\n"
-                "Now please create a significantly more in-depth, expanded, and detailed report that covers "
-                "the topic comprehensively."
+                "Please create a significantly more in-depth and expanded report."
             )
         }
     ]
@@ -99,43 +116,29 @@ def generate_detailed_report(base_content):
             messages=detail_messages,
             model=AZURE_DEPLOYMENT_NAME
         )
-        detailed_report = detail_response.choices[0].message.content
-        return detailed_report
+        return detail_response.choices[0].message.content
     except Exception as e:
-        app.logger.error("Error calling OpenAI for detailed report:", exc_info=True)
-        return base_content + "\n\n(Additional detailed analysis could not be generated due to an error.)"
+        app.logger.error("Error calling AzureOpenAI for detailed report:", exc_info=True)
+        return base_content + "\n\n(Additional detail could not be generated.)"
 
 ###############################################################################
-# 2.1 Overridden PDF extraction to use Form Recognizer
+# 2.1 PDF extraction with Form Recognizer
 ###############################################################################
 def extract_text_from_pdf(file_bytes):
-    """
-    Replaces the old PDF extraction with Azure Form Recognizer, if credentials are set.
-    Otherwise, raises an Exception if no credentials are present.
-    """
     if not FORM_RECOGNIZER_ENDPOINT or not FORM_RECOGNIZER_KEY:
         raise ValueError("FORM_RECOGNIZER_ENDPOINT and FORM_RECOGNIZER_KEY must be set to use Form Recognizer.")
-
     try:
-        # Create the DocumentAnalysisClient
         document_client = DocumentAnalysisClient(
             endpoint=FORM_RECOGNIZER_ENDPOINT,
             credential=AzureKeyCredential(FORM_RECOGNIZER_KEY)
         )
-
-        poller = document_client.begin_analyze_document(
-            "prebuilt-document",  # Or "prebuilt-read" if you want simpler approach
-            file_bytes
-        )
+        poller = document_client.begin_analyze_document("prebuilt-document", file_bytes)
         result = poller.result()
-
-        # Collect all text lines
         all_text = []
         for page in result.pages:
             for line in page.lines:
                 all_text.append(line.content)
         return "\n".join(all_text)
-
     except Exception as ex:
         app.logger.error("Form Recognizer PDF extraction failed:", exc_info=True)
         raise RuntimeError(f"Error extracting text with Form Recognizer: {ex}")
@@ -150,48 +153,28 @@ def serve_frontend():
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
-    user_input = None
-    file_bytes = None
-    file_ext = None
-
-    # userKey from query params or JSON
     user_key = request.args.get('userKey', 'default_user')
+    user_input = ""
+    uploaded_file = None
 
-    # If multipart, read from form + file
+    # parse the request
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
         uploaded_file = request.files.get('file')
-        if uploaded_file:
-            file_bytes = uploaded_file.read()
-            filename = uploaded_file.filename.lower()
-            if filename.endswith('.pdf'):
-                file_ext = 'pdf'
-            elif filename.endswith(('.png', '.jpg', '.jpeg')):
-                file_ext = 'image'
-            elif filename.endswith('.docx'):
-                file_ext = 'docx'
     else:
-        # JSON request
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
         if 'userKey' in data:
             user_key = data['userKey']
 
-    # 3a) Create base messages
+    # Prepare conversation messages
     messages = [
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant. When you respond, please use Markdown formatting. "
-                "For example, use **bold text**, *italic text*, `inline code`, and code blocks ```like this``` "
-                "when appropriate. Also, break down complex steps into bullet points or numbered lists "
-                "for clarity. End your responses with a friendly tone.\n\n"
-                "IMPORTANT: If the user requests a report or a downloadable report, you MUST include exactly one link "
-                "in the exact format: `download://report.docx` somewhere in your final response text.\n\n"
-                "If you use external sources, at the end provide:\n"
-                "References:\n"
-                "- [Name](URL): short description\n"
-                "If no external sources, write `References: None`."
+                "You are a helpful assistant using Markdown. "
+                "If user requests a downloadable report, must provide `download://report.docx`. "
+                "If references, list them, else `References: None`."
             )
         },
         {
@@ -200,87 +183,133 @@ def chat_endpoint():
         }
     ]
 
-    # 3b) If a file was uploaded, transform it into a system message
-    #     Also add a short system note that the file was successfully processed.
-    if file_bytes:
+    # Retrieve or create doc
+    chat_id = "singleSession_" + user_key
+    partition_key = user_key
+    try:
+        chat_doc = container.read_item(chat_id, partition_key)
+    except exceptions.CosmosResourceNotFoundError:
+        chat_doc = {
+            "id": chat_id,
+            "userKey": user_key,
+            "messages": [],
+            "files": []  # store any ephemeral uploads
+        }
+
+    # If a file is uploaded, store it to TEMP container, parse text, etc.
+    if uploaded_file and temp_container_client:
         try:
+            file_bytes = uploaded_file.read()
+            filename = uploaded_file.filename
+            lower_name = filename.lower()
+
+            if lower_name.endswith('.pdf'):
+                file_ext = 'pdf'
+            elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
+                file_ext = 'image'
+            elif lower_name.endswith('.docx'):
+                file_ext = 'docx'
+            else:
+                file_ext = 'other'
+
+            # Upload to the "temp" container
+            blob_client = temp_container_client.get_blob_client(filename)
+            content_settings = None
+            if file_ext == 'pdf':
+                content_settings = ContentSettings(content_type="application/pdf")
+            elif file_ext == 'image':
+                content_settings = ContentSettings(content_type="image/jpeg")
+            elif file_ext == 'docx':
+                content_settings = ContentSettings(content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+            blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
+
+            # Build ephemeral blob URL
+            base_url = temp_container_client.url  # e.g. https://<acct>.blob.core.windows.net/temp-uploads
+            blob_url = f"{base_url}/{filename}"
+
+            # Optionally parse text
+            extracted_text = None
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
                 messages.append({
                     "role": "system",
-                    "content": f"This is the text extracted from the PDF:\n{extracted_text}"
+                    "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
+                })
+            elif file_ext == 'docx':
+                extracted_text = extract_text_from_docx(file_bytes)
+                messages.append({
+                    "role": "system",
+                    "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
                 })
             elif file_ext == 'image':
                 vision_result = analyze_image_from_bytes(file_bytes)
                 described_image = "No description available."
                 if vision_result.description and vision_result.description.captions:
                     described_image = vision_result.description.captions[0].text
+                extracted_text = f"Image AI Description: {described_image}"
                 messages.append({
                     "role": "system",
-                    "content": f"Here's what the image seems to show: {described_image}"
+                    "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
                 })
-            elif file_ext == 'docx':
-                extracted_text = extract_text_from_docx(file_bytes)
-                if extracted_text.strip():
-                    messages.append({
-                        "role": "system",
-                        "content": f"Text extracted from the DOCX:\n{extracted_text}"
-                    })
-                else:
-                    messages.append({
-                        "role": "assistant",
-                        "content": "The DOCX file seems empty or unreadable."
-                    })
 
-            # Add an extra system message for the user to see they've successfully uploaded.
+            # Store ephemeral file data in cosmos doc
+            chat_doc["files"].append({
+                "filename": filename,
+                "blobUrl": blob_url,
+                "fileExt": file_ext,
+                "extractedText": extracted_text or ""
+            })
+
             messages.append({
                 "role": "system",
-                "content": "File upload successful. You can now ask questions about the document."
+                "content": "File upload successful. You can now ask questions about it."
             })
 
         except Exception as e:
-            app.logger.error("Error processing uploaded file:", exc_info=True)
+            app.logger.error("Error uploading file to temp container or processing:", exc_info=True)
             messages.append({
                 "role": "assistant",
-                "content": f"Error reading uploaded file: {str(e)}"
+                "content": f"Error uploading file: {str(e)}"
             })
 
-    # 3c) Call AzureOpenAI
+    # Add the user input to doc
+    chat_doc["messages"].append({
+        "role": "user",
+        "content": user_input
+    })
+
+    # Call AzureOpenAI
+    assistant_reply = ""
     try:
-        response = client.chat.completions.create(
-            messages=messages,
-            model=AZURE_DEPLOYMENT_NAME
-        )
+        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
         assistant_reply = response.choices[0].message.content
     except Exception as e:
         app.logger.error("Error calling AzureOpenAI:", exc_info=True)
-        assistant_reply = f"Error occurred: {str(e)}"
+        assistant_reply = f"Error from AzureOpenAI: {e}"
 
-    # 3d) Parse references, remove them from displayed text
+    # parse references
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
         main_content = parts[0].strip()
-        references_section = parts[1].strip() if len(parts) > 1 else "None"
-        if references_section.lower().startswith('none'):
+        ref_section = parts[1].strip() if len(parts) > 1 else "None"
+        if ref_section.lower().startswith('none'):
             references_list = []
         else:
-            for line in references_section.split('\n'):
+            for line in ref_section.split('\n'):
                 line = line.strip()
                 if line.startswith('-'):
                     match = re.match(r"- \[(.*?)\]\((.*?)\): (.*)", line)
                     if match:
-                        name = match.group(1)
-                        url = match.group(2)
-                        desc = match.group(3)
                         references_list.append({
-                            "name": name,
-                            "url": url,
-                            "description": desc
+                            "name": match.group(1),
+                            "url": match.group(2),
+                            "description": match.group(3)
                         })
 
-    # 3e) Check for downloadable report
+    # check for downloadable report
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -288,36 +317,15 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    ###########################################################################
-    # 4. Store chat data in Cosmos DB
-    ###########################################################################
-    chat_id = "singleSession_" + user_key
-    partition_key = user_key
-
-    try:
-        chat_doc = container.read_item(item=chat_id, partition_key=partition_key)
-    except exceptions.CosmosResourceNotFoundError:
-        chat_doc = {
-            "id": chat_id,
-            "userKey": user_key,
-            "messages": []
-        }
-
-    # Add the user message
-    chat_doc["messages"].append({
-        "role": "user",
-        "content": user_input
-    })
-    # Add the assistant message
+    # finalize: add assistant reply
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
+
+    # upsert doc
     container.upsert_item(chat_doc)
 
-    ###########################################################################
-    # Return the JSON response
-    ###########################################################################
     return jsonify({
         "reply": main_content,
         "references": references_list,
@@ -331,18 +339,29 @@ def chat_endpoint():
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
     data = request.get_json(force=True)
-    filename = data.get('filename', 'report.docx')
     report_content = data.get('reportContent', 'No content provided')
 
     lines = report_content.split('\n')
     lines = [l.rstrip() for l in lines]
 
-    doc = Document()
-
+    # find a heading
     doc_title = "Generated Report"
-    if lines and lines[0].startswith('# '):
-        doc_title = lines[0][2:].strip()
-        lines = lines[1:]
+    for idx, line in enumerate(lines):
+        s = line.strip()
+        if s.startswith('# '):
+            doc_title = s[2:].strip()
+            break
+        elif s.startswith('## '):
+            doc_title = s[3:].strip()
+            break
+        elif s.startswith('### '):
+            doc_title = s[4:].strip()
+            break
+
+    safe_title = "".join([c if c.isalnum() else "_" for c in doc_title]) or "report"
+    filename = f"{safe_title}.docx"
+
+    doc = Document()
     doc.add_heading(doc_title, 0)
 
     for line in lines:
@@ -351,7 +370,9 @@ def generate_report():
             doc.add_paragraph('')
             continue
 
-        if stripped_line.startswith('### '):
+        if stripped_line.startswith('#### '):
+            doc.add_heading(stripped_line[5:].strip(), level=4)
+        elif stripped_line.startswith('### '):
             doc.add_heading(stripped_line[4:].strip(), level=3)
         elif stripped_line.startswith('## '):
             doc.add_heading(stripped_line[3:].strip(), level=2)
@@ -360,10 +381,7 @@ def generate_report():
         elif re.match(r'^-\s', stripped_line):
             doc.add_paragraph(stripped_line[2:].strip(), style='List Bullet')
         elif re.match(r'^\d+\.\s', stripped_line):
-            doc.add_paragraph(
-                re.sub(r'^\d+\.\s', '', stripped_line).strip(),
-                style='List Number'
-            )
+            doc.add_paragraph(re.sub(r'^\d+\.\s', '', stripped_line).strip(), style='List Number')
         else:
             p = doc.add_paragraph()
             segments = stripped_line.split('**')
@@ -372,6 +390,7 @@ def generate_report():
                 if i % 2 == 1:
                     run.bold = True
 
+    from io import BytesIO
     byte_io = BytesIO()
     doc.save(byte_io)
     byte_io.seek(0)
@@ -402,7 +421,6 @@ def contact_endpoint():
         f"Email: {email}\n"
         f"Note: {note}"
     )
-
     try:
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
         from_email = Email("colter@mahluminnovations.com")
@@ -417,7 +435,7 @@ def contact_endpoint():
         """
         content = Content("text/plain", content_text)
         mail = Mail(from_email, to_email, subject, content)
-        response = sg.client.mail.send.post(request_body=mail.get())
+        _ = sg.client.mail.send.post(request_body=mail.get())
 
         return jsonify({
             "status": "success",
@@ -439,11 +457,7 @@ def get_chats():
 
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
-    items = list(container.query_items(
-        query=query,
-        parameters=parameters,
-        enable_cross_partition_query=True
-    ))
+    items = list(container.query_items(query=query, parameters=parameters, enable_cross_partition_query=True))
 
     chat_summaries = []
     for doc in items:
@@ -452,6 +466,7 @@ def get_chats():
             "userKey": doc.get("userKey"),
             "messages": doc.get("messages", []),
             "title": doc.get("title", None),
+            "files": doc.get("files", []),
         })
     return jsonify({"chats": chat_summaries}), 200
 
@@ -485,28 +500,51 @@ def delete_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
+    # Step 1: Connect to Azure Storage
+    from azure.storage.blob import BlobServiceClient
+
+    # Environment variable should hold your Azure Storage connection string
+    AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING", "")
+    if not AZURE_STORAGE_CONNECTION_STRING:
+        app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set. Unable to delete blobs.")
+    else:
+        try:
+            blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+            container_client = blob_service_client.get_container_client("gymaitempcontainer")
+        except Exception as e:
+            app.logger.error("Could not connect to Azure Storage container 'gymaitempcontainer':", exc_info=True)
+            container_client = None
+    # If container_client is None, we won't attempt to delete blobs
+
+    # Step 2: Query all chat docs for this user
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
     items = list(container.query_items(query=query, parameters=parameters))
 
+    # Step 3: For each document, delete any associated temp blobs, then remove from Cosmos
     for doc in items:
+        # Retrieve references if they exist
+        files_list = doc.get("files", [])
+
+        if container_client is not None and files_list:
+            # Attempt to delete each referenced blob
+            for f in files_list:
+                blob_name = f["filename"]  # or parse from f["blobUrl"]
+                try:
+                    container_client.delete_blob(blob_name)
+                    app.logger.info(f"Deleted blob '{blob_name}' from gymaitempcontainer.")
+                except Exception as ex:
+                    app.logger.error(f"Error deleting blob '{blob_name}': {ex}", exc_info=True)
+        # Finally, delete the doc from Cosmos
         container.delete_item(item=doc['id'], partition_key=doc['userKey'])
 
     return jsonify({"success": True}), 200
 
 ###############################################################################
-# NEW: Rename Chat Title
+# Rename Chat
 ###############################################################################
 @app.route('/renameChat', methods=['POST'])
 def rename_chat():
-    """
-    Expects JSON:
-    {
-      "userKey": "...",
-      "chatId": "...",
-      "newTitle": "Some short title"
-    }
-    """
     data = request.get_json(force=True)
     user_key = data.get('userKey', 'default_user')
     chat_id = data.get('chatId', '')
@@ -552,31 +590,26 @@ def chunk_text(text, chunk_size=1000):
 @app.route('/uploadLargeFile', methods=['POST'])
 def upload_large_file():
     user_key = request.args.get('userKey', 'default_user')
-
     if request.content_type and 'multipart/form-data' in request.content_type:
         uploaded_file = request.files.get('file')
         if not uploaded_file:
             return jsonify({"error": "No file uploaded"}), 400
-        
         try:
             file_bytes = uploaded_file.read()
             filename = uploaded_file.filename.lower()
             if filename.endswith('.pdf'):
-                # Now uses Form Recognizer-based function
                 extracted_text = extract_text_from_pdf(file_bytes)
             elif filename.endswith('.docx'):
                 extracted_text = extract_text_from_docx(file_bytes)
             else:
                 return jsonify({"error": "Unsupported file type for large chunking"}), 400
-            
+
             chunks = chunk_text(extracted_text, chunk_size=500)
             success_count = upsert_chunks_to_search(chunks, user_key)
-
             return jsonify({
                 "status": "success",
-                "message": f"Uploaded and chunked {len(chunks)} segments. {success_count} upserted into Azure Search.",
+                "message": f"Uploaded & chunked {len(chunks)} segments. {success_count} upserted into Azure Search.",
             }), 200
-
         except Exception as e:
             app.logger.error("Error reading or chunking the file:", exc_info=True)
             return jsonify({"error": str(e)}), 500
@@ -587,7 +620,6 @@ def upsert_chunks_to_search(chunks, user_key):
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
         app.logger.error("Azure Search env vars not set.")
         return 0
-
     try:
         search_client = SearchClient(
             endpoint=AZURE_SEARCH_ENDPOINT,
@@ -629,24 +661,16 @@ def ask_doc():
         {
             "role": "system",
             "content": (
-                "You are an AI that uses the following document context to answer questions.\n"
-                "If the user question is not answered by the context, say you don't have enough info.\n"
+                "You are an AI that uses the following doc context. "
+                "If not answered by context, say not enough info.\n"
                 "Context:\n" + prompt_content
             )
         },
-        {
-            "role": "user",
-            "content": question
-        }
+        {"role": "user", "content": question}
     ]
-
     try:
-        response = client.chat.completions.create(
-            messages=messages,
-            model=AZURE_DEPLOYMENT_NAME
-        )
-        answer = response.choices[0].message.content
-        return jsonify({"answer": answer}), 200
+        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
+        return jsonify({"answer": response.choices[0].message.content}), 200
     except Exception as e:
         app.logger.error("Error calling AzureOpenAI with doc context:", exc_info=True)
         return jsonify({"error": str(e)}), 500
@@ -655,7 +679,6 @@ def search_in_azure_search(question, user_key, top_k=3):
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
         app.logger.error("Azure Search env vars not set.")
         return []
-
     try:
         search_client = SearchClient(
             endpoint=AZURE_SEARCH_ENDPOINT,
