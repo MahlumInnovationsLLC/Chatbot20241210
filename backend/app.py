@@ -32,7 +32,6 @@ from azure.storage.blob import BlobServiceClient, ContentSettings
 
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
-
 ###############################################################################
 # 1. Cosmos DB Setup
 ###############################################################################
@@ -77,12 +76,11 @@ if AZURE_STORAGE_CONNECTION_STRING:
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
         temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
-        temp_container_client.create_container()  # idempotent, no error if container exists
+        temp_container_client.create_container()  # idempotent, won't error if container already exists
     except Exception as ex:
         app.logger.error("Error initializing BlobServiceClient for temp container: %s", ex)
 else:
     app.logger.warning("No AZURE_STORAGE_CONNECTION_STRING found. Temp file uploads will fail.")
-
 
 ###############################################################################
 # For calling AzureOpenAI
@@ -124,7 +122,6 @@ def generate_detailed_report(base_content):
         app.logger.error("Error calling AzureOpenAI for detailed report:", exc_info=True)
         return base_content + "\n\n(Additional detail could not be generated.)"
 
-
 ###############################################################################
 # 2.1 PDF extraction with Form Recognizer
 ###############################################################################
@@ -149,12 +146,10 @@ def extract_text_from_pdf(file_bytes):
         app.logger.error("Form Recognizer PDF extraction failed:", exc_info=True)
         raise RuntimeError(f"Error extracting text with Form Recognizer: {ex}")
 
-
 ###############################################################################
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
-
 
 ###############################################################################
 # 3. Chat endpoint (multiple-file version)
@@ -164,39 +159,38 @@ def chat_endpoint():
     """
     Expects either multipart/form-data with:
       - userMessage
-      - file (multiple possible)  -> request.files.getlist('file')
-
-    Or JSON with:
+      - file (multiple possible)
+      - chatId (optional hidden field)
+      - userKey (optionally in form or query)
+    or JSON with:
       - userMessage
       - userKey
-      - (optionally) chatId
+      - chatId
     """
+
     # 3a) parse userKey, chatId
-    # default userKey to 'default_user' if none
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
 
-    # If we get multipart, parse from form
     if request.content_type and 'multipart/form-data' in request.content_type:
+        # If multipart, parse from form
         user_input = request.form.get('userMessage', '')
-        # Maybe we also read a hidden 'chatId' from form
-        chat_id = request.form.get('chatId')
+        chat_id = request.form.get('chatId')  # might be None
         uploaded_files = request.files.getlist('file') or []
     else:
         # JSON approach
         data = request.get_json(force=True)
         user_input = data.get('userMessage', '')
-        user_key = data.get('userKey', user_key)  # override if provided
+        user_key = data.get('userKey', user_key)
         chat_id = data.get('chatId')  # might be None
         uploaded_files = []
 
-    # If no chatId was provided, you can set a default approach
-    # e.g. single doc per user => "singleSession_{user_key}"
+    # If no chatId is provided, default to single session style
     if not chat_id:
         chat_id = f"singleSession_{user_key}"
 
-    # Prepare conversation messages
+    # Prepare the conversation for AzureOpenAI
     messages = [
         {
             "role": "system",
@@ -212,7 +206,7 @@ def chat_endpoint():
         }
     ]
 
-    # 3b) Retrieve or create doc
+    # 3b) Retrieve or create the doc in Cosmos
     partition_key = user_key
     try:
         chat_doc = container.read_item(chat_id, partition_key)
@@ -224,12 +218,12 @@ def chat_endpoint():
             "files": []
         }
 
-    # 3c) Loop over multiple uploaded files
+    # 3c) Process multiple uploaded files (if any)
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             try:
                 if not up_file or not up_file.filename:
-                    continue  # skip empty file objects
+                    continue  # skip empty file
 
                 file_bytes = up_file.read()
                 filename = up_file.filename
@@ -245,7 +239,7 @@ def chat_endpoint():
                 else:
                     file_ext = 'other'
 
-                # Upload to temp container
+                # upload to temp container
                 blob_client = temp_container_client.get_blob_client(filename)
                 content_settings = None
                 if file_ext == 'pdf':
@@ -256,6 +250,7 @@ def chat_endpoint():
                     content_settings = ContentSettings(
                         content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
+
                 blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
 
                 # ephemeral blob URL
@@ -266,7 +261,6 @@ def chat_endpoint():
                 extracted_text = None
                 if file_ext == 'pdf':
                     extracted_text = extract_text_from_pdf(file_bytes)
-                    # Add system info
                     messages.append({
                         "role": "system",
                         "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
@@ -288,10 +282,10 @@ def chat_endpoint():
                         "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
                     })
                 else:
-                    # other file, no extraction
+                    # other file type, no extraction
                     pass
 
-                # store in doc's "files" array
+                # store reference in the doc
                 chat_doc["files"].append({
                     "filename": filename,
                     "blobUrl": blob_url,
@@ -306,28 +300,31 @@ def chat_endpoint():
                     "content": f"Error uploading file '{up_file.filename}': {str(e)}"
                 })
 
-        # finished multiple file loop
+        # after processing all files
         messages.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # 3d) Add user message to doc
+    # 3d) Add user input as a user-message in doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # 3e) Call AzureOpenAI
+    # 3e) Call AzureOpenAI to get assistant reply
     assistant_reply = ""
     try:
-        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
+        response = client.chat.completions.create(
+            messages=messages,
+            model=AZURE_DEPLOYMENT_NAME
+        )
         assistant_reply = response.choices[0].message.content
     except Exception as e:
         app.logger.error("Error calling AzureOpenAI:", exc_info=True)
         assistant_reply = f"Error from AzureOpenAI: {e}"
 
-    # parse references
+    # parse references out of the raw text
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -348,7 +345,7 @@ def chat_endpoint():
                             "description": match.group(3)
                         })
 
-    # check for downloadable report
+    # check for a downloadable docx trigger
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -356,14 +353,13 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    # finalize: add assistant reply
+    # finalize by adding assistant's reply to the doc
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # 3f) upsert doc
-    # If the same id/partitionKey was previously inserted, this merges.
+    # 3f) upsert doc (creates or updates)
     container.upsert_item(chat_doc)
 
     return jsonify({
@@ -372,7 +368,6 @@ def chat_endpoint():
         "downloadUrl": download_url,
         "reportContent": report_content
     })
-
 
 ###############################################################################
 # Generate and send docx
@@ -445,7 +440,6 @@ def generate_report():
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 
-
 ###############################################################################
 # Contact endpoint
 ###############################################################################
@@ -491,7 +485,6 @@ def contact_endpoint():
         app.logger.error("Error sending email via SendGrid", exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
 
-
 ###############################################################################
 # Return all chats for a user
 ###############################################################################
@@ -516,7 +509,6 @@ def get_chats():
         })
     return jsonify({"chats": chat_summaries}), 200
 
-
 ###############################################################################
 # Archive all
 ###############################################################################
@@ -537,7 +529,6 @@ def archive_all_chats():
 
     return jsonify({"success": True}), 200
 
-
 ###############################################################################
 # Delete all
 ###############################################################################
@@ -548,7 +539,6 @@ def delete_all_chats():
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    # Connect to Azure Storage
     from azure.storage.blob import BlobServiceClient
     if not AZURE_STORAGE_CONNECTION_STRING:
         app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set. Unable to delete blobs.")
@@ -561,13 +551,11 @@ def delete_all_chats():
             app.logger.error("Could not connect to azure storage container:", exc_info=True)
             container_client = None
 
-    # Query all chat docs for this user
     query = f"SELECT * FROM c WHERE c.userKey=@userKey"
     parameters = [{"name": "@userKey", "value": user_key}]
     items = list(container.query_items(query=query, parameters=parameters))
 
     for doc in items:
-        # if we have ephemeral files
         files_list = doc.get("files", [])
         if container_client is not None and files_list:
             for f in files_list:
@@ -578,11 +566,9 @@ def delete_all_chats():
                 except Exception as ex:
                     app.logger.error(f"Error deleting blob '{blob_name}': {ex}", exc_info=True)
 
-        # then delete doc from cosmos
         container.delete_item(item=doc['id'], partition_key=doc['userKey'])
 
     return jsonify({"success": True}), 200
-
 
 ###############################################################################
 # Rename Chat
@@ -607,7 +593,6 @@ def rename_chat():
     except Exception as e:
         app.logger.error("Error renaming chat:", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
 
 ###############################################################################
 # 5. Large File Upload + Chunking + Azure Cognitive Search
@@ -685,7 +670,6 @@ def upsert_chunks_to_search(chunks, user_key):
         app.logger.error("Error uploading to Azure Search:", exc_info=True)
         return 0
 
-
 ###############################################################################
 # 6. Searching the Azure Cognitive Search Index
 ###############################################################################
@@ -746,12 +730,10 @@ def search_in_azure_search(question, user_key, top_k=3):
         app.logger.error("Error searching Azure Search:", exc_info=True)
         return []
 
-
 ###############################################################################
 @app.errorhandler(404)
 def not_found(e):
     return send_from_directory('src/public', 'index.html')
-
 
 ###############################################################################
 if __name__ == "__main__":
