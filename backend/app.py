@@ -152,7 +152,7 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 3. Chat endpoint (multiple-file version)
+# 3. Chat endpoint (multiple-file version, multiple docs per user)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
@@ -161,42 +161,45 @@ def chat_endpoint():
       - userMessage
       - file (multiple possible)
       - chatId (optional hidden field)
-      - userKey (optionally in form or query)
+      - userKey (optional in form or query)
     or JSON with:
       - userMessage
       - userKey
-      - chatId
+      - chatId (optional)
     """
 
-    # 3a) parse userKey, chatId
+    import time
+    import random
+
+    # 1) Parse userKey, chatId, userMessage
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
 
+    # Distinguish between multipart vs JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
-        # If multipart, parse from form
         user_input = request.form.get('userMessage', '')
-        chat_id = request.form.get('chatId')  # might be None
+        chat_id = request.form.get('chatId')  # Could be blank or missing
         uploaded_files = request.files.getlist('file') or []
     else:
-        # JSON approach
-        data = request.get_json(force=True)
+        data = request.get_json(force=True) or {}
         user_input = data.get('userMessage', '')
         user_key = data.get('userKey', user_key)
         chat_id = data.get('chatId')  # might be None
         uploaded_files = []
 
-    # If no chatId is provided, default to single session style
+    # 2) If NO chatId is provided, generate a unique ID every time
+    #    e.g. "chat_{timestamp}_{random}_{userKey}"
     if not chat_id:
-        chat_id = f"singleSession_{user_key}"
+        chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
 
-    # Prepare the conversation for AzureOpenAI
+    # 3) Prepare messages for the AzureOpenAI call
     messages = [
         {
             "role": "system",
             "content": (
                 "You are a helpful assistant using Markdown. "
-                "If user requests a downloadable report, must provide `download://report.docx`. "
+                "If user requests a downloadable report, you MUST provide `download://report.docx`. "
                 "If references, list them, else `References: None`."
             )
         },
@@ -206,7 +209,7 @@ def chat_endpoint():
         }
     ]
 
-    # 3b) Retrieve or create the doc in Cosmos
+    # 4) Retrieve or create the doc in Cosmos DB
     partition_key = user_key
     try:
         chat_doc = container.read_item(chat_id, partition_key)
@@ -218,122 +221,114 @@ def chat_endpoint():
             "files": []
         }
 
-    # 3c) Process multiple uploaded files (if any)
+    # 5) Process multiple file uploads (if any)
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
-            try:
-                if not up_file or not up_file.filename:
-                    continue  # skip empty file
+            if not up_file or not up_file.filename:
+                continue
 
-                file_bytes = up_file.read()
-                filename = up_file.filename
-                lower_name = filename.lower()
+            file_bytes = up_file.read()
+            filename = up_file.filename
+            lower_name = filename.lower()
 
-                # detect extension
-                if lower_name.endswith('.pdf'):
-                    file_ext = 'pdf'
-                elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
-                    file_ext = 'image'
-                elif lower_name.endswith('.docx'):
-                    file_ext = 'docx'
-                else:
-                    file_ext = 'other'
+            # detect file type
+            if lower_name.endswith('.pdf'):
+                file_ext = 'pdf'
+            elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
+                file_ext = 'image'
+            elif lower_name.endswith('.docx'):
+                file_ext = 'docx'
+            else:
+                file_ext = 'other'
 
-                # upload to temp container
-                blob_client = temp_container_client.get_blob_client(filename)
-                content_settings = None
-                if file_ext == 'pdf':
-                    content_settings = ContentSettings(content_type="application/pdf")
-                elif file_ext == 'image':
-                    content_settings = ContentSettings(content_type="image/jpeg")
-                elif file_ext == 'docx':
-                    content_settings = ContentSettings(
-                        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    )
+            # Upload to the TEMP container
+            blob_client = temp_container_client.get_blob_client(filename)
+            content_settings = None
 
-                blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
+            if file_ext == 'pdf':
+                content_settings = ContentSettings(content_type="application/pdf")
+            elif file_ext == 'image':
+                content_settings = ContentSettings(content_type="image/jpeg")
+            elif file_ext == 'docx':
+                content_settings = ContentSettings(
+                    content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
 
-                # ephemeral blob URL
-                base_url = temp_container_client.url
-                blob_url = f"{base_url}/{filename}"
+            # Actually upload the bytes
+            blob_client.upload_blob(
+                file_bytes,
+                overwrite=True,
+                content_settings=content_settings
+            )
 
-                # parse text if relevant
-                extracted_text = None
-                if file_ext == 'pdf':
-                    extracted_text = extract_text_from_pdf(file_bytes)
-                    messages.append({
-                        "role": "system",
-                        "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
-                    })
-                elif file_ext == 'docx':
-                    extracted_text = extract_text_from_docx(file_bytes)
-                    messages.append({
-                        "role": "system",
-                        "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
-                    })
-                elif file_ext == 'image':
-                    vision_result = analyze_image_from_bytes(file_bytes)
-                    described_image = "No description available."
-                    if vision_result.description and vision_result.description.captions:
-                        described_image = vision_result.description.captions[0].text
-                    extracted_text = f"Image AI Description: {described_image}"
-                    messages.append({
-                        "role": "system",
-                        "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
-                    })
-                else:
-                    # other file type, no extraction
-                    pass
+            # Build ephemeral blob URL
+            base_url = temp_container_client.url
+            blob_url = f"{base_url}/{filename}"
 
-                # store reference in the doc
-                chat_doc["files"].append({
-                    "filename": filename,
-                    "blobUrl": blob_url,
-                    "fileExt": file_ext,
-                    "extractedText": extracted_text or ""
-                })
-
-            except Exception as e:
-                app.logger.error("Error uploading file or processing:", exc_info=True)
+            # optionally parse text
+            extracted_text = None
+            if file_ext == 'pdf':
+                extracted_text = extract_text_from_pdf(file_bytes)
                 messages.append({
-                    "role": "assistant",
-                    "content": f"Error uploading file '{up_file.filename}': {str(e)}"
+                    "role": "system",
+                    "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
                 })
+            elif file_ext == 'docx':
+                extracted_text = extract_text_from_docx(file_bytes)
+                messages.append({
+                    "role": "system",
+                    "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
+                })
+            elif file_ext == 'image':
+                vision_result = analyze_image_from_bytes(file_bytes)
+                described_image = "No description available."
+                if (vision_result.description and
+                        vision_result.description.captions):
+                    described_image = vision_result.description.captions[0].text
+                extracted_text = f"Image AI Description: {described_image}"
+                messages.append({
+                    "role": "system",
+                    "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
+                })
+            # else: skip extraction for other file types
 
-        # after processing all files
+            # store reference in doc
+            chat_doc["files"].append({
+                "filename": filename,
+                "blobUrl": blob_url,
+                "fileExt": file_ext,
+                "extractedText": extracted_text or ""
+            })
+
+        # Let the user know
         messages.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # 3d) Add user input as a user-message in doc
+    # 6) Add user message to doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # 3e) Call AzureOpenAI to get assistant reply
+    # 7) Call Azure OpenAI
     assistant_reply = ""
     try:
-        response = client.chat.completions.create(
-            messages=messages,
-            model=AZURE_DEPLOYMENT_NAME
-        )
+        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
         assistant_reply = response.choices[0].message.content
     except Exception as e:
+        assistant_reply = f"Error from AzureOpenAI: {str(e)}"
         app.logger.error("Error calling AzureOpenAI:", exc_info=True)
-        assistant_reply = f"Error from AzureOpenAI: {e}"
 
-    # parse references out of the raw text
+    # 7b) Parse references
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
         main_content = parts[0].strip()
         ref_section = parts[1].strip() if len(parts) > 1 else "None"
-        if ref_section.lower().startswith('none'):
-            references_list = []
-        else:
+        if not ref_section.lower().startswith('none'):
             for line in ref_section.split('\n'):
                 line = line.strip()
                 if line.startswith('-'):
@@ -345,7 +340,7 @@ def chat_endpoint():
                             "description": match.group(3)
                         })
 
-    # check for a downloadable docx trigger
+    # 7c) Check for docx download
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -353,21 +348,24 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    # finalize by adding assistant's reply to the doc
+    # 8) Add assistant reply to doc
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # 3f) upsert doc (creates or updates)
+    # 9) Upsert doc (new doc if first time, or update if it already exists)
     container.upsert_item(chat_doc)
 
+    # 10) Return final JSON
     return jsonify({
         "reply": main_content,
         "references": references_list,
         "downloadUrl": download_url,
-        "reportContent": report_content
+        "reportContent": report_content,
+        "chatId": chat_id  # optionally return the ID so the frontend can store it
     })
+
 
 ###############################################################################
 # Generate and send docx
