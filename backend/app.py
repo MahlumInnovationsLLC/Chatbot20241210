@@ -30,11 +30,11 @@ from azure.core.credentials import AzureKeyCredential
 # Azure Blob (temp container)
 from azure.storage.blob import BlobServiceClient, ContentSettings
 
+###############################################################################
+# 1. Flask and Cosmos Setup
+###############################################################################
 app = Flask(__name__, static_folder='src/public', static_url_path='')
 
-###############################################################################
-# 1. Cosmos DB Setup
-###############################################################################
 COSMOS_ENDPOINT = os.environ.get("COSMOS_ENDPOINT", "")
 COSMOS_KEY = os.environ.get("COSMOS_KEY", "")
 COSMOS_DATABASE_ID = "GYMAIEngineDB"
@@ -52,21 +52,15 @@ except exceptions.CosmosHttpResponseError as e:
     app.logger.error("Cosmos DB setup error: %s", e)
 
 ###############################################################################
-# 1.2 SendGrid Setup
+# 2. SendGrid + Form Recognizer + Blob
 ###############################################################################
 SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
 if not SENDGRID_API_KEY:
     app.logger.warning("Missing SENDGRID_API_KEY (sendgrid usage might fail).")
 
-###############################################################################
-# 1.3 Azure Form Recognizer Setup
-###############################################################################
 FORM_RECOGNIZER_ENDPOINT = os.environ.get("FORM_RECOGNIZER_ENDPOINT", "")
 FORM_RECOGNIZER_KEY = os.environ.get("FORM_RECOGNIZER_KEY", "")
 
-###############################################################################
-# 1.4 Azure Storage (Temp Container) Setup
-###############################################################################
 AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING", "")
 AZURE_TEMP_CONTAINER = os.environ.get("AZURE_TEMP_CONTAINER", "temp-uploads")
 
@@ -76,32 +70,53 @@ if AZURE_STORAGE_CONNECTION_STRING:
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
         temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
-        temp_container_client.create_container()  # idempotent, won't error if container already exists
+        temp_container_client.create_container()  # idempotent
     except Exception as ex:
         app.logger.error("Error initializing BlobServiceClient for temp container: %s", ex)
 else:
     app.logger.warning("No AZURE_STORAGE_CONNECTION_STRING found. Temp file uploads will fail.")
 
 ###############################################################################
-# For calling AzureOpenAI
+# 3. AzureOpenAI Setup
 ###############################################################################
 client = AzureOpenAI(
     api_key=os.environ.get("AZURE_OPENAI_KEY"),
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
     api_version="2023-05-15"
 )
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Make sure this matches your deployment name
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Your deployment name
 
 ###############################################################################
-# 2. Helper: Detailed report
+# 4. Helper Functions
 ###############################################################################
+def extract_text_from_pdf(file_bytes):
+    if not FORM_RECOGNIZER_ENDPOINT or not FORM_RECOGNIZER_KEY:
+        raise ValueError("FORM_RECOGNIZER_ENDPOINT and FORM_RECOGNIZER_KEY must be set.")
+    try:
+        from azure.ai.formrecognizer import DocumentAnalysisClient
+        from azure.core.credentials import AzureKeyCredential
+
+        doc_client = DocumentAnalysisClient(
+            endpoint=FORM_RECOGNIZER_ENDPOINT,
+            credential=AzureKeyCredential(FORM_RECOGNIZER_KEY)
+        )
+        poller = doc_client.begin_analyze_document("prebuilt-document", file_bytes)
+        result = poller.result()
+        all_text = []
+        for page in result.pages:
+            for line in page.lines:
+                all_text.append(line.content)
+        return "\n".join(all_text)
+    except Exception as ex:
+        app.logger.error("Form Recognizer PDF extraction failed:", exc_info=True)
+        raise RuntimeError(f"Error extracting text with Form Recognizer: {ex}")
+
 def generate_detailed_report(base_content):
     detail_messages = [
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant that specializes in creating detailed, "
-                "comprehensive reports."
+                "You are a helpful assistant that specializes in creating detailed, comprehensive reports."
             )
         },
         {
@@ -113,94 +128,63 @@ def generate_detailed_report(base_content):
         }
     ]
     try:
-        detail_response = client.chat.completions.create(
+        response = client.chat.completions.create(
             messages=detail_messages,
             model=AZURE_DEPLOYMENT_NAME
         )
-        return detail_response.choices[0].message.content
+        return response.choices[0].message.content
     except Exception as e:
         app.logger.error("Error calling AzureOpenAI for detailed report:", exc_info=True)
         return base_content + "\n\n(Additional detail could not be generated.)"
 
 ###############################################################################
-# 2.1 PDF extraction with Form Recognizer
-###############################################################################
-def extract_text_from_pdf(file_bytes):
-    if not FORM_RECOGNIZER_ENDPOINT or not FORM_RECOGNIZER_KEY:
-        raise ValueError(
-            "FORM_RECOGNIZER_ENDPOINT and FORM_RECOGNIZER_KEY must be set to use Form Recognizer."
-        )
-    try:
-        document_client = DocumentAnalysisClient(
-            endpoint=FORM_RECOGNIZER_ENDPOINT,
-            credential=AzureKeyCredential(FORM_RECOGNIZER_KEY)
-        )
-        poller = document_client.begin_analyze_document("prebuilt-document", file_bytes)
-        result = poller.result()
-        all_text = []
-        for page in result.pages:
-            for line in page.lines:
-                all_text.append(line.content)
-        return "\n".join(all_text)
-    except Exception as ex:
-        app.logger.error("Form Recognizer PDF extraction failed:", exc_info=True)
-        raise RuntimeError(f"Error extracting text with Form Recognizer: {ex}")
-
+# 5. Serve Frontend
 ###############################################################################
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 3. Chat endpoint (multiple-file version, multiple docs per user)
+# 6. Chat Endpoint (Multi-file, Multi-Doc)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    Expects either multipart/form-data with:
-      - userMessage
-      - file (multiple possible)
-      - chatId (optional hidden field)
-      - userKey (optional in form or query)
-    or JSON with:
-      - userMessage
-      - userKey
-      - chatId (optional)
+    We store each conversation in Cosmos as a separate doc, keyed by chatId.
+    If a chatId is not provided, we generate a new one automatically.
+    This way, user can pass that chatId in future requests to retrieve the
+    ongoing memory for that conversation.
     """
-
     import time
     import random
 
-    # 1) Parse userKey, chatId, userMessage
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
 
-    # Distinguish between multipart vs JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
+        # multipart
         user_input = request.form.get('userMessage', '')
-        chat_id = request.form.get('chatId')  # Could be blank or missing
+        chat_id = request.form.get('chatId')
         uploaded_files = request.files.getlist('file') or []
     else:
         data = request.get_json(force=True) or {}
         user_input = data.get('userMessage', '')
         user_key = data.get('userKey', user_key)
-        chat_id = data.get('chatId')  # might be None
+        chat_id = data.get('chatId', None)
         uploaded_files = []
 
-    # 2) If NO chatId is provided, generate a unique ID every time
-    #    e.g. "chat_{timestamp}_{random}_{userKey}"
+    # If no chatId, generate a new doc ID each time
     if not chat_id:
-        chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+        chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}"
 
-    # 3) Prepare messages for the AzureOpenAI call
+    # Prepare the messages for AzureOpenAI
     messages = [
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant using Markdown. "
-                "If user requests a downloadable report, you MUST provide `download://report.docx`. "
-                "If references, list them, else `References: None`."
+                "You are a helpful assistant. Use Markdown. If user requests a downloadable report, "
+                "MUST provide `download://report.docx`. If references, show them. Else `References: None`."
             )
         },
         {
@@ -209,7 +193,7 @@ def chat_endpoint():
         }
     ]
 
-    # 4) Retrieve or create the doc in Cosmos DB
+    # Retrieve or create doc in Cosmos
     partition_key = user_key
     try:
         chat_doc = container.read_item(chat_id, partition_key)
@@ -221,17 +205,15 @@ def chat_endpoint():
             "files": []
         }
 
-    # 5) Process multiple file uploads (if any)
+    # Handle multiple file uploads
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
                 continue
-
             file_bytes = up_file.read()
             filename = up_file.filename
             lower_name = filename.lower()
 
-            # detect file type
             if lower_name.endswith('.pdf'):
                 file_ext = 'pdf'
             elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
@@ -241,10 +223,9 @@ def chat_endpoint():
             else:
                 file_ext = 'other'
 
-            # Upload to the TEMP container
+            # Upload to temp container
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
-
             if file_ext == 'pdf':
                 content_settings = ContentSettings(content_type="application/pdf")
             elif file_ext == 'image':
@@ -253,19 +234,13 @@ def chat_endpoint():
                 content_settings = ContentSettings(
                     content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
+            blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
 
-            # Actually upload the bytes
-            blob_client.upload_blob(
-                file_bytes,
-                overwrite=True,
-                content_settings=content_settings
-            )
-
-            # Build ephemeral blob URL
+            # ephemeral URL
             base_url = temp_container_client.url
             blob_url = f"{base_url}/{filename}"
 
-            # optionally parse text
+            # optional text extraction
             extracted_text = None
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
@@ -281,18 +256,16 @@ def chat_endpoint():
                 })
             elif file_ext == 'image':
                 vision_result = analyze_image_from_bytes(file_bytes)
-                described_image = "No description available."
-                if (vision_result.description and
-                        vision_result.description.captions):
-                    described_image = vision_result.description.captions[0].text
-                extracted_text = f"Image AI Description: {described_image}"
+                desc = "No description available."
+                if vision_result.description and vision_result.description.captions:
+                    desc = vision_result.description.captions[0].text
+                extracted_text = f"Image AI Description: {desc}"
                 messages.append({
                     "role": "system",
-                    "content": f"Image '{filename}' uploaded.\nAI says: {described_image}"
+                    "content": f"Image '{filename}' uploaded.\nAI says: {desc}"
                 })
-            # else: skip extraction for other file types
 
-            # store reference in doc
+            # store reference
             chat_doc["files"].append({
                 "filename": filename,
                 "blobUrl": blob_url,
@@ -300,28 +273,31 @@ def chat_endpoint():
                 "extractedText": extracted_text or ""
             })
 
-        # Let the user know
+        # Let user know
         messages.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # 6) Add user message to doc
+    # Add user message to doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # 7) Call Azure OpenAI
+    # Call AzureOpenAI
     assistant_reply = ""
     try:
-        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
+        response = client.chat.completions.create(
+            messages=messages,
+            model=AZURE_DEPLOYMENT_NAME
+        )
         assistant_reply = response.choices[0].message.content
     except Exception as e:
-        assistant_reply = f"Error from AzureOpenAI: {str(e)}"
-        app.logger.error("Error calling AzureOpenAI:", exc_info=True)
+        assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
+        app.logger.error("OpenAI error:", exc_info=True)
 
-    # 7b) Parse references
+    # parse references
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -332,15 +308,15 @@ def chat_endpoint():
             for line in ref_section.split('\n'):
                 line = line.strip()
                 if line.startswith('-'):
-                    match = re.match(r"- \[(.*?)\]\((.*?)\): (.*)", line)
-                    if match:
+                    m = re.match(r"- \[(.*?)\]\((.*?)\): (.*)", line)
+                    if m:
                         references_list.append({
-                            "name": match.group(1),
-                            "url": match.group(2),
-                            "description": match.group(3)
+                            "name": m.group(1),
+                            "url": m.group(2),
+                            "description": m.group(3)
                         })
 
-    # 7c) Check for docx download
+    # check for docx link
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -348,27 +324,25 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    # 8) Add assistant reply to doc
+    # finalize
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # 9) Upsert doc (new doc if first time, or update if it already exists)
+    # Upsert in Cosmos
     container.upsert_item(chat_doc)
 
-    # 10) Return final JSON
     return jsonify({
         "reply": main_content,
         "references": references_list,
         "downloadUrl": download_url,
         "reportContent": report_content,
-        "chatId": chat_id  # optionally return the ID so the frontend can store it
+        "chatId": chat_id  # Return the ID so the frontend can store for future
     })
 
-
 ###############################################################################
-# Generate and send docx
+# 7. Generate and Send Docx
 ###############################################################################
 @app.route('/api/generateReport', methods=['POST'])
 def generate_report():
@@ -378,7 +352,6 @@ def generate_report():
     lines = report_content.split('\n')
     lines = [l.rstrip() for l in lines]
 
-    # find a heading
     doc_title = "Generated Report"
     for idx, line in enumerate(lines):
         s = line.strip()
@@ -399,47 +372,46 @@ def generate_report():
     doc.add_heading(doc_title, 0)
 
     for line in lines:
-        stripped_line = line.strip()
-        if not stripped_line:
+        stripped = line.strip()
+        if not stripped:
             doc.add_paragraph('')
             continue
-
-        if stripped_line.startswith('#### '):
-            doc.add_heading(stripped_line[5:].strip(), level=4)
-        elif stripped_line.startswith('### '):
-            doc.add_heading(stripped_line[4:].strip(), level=3)
-        elif stripped_line.startswith('## '):
-            doc.add_heading(stripped_line[3:].strip(), level=2)
-        elif stripped_line.startswith('# '):
-            doc.add_heading(stripped_line[2:].strip(), level=1)
-        elif re.match(r'^-\s', stripped_line):
-            doc.add_paragraph(stripped_line[2:].strip(), style='List Bullet')
-        elif re.match(r'^\d+\.\s', stripped_line):
+        if stripped.startswith('#### '):
+            doc.add_heading(stripped[5:].strip(), level=4)
+        elif stripped.startswith('### '):
+            doc.add_heading(stripped[4:].strip(), level=3)
+        elif stripped.startswith('## '):
+            doc.add_heading(stripped[3:].strip(), level=2)
+        elif stripped.startswith('# '):
+            doc.add_heading(stripped[2:].strip(), level=1)
+        elif re.match(r'^-\s', stripped):
+            doc.add_paragraph(stripped[2:].strip(), style='List Bullet')
+        elif re.match(r'^\d+\.\s', stripped):
             doc.add_paragraph(
-                re.sub(r'^\d+\.\s', '', stripped_line).strip(),
+                re.sub(r'^\d+\.\s', '', stripped).strip(),
                 style='List Number'
             )
         else:
             p = doc.add_paragraph()
-            segments = stripped_line.split('**')
+            segments = stripped.split('**')
             for i, seg in enumerate(segments):
                 run = p.add_run(seg)
                 if i % 2 == 1:
                     run.bold = True
 
-    byte_io = BytesIO()
-    doc.save(byte_io)
-    byte_io.seek(0)
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
 
     return send_file(
-        byte_io,
+        buffer,
         as_attachment=True,
         download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 
 ###############################################################################
-# Contact endpoint
+# 8. Contact, Chats, Archive, Delete
 ###############################################################################
 @app.route('/contact', methods=['POST'])
 def contact_endpoint():
@@ -457,6 +429,8 @@ def contact_endpoint():
         f"Email: {email}\n"
         f"Note: {note}"
     )
+    if not SENDGRID_API_KEY:
+        return jsonify({"status": "error", "message": "SendGrid key missing"}), 500
 
     try:
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
@@ -473,63 +447,44 @@ def contact_endpoint():
         content = Content("text/plain", content_text)
         mail = Mail(from_email, to_email, subject, content)
         _ = sg.client.mail.send.post(request_body=mail.get())
-
-        return jsonify({
-            "status": "success",
-            "message": "Your message has been sent via SendGrid."
-        }), 200
-
+        return jsonify({"status": "success", "message": "Your message has been sent."}), 200
     except Exception as e:
         app.logger.error("Error sending email via SendGrid", exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
 
-###############################################################################
-# Return all chats for a user
-###############################################################################
 @app.route('/chats', methods=['GET'])
 def get_chats():
     user_key = request.args.get('userKey', '')
     if not user_key:
         return jsonify({"chats": []}), 200
 
-    query = f"SELECT * FROM c WHERE c.userKey=@userKey"
-    parameters = [{"name": "@userKey", "value": user_key}]
-    items = list(container.query_items(query=query, parameters=parameters, enable_cross_partition_query=True))
+    query = "SELECT * FROM c WHERE c.userKey=@userKey"
+    params = [{"name": "@userKey", "value": user_key}]
+    items = list(container.query_items(
+        query=query,
+        parameters=params,
+        enable_cross_partition_query=True
+    ))
 
-    chat_summaries = []
-    for doc in items:
-        chat_summaries.append({
-            "id": doc.get("id"),
-            "userKey": doc.get("userKey"),
-            "messages": doc.get("messages", []),
-            "title": doc.get("title", None),
-            "files": doc.get("files", []),
-        })
-    return jsonify({"chats": chat_summaries}), 200
+    # Return entire docs. The front end can interpret them.
+    return jsonify({"chats": items}), 200
 
-###############################################################################
-# Archive all
-###############################################################################
 @app.route('/archiveAllChats', methods=['POST'])
 def archive_all_chats():
     data = request.get_json(force=True)
     user_key = data.get('userKey', '')
     if not user_key:
-        return jsonify({"error": "No userKey provided"}), 400
+        return jsonify({"error": "No userKey"}), 400
 
-    query = f"SELECT * FROM c WHERE c.userKey=@userKey"
-    parameters = [{"name": "@userKey", "value": user_key}]
-    items = list(container.query_items(query=query, parameters=parameters))
+    query = "SELECT * FROM c WHERE c.userKey=@userKey"
+    params = [{"name": "@userKey", "value": user_key}]
+    items = list(container.query_items(query=query, parameters=params))
 
     for doc in items:
         doc['archived'] = True
         container.replace_item(doc, doc)
-
     return jsonify({"success": True}), 200
 
-###############################################################################
-# Delete all
-###############################################################################
 @app.route('/deleteAllChats', methods=['POST'])
 def delete_all_chats():
     data = request.get_json(force=True)
@@ -538,39 +493,37 @@ def delete_all_chats():
         return jsonify({"error": "No userKey provided"}), 400
 
     from azure.storage.blob import BlobServiceClient
-    if not AZURE_STORAGE_CONNECTION_STRING:
-        app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set. Unable to delete blobs.")
-        container_client = None
-    else:
+
+    container_client = None
+    if AZURE_STORAGE_CONNECTION_STRING:
         try:
-            blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
-            container_client = blob_service_client.get_container_client("gymaitempcontainer")
+            bsc = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+            container_client = bsc.get_container_client("gymaitempcontainer")
         except Exception as e:
             app.logger.error("Could not connect to azure storage container:", exc_info=True)
             container_client = None
+    else:
+        app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set. Can't remove blobs.")
 
-    query = f"SELECT * FROM c WHERE c.userKey=@userKey"
-    parameters = [{"name": "@userKey", "value": user_key}]
-    items = list(container.query_items(query=query, parameters=parameters))
+    query = "SELECT * FROM c WHERE c.userKey=@userKey"
+    params = [{"name": "@userKey", "value": user_key}]
+    items = list(container.query_items(query=query, parameters=params))
 
     for doc in items:
-        files_list = doc.get("files", [])
-        if container_client is not None and files_list:
-            for f in files_list:
-                blob_name = f["filename"]  # or parse from f["blobUrl"]
+        file_list = doc.get("files", [])
+        if container_client and file_list:
+            for f in file_list:
+                blob_name = f["filename"]
                 try:
                     container_client.delete_blob(blob_name)
                     app.logger.info(f"Deleted blob '{blob_name}' from gymaitempcontainer.")
                 except Exception as ex:
                     app.logger.error(f"Error deleting blob '{blob_name}': {ex}", exc_info=True)
 
-        container.delete_item(item=doc['id'], partition_key=doc['userKey'])
+        container.delete_item(doc['id'], doc['userKey'])
 
     return jsonify({"success": True}), 200
 
-###############################################################################
-# Rename Chat
-###############################################################################
 @app.route('/renameChat', methods=['POST'])
 def rename_chat():
     data = request.get_json(force=True)
@@ -582,9 +535,9 @@ def rename_chat():
         return jsonify({"error": "chatId and newTitle are required"}), 400
 
     try:
-        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
-        chat_doc['title'] = new_title
-        container.upsert_item(chat_doc)
+        doc = container.read_item(chat_id, user_key)
+        doc['title'] = new_title
+        container.upsert_item(doc)
         return jsonify({"success": True, "message": "Title updated."}), 200
     except exceptions.CosmosResourceNotFoundError:
         return jsonify({"error": "Chat not found."}), 404
@@ -593,7 +546,7 @@ def rename_chat():
         return jsonify({"error": str(e)}), 500
 
 ###############################################################################
-# 5. Large File Upload + Chunking + Azure Cognitive Search
+# 9. Large File Upload + Searching
 ###############################################################################
 AZURE_SEARCH_ENDPOINT = os.environ.get("AZURE_SEARCH_ENDPOINT", "")
 AZURE_SEARCH_KEY = os.environ.get("AZURE_SEARCH_KEY", "")
@@ -603,14 +556,14 @@ def chunk_text(text, chunk_size=1000):
     words = text.split()
     chunks = []
     current_chunk = []
-    current_length = 0
+    current_len = 0
     for w in words:
         current_chunk.append(w)
-        current_length += len(w) + 1
-        if current_length >= chunk_size:
+        current_len += len(w)+1
+        if current_len >= chunk_size:
             chunks.append(" ".join(current_chunk))
             current_chunk = []
-            current_length = 0
+            current_len = 0
     if current_chunk:
         chunks.append(" ".join(current_chunk))
     return chunks
@@ -619,73 +572,70 @@ def chunk_text(text, chunk_size=1000):
 def upload_large_file():
     user_key = request.args.get('userKey', 'default_user')
     if request.content_type and 'multipart/form-data' in request.content_type:
-        uploaded_file = request.files.get('file')
-        if not uploaded_file:
+        up_file = request.files.get('file')
+        if not up_file:
             return jsonify({"error": "No file uploaded"}), 400
         try:
-            file_bytes = uploaded_file.read()
-            filename = uploaded_file.filename.lower()
-            if filename.endswith('.pdf'):
-                extracted_text = extract_text_from_pdf(file_bytes)
-            elif filename.endswith('.docx'):
-                extracted_text = extract_text_from_docx(file_bytes)
+            b = up_file.read()
+            fname = up_file.filename.lower()
+            if fname.endswith('.pdf'):
+                extracted_text = extract_text_from_pdf(b)
+            elif fname.endswith('.docx'):
+                extracted_text = extract_text_from_docx(b)
             else:
-                return jsonify({"error": "Unsupported file type for large chunking"}), 400
+                return jsonify({"error": "Unsupported file type"}), 400
 
-            chunks = chunk_text(extracted_text, chunk_size=500)
+            chunks = chunk_text(extracted_text, 500)
             success_count = upsert_chunks_to_search(chunks, user_key)
             return jsonify({
                 "status": "success",
-                "message": f"Uploaded & chunked {len(chunks)} segments. {success_count} upserted into Azure Search.",
+                "message": f"Uploaded & chunked {len(chunks)} segments. {success_count} upserted."
             }), 200
         except Exception as e:
-            app.logger.error("Error reading or chunking the file:", exc_info=True)
+            app.logger.error("Error chunking file:", exc_info=True)
             return jsonify({"error": str(e)}), 500
     else:
-        return jsonify({"error": "Please do a multipart/form-data upload"}), 400
+        return jsonify({"error": "Please do multipart/form-data"}), 400
 
 def upsert_chunks_to_search(chunks, user_key):
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
-        app.logger.error("Azure Search env vars not set.")
+        app.logger.error("Azure Search env not set.")
         return 0
     try:
-        search_client = SearchClient(
+        sc = SearchClient(
             endpoint=AZURE_SEARCH_ENDPOINT,
             index_name=AZURE_SEARCH_INDEX,
             credential=AzureKeyCredential(AZURE_SEARCH_KEY)
         )
         actions = []
-        for i, ctext in enumerate(chunks):
-            doc_id = f"{user_key}-{uuid.uuid4()}"
+        for ctext in chunks:
+            did = f"{user_key}-{uuid.uuid4()}"
             actions.append({
-                "id": doc_id,
+                "id": did,
                 "userKey": user_key,
                 "content": ctext
             })
-        result = search_client.upload_documents(documents=actions)
+        result = sc.upload_documents(actions)
         return len(result)
     except Exception as e:
-        app.logger.error("Error uploading to Azure Search:", exc_info=True)
+        app.logger.error("Error upserting to Search:", exc_info=True)
         return 0
 
-###############################################################################
-# 6. Searching the Azure Cognitive Search Index
-###############################################################################
 @app.route('/askDoc', methods=['POST'])
 def ask_doc():
-    data = request.get_json(force=True)
+    data = request.get_json(force=True) or {}
     question = data.get('question', '')
     user_key = data.get('userKey', 'default_user')
     if not question:
-        return jsonify({"error": "No question provided"}), 400
+        return jsonify({"error": "No question"}), 400
 
     top_chunks = search_in_azure_search(question, user_key, top_k=3)
     if not top_chunks:
         prompt_content = "No relevant documents found."
     else:
-        prompt_content = "\n\n".join([f"Chunk: {tc}" for tc in top_chunks])
+        prompt_content = "\n\n".join([f"Chunk: {c}" for c in top_chunks])
 
-    messages = [
+    msgs = [
         {
             "role": "system",
             "content": (
@@ -696,44 +646,45 @@ def ask_doc():
         },
         {"role": "user", "content": question}
     ]
+
     try:
-        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
-        return jsonify({"answer": response.choices[0].message.content}), 200
+        resp = client.chat.completions.create(
+            messages=msgs,
+            model=AZURE_DEPLOYMENT_NAME
+        )
+        return jsonify({"answer": resp.choices[0].message.content}), 200
     except Exception as e:
-        app.logger.error("Error calling AzureOpenAI with doc context:", exc_info=True)
+        app.logger.error("Error calling OpenAI doc context:", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-def search_in_azure_search(question, user_key, top_k=3):
+def search_in_azure_search(q, user_key, top_k=3):
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
-        app.logger.error("Azure Search env vars not set.")
+        app.logger.error("Azure Search not configured.")
         return []
     try:
-        search_client = SearchClient(
+        sc = SearchClient(
             endpoint=AZURE_SEARCH_ENDPOINT,
             index_name=AZURE_SEARCH_INDEX,
             credential=AzureKeyCredential(AZURE_SEARCH_KEY)
         )
-        results = search_client.search(
-            search_text=question,
-            filter=f"userKey eq '{user_key}'",
-            top=top_k
-        )
+        res = sc.search(search_text=q, filter=f"userKey eq '{user_key}'", top=top_k)
         chunks = []
-        for r in results:
-            ctext = r.get('content', '')
-            if ctext:
-                chunks.append(ctext)
+        for r in res:
+            c = r.get('content', '')
+            if c:
+                chunks.append(c)
         return chunks
     except Exception as e:
-        app.logger.error("Error searching Azure Search:", exc_info=True)
+        app.logger.error("Search in Azure Search failed:", exc_info=True)
         return []
 
+###############################################################################
+# 10. Error Handler and Main
 ###############################################################################
 @app.errorhandler(404)
 def not_found(e):
     return send_from_directory('src/public', 'index.html')
 
-###############################################################################
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 8080))
     app.run(host="0.0.0.0", port=port, debug=True)

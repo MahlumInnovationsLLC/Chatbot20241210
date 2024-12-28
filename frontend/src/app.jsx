@@ -8,10 +8,9 @@ import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
 import axios from 'axios';
 
-/**
- * Optional function that can generate a short chat title from messages.
- * E.g. you might call your /generateChatTitle endpoint.
- */
+///////////////////////////////////////////////////////////////////////////////
+// 1. Helper function for auto-title (optional)
+///////////////////////////////////////////////////////////////////////////////
 async function generateChatTitle(messages) {
     try {
         const snippet = messages.slice(-10);
@@ -37,6 +36,9 @@ async function generateChatTitle(messages) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// 2. Main App
+///////////////////////////////////////////////////////////////////////////////
 export default function App() {
     const { instance } = useMsal();
 
@@ -52,7 +54,11 @@ export default function App() {
     );
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// 3. AppContent
+///////////////////////////////////////////////////////////////////////////////
 function AppContent({ onLogout }) {
+    // #### 3a) Basic Setup
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const userKey = account ? account.homeAccountId : 'default_user';
@@ -62,6 +68,7 @@ function AppContent({ onLogout }) {
     const bottomLogoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
     const limeGreen = '#a2f4a2';
 
+    // #### 3b) Menu & UI states
     const [menuOpen, setMenuOpen] = useState(false);
     const [shareMenuOpen, setShareMenuOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -70,43 +77,47 @@ function AppContent({ onLogout }) {
 
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
-    // We store the chat messages
+    // #### 3c) Chat messages & currentChatId
     const [messages, setMessages] = useState([]);
-    // We'll also store a distinct chat ID
     const [currentChatId, setCurrentChatId] = useState(null);
 
-    // Insert system message if needed
+    // #### 3d) system message
     const systemMessage = {
         role: 'system',
         content:
             'You are an AI assistant that can produce downloadable reports in Markdown link format. If asked for a report, produce `download://report.docx`. Use Markdown formatting.'
     };
 
-    // On mount, if we don’t have a chat ID, create one. Also ensure system message is first.
+    // #### 3e) On mount, auto-create new chat if none, ensure system msg is top
     useEffect(() => {
         if (!currentChatId) {
-            createNewChat(); // automatically start a new chat
+            createNewChat(); // automatically
         }
         if (messages.length === 0) {
             setMessages([systemMessage]);
         } else if (messages[0].role !== 'system') {
             setMessages((prev) => [systemMessage, ...prev]);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // “Create New Chat”
+    // #### 3f) Create new chat
     const createNewChat = async () => {
         try {
-            if (messages.length > 1) { // i.e. there's actual content beyond system
-                // Optionally generate a chat title for the old conversation before discarding
+            // If we have a real conversation beyond the system message, 
+            // optionally generate a title (for local archival).
+            if (messages.length > 1) {
                 const chatTitle = await generateChatTitle(messages);
                 console.log('Archived old chat with title:', chatTitle);
+                // Optionally store it locally if you want a local archive:
+                setArchivedChats((prev) => [
+                    ...prev,
+                    { id: currentChatId, userKey, messages, title: chatTitle }
+                ]);
             }
-            // 1) generate a random new chat ID
+            // Generate a unique chat ID
             const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-            // 2) reset messages
             setMessages([systemMessage]);
-            // 3) store the new ID in state
             setCurrentChatId(newId);
             console.log('Created new chat:', newId);
         } catch (err) {
@@ -114,18 +125,20 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // Additional states
+    // #### 3g) Additional states
     const [activeTab, setActiveTab] = useState('general');
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
+    // local archiving
     const [archivedChats, setArchivedChats] = useState([]);
 
-    // Server-based user chats
+    // #### 3h) Server-based user chats
     const [serverUserChats, setServerUserChats] = useState([]);
     const fetchUserChats = async () => {
         try {
             const res = await axios.get('/chats', { params: { userKey } });
+            // "chats" is an array of cosmos docs
             setServerUserChats(res.data.chats || []);
         } catch (err) {
             console.error('Failed to fetch user chats:', err);
@@ -137,7 +150,7 @@ function AppContent({ onLogout }) {
         }
     }, [manageChatsOpen]);
 
-    // AI instructions from localStorage
+    // #### 3i) AI instructions from localStorage
     useEffect(() => {
         const savedData = localStorage.getItem(`ai_instructions_${userKey}`);
         if (savedData) {
@@ -153,7 +166,7 @@ function AppContent({ onLogout }) {
         alert('AI Instructions saved!');
     };
 
-    // Contact us
+    // #### 3j) Contact form
     const [contactNameFirst, setContactNameFirst] = useState('');
     const [contactNameLast, setContactNameLast] = useState('');
     const [contactCompany, setContactCompany] = useState('');
@@ -182,7 +195,7 @@ function AppContent({ onLogout }) {
         }
     };
 
-    // Archive & Delete
+    // #### 3k) Archive & Delete
     const handleManageArchivedChats = () => setManageChatsOpen(true);
     const handleArchiveAll = async () => {
         try {
@@ -200,14 +213,17 @@ function AppContent({ onLogout }) {
             console.error('Error deleting chats:', err);
         }
     };
+
+    // #### 3l) Load a chat from server or local
     const loadArchivedChat = (chat) => {
+        // This sets messages to that chat’s messages
         setMessages(chat.messages);
         setManageChatsOpen(false);
-        // Optionally also setCurrentChatId to chat.id
+        // also set the chat ID, so continuing convos updates that doc in cosmos
         setCurrentChatId(chat.id);
     };
 
-    // Close menus on outside click
+    // #### 3m) Close menus on outside click
     useEffect(() => {
         function handleClickOutside(e) {
             if (menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen) {
@@ -232,7 +248,7 @@ function AppContent({ onLogout }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
-    // Share Menu
+    // #### 3n) Share menu
     const openShareMenu = () => setShareMenuOpen(!shareMenuOpen);
     const copyTranscriptToClipboard = () => {
         const allText = messages
@@ -259,7 +275,7 @@ function AppContent({ onLogout }) {
         URL.revokeObjectURL(url);
     };
 
-    // Settings
+    // #### 3o) Settings
     const openSettings = () => {
         setMenuOpen(false);
         setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
@@ -274,7 +290,7 @@ function AppContent({ onLogout }) {
         closeSettings();
     };
 
-    // Horizontal slider for the 3 pages
+    // #### 3p) 3-page horizontal slider
     const [activePageIndex, setActivePageIndex] = useState(1);
     const horizontalSliderStyle = {
         width: '300vw',
@@ -291,7 +307,6 @@ function AppContent({ onLogout }) {
         overflow: 'auto'
     };
 
-    // Now we pass currentChatId into ChatInterface
     const pages = [
         {
             title: 'Training & Document Control',
@@ -308,7 +323,7 @@ function AppContent({ onLogout }) {
                     <ChatInterface
                         onLogout={onLogout}
                         userKey={userKey}
-                        chatId={currentChatId} /* <-- pass ID so the server uses it */
+                        chatId={currentChatId}
                         messages={messages}
                         setMessages={setMessages}
                     />
@@ -360,11 +375,13 @@ function AppContent({ onLogout }) {
         </button>
     ));
 
+    // #### 3q) Settings popup content
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
                 return (
                     <div className="flex flex-col space-y-6">
+                        {/* Theme Row */}
                         <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                             <label className="text-lg font-semibold mr-4 flex items-center">
                                 Theme
@@ -380,6 +397,7 @@ function AppContent({ onLogout }) {
                             </select>
                         </div>
 
+                        {/* Language Row */}
                         <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                             <label className="text-lg font-semibold mr-4">Language</label>
                             <select className="bg-white text-black border p-2 rounded w-44">
@@ -389,6 +407,7 @@ function AppContent({ onLogout }) {
                             </select>
                         </div>
 
+                        {/* Archive & Delete */}
                         <div>
                             <div className="flex items-center justify-between pr-2 border-b border-gray-600 pb-2">
                                 <label className="text-lg font-semibold">Archived chats</label>
@@ -420,6 +439,7 @@ function AppContent({ onLogout }) {
                             </div>
                         </div>
 
+                        {/* Log out */}
                         <div className="flex justify-end mt-6 pr-2">
                             <button
                                 onClick={onLogout}
@@ -431,6 +451,7 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
+
             case 'ai':
                 return (
                     <div className="flex flex-col space-y-4">
@@ -470,7 +491,8 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
-            case 'empty1': // Contact Us
+
+            case 'empty1': // "Contact Us"
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
@@ -549,6 +571,7 @@ function AppContent({ onLogout }) {
                         </div>
                     </div>
                 );
+
             default:
                 return (
                     <div className="flex items-center justify-center h-full">
@@ -558,6 +581,7 @@ function AppContent({ onLogout }) {
         }
     };
 
+    // #### 3r) Render
     return (
         <div
             className={
@@ -566,7 +590,7 @@ function AppContent({ onLogout }) {
                     : 'bg-white text-black min-h-screen flex flex-col'
             }
         >
-            {/* TOP BAR */}
+            {/* #### 3r.i TOP BAR */}
             <div
                 className="flex items-center justify-between w-full p-4"
                 style={{ borderBottom: `1px solid ${limeGreen}` }}
@@ -576,10 +600,10 @@ function AppContent({ onLogout }) {
                     <span className="font-bold text-xl">GYM AI Engine</span>
                 </div>
 
-                {/* Middle portion: the 3-page “tool” nav */}
+                {/* Middle portion: the 3-page nav */}
                 <div style={topBarTitlesStyle}>{topBarPages}</div>
 
-                {/* Right side: “Chat History” + hamburger menu */}
+                {/* Right side: Chat History + hamburger */}
                 <div ref={menuRef} className="flex items-center space-x-2">
                     <button
                         onClick={() => setManageChatsOpen(!manageChatsOpen)}
@@ -678,8 +702,7 @@ function AppContent({ onLogout }) {
                                             messages
                                                 .map(
                                                     (m) =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
-                                                        }`
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -716,7 +739,7 @@ function AppContent({ onLogout }) {
                 </div>
             </div>
 
-            {/* MAIN BODY: the horizontal slider container */}
+            {/* #### 3r.ii MAIN BODY slider */}
             <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                 <div
                     style={{
@@ -739,7 +762,7 @@ function AppContent({ onLogout }) {
                 </div>
             </div>
 
-            {/* FOOTER */}
+            {/* #### 3r.iii FOOTER */}
             <a
                 href="https://www.mahluminnovations.com/"
                 target="_blank"
@@ -762,7 +785,7 @@ function AppContent({ onLogout }) {
                 </span>
             </a>
 
-            {/* SETTINGS POPUP */}
+            {/* #### 3r.iv SETTINGS POPUP */}
             {settingsOpen && (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
@@ -861,7 +884,7 @@ function AppContent({ onLogout }) {
                 </div>
             )}
 
-            {/* SHARE URL POPUP */}
+            {/* #### 3r.v SHARE URL POPUP */}
             {shareUrlPopupOpen && (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
@@ -908,7 +931,7 @@ function AppContent({ onLogout }) {
                 </div>
             )}
 
-            {/* RIGHT-SIDE Manage Chats SIDEBAR */}
+            {/* #### 3r.vi RIGHT-SIDE Manage Chats SIDEBAR */}
             {manageChatsOpen && (
                 <div
                     className="fixed inset-0 z-50 flex justify-end"
@@ -929,6 +952,7 @@ function AppContent({ onLogout }) {
                             </button>
                         </div>
 
+                        {/* #### 3r.vi.a Server-based Chats */}
                         <p className="text-lg mb-2">Server-based Chats:</p>
                         {serverUserChats && serverUserChats.length > 0 ? (
                             serverUserChats.map((chat, idx) => (
@@ -938,15 +962,13 @@ function AppContent({ onLogout }) {
                                     onClick={() => {
                                         setMessages(chat.messages);
                                         setManageChatsOpen(false);
-                                        setCurrentChatId(chat.id); // optional if you want to continue that doc
+                                        setCurrentChatId(chat.id);
                                     }}
                                 >
                                     <p className="font-bold">{chat.title || 'Untitled Chat'}</p>
                                     <p className="text-xs text-gray-300">
                                         {chat.userKey} |{' '}
-                                        {chat.messages
-                                            ? `${chat.messages.length} msgs`
-                                            : '0 msgs'}
+                                        {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
                                     </p>
                                 </div>
                             ))
@@ -956,17 +978,18 @@ function AppContent({ onLogout }) {
 
                         <hr className="my-4 border-gray-600" />
 
+                        {/* #### 3r.vi.b Locally archived chats */}
                         <p className="text-lg mb-2">Locally archived chats:</p>
                         {archivedChats && archivedChats.length > 0 ? (
-                            archivedChats.map((chat, idx) => (
+                            archivedChats.map((c, idx) => (
                                 <div
                                     key={idx}
                                     className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
-                                    onClick={() => loadArchivedChat(chat)}
+                                    onClick={() => loadArchivedChat(c)}
                                 >
-                                    <p className="font-bold">{chat.title || 'Untitled chat'}</p>
+                                    <p className="font-bold">{c.title || 'Untitled chat'}</p>
                                     <p className="text-xs text-gray-300">
-                                        {chat.userKey} | {chat.messages.length} msgs
+                                        {c.userKey} | {c.messages.length} msgs
                                     </p>
                                 </div>
                             ))
