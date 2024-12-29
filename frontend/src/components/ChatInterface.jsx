@@ -1,4 +1,6 @@
-﻿// ChatInterface.jsx
+﻿/*****************************************************************************
+ * ChatInterface.jsx
+ *****************************************************************************/
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
@@ -58,10 +60,10 @@ export default function ChatInterface({
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
 
-    /**
+    /**************************************************************************
      * Called after receiving the bot’s response. If we have no chat title yet,
      * we try to generate it from the user’s first message, then rename on server.
-     */
+     **************************************************************************/
     const maybeGenerateTitle = async (updatedMessages) => {
         if (!hasGeneratedTitle) {
             try {
@@ -82,6 +84,9 @@ export default function ChatInterface({
         }
     };
 
+    /**************************************************************************
+     * sendMessage
+     **************************************************************************/
     const sendMessage = async () => {
         if (!userInput.trim() && files.length === 0) return;
 
@@ -89,10 +94,8 @@ export default function ChatInterface({
         const userMsg = {
             role: 'user',
             content: userInput,
-            // Step 1. If we want the UI to show which files user just attached
             attachedFiles: files.map((f) => ({
                 filename: f.name,
-                // The server will eventually set the blobUrl
                 blobUrl: '',
                 fileExt: 'other'
             }))
@@ -134,11 +137,19 @@ export default function ChatInterface({
                 references: res.data.references,
                 downloadUrl: res.data.downloadUrl,
                 reportContent: res.data.reportContent,
-                // Step 2. The server might not directly pass "files" here
-                // but if you want to attach them to the AI message, do so:
                 attachedFiles: []
             };
+
             setMessages((prev) => [...prev, botMsg]);
+
+            // ***** NEW: If the server returns chatId (maybe it generated a new one),
+            // you might want to store that in the parent so you remain consistent:
+            if (res.data.chatId && res.data.chatId !== chatId) {
+                console.log('Server returned a new chatId:', res.data.chatId);
+                // For example, you could do:
+                // setChatIdInParent(res.data.chatId);
+                // Or if setChatTitle is not used for that, store it somewhere else
+            }
 
             // Possibly generate a conversation title
             const updatedConversation = [...messages, userMsg, botMsg];
@@ -199,6 +210,9 @@ export default function ChatInterface({
         }
     };
 
+    /**************************************************************************
+     * Render
+     **************************************************************************/
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
             {/* If conversation has started, show the chat title + pencil */}

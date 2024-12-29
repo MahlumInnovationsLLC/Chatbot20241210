@@ -171,12 +171,13 @@ def chat_endpoint():
         data = request.get_json(force=True) or {}
         user_input = data.get('userMessage', '')
         user_key = data.get('userKey', user_key)
-        chat_id = data.get('chatId', None)
+        chat_id = data.get('chatId')
         uploaded_files = []
 
     # If no chatId, generate a new doc ID each time
     if not chat_id:
-        chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}"
+        chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+
 
     # Prepare the messages for AzureOpenAI
     messages = [
@@ -194,9 +195,8 @@ def chat_endpoint():
     ]
 
     # Retrieve or create doc in Cosmos
-    partition_key = user_key
     try:
-        chat_doc = container.read_item(chat_id, partition_key)
+        chat_doc = container.read_item(chat_id, partition_key=user_key)
     except exceptions.CosmosResourceNotFoundError:
         chat_doc = {
             "id": chat_id,
