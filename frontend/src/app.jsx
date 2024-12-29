@@ -64,8 +64,10 @@ function AppContent({ onLogout }) {
     const userKey = account ? account.homeAccountId : 'default_user';
 
     const { theme, toggleTheme } = useContext(ThemeContext);
-    const logoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
-    const bottomLogoUrl = 'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
+    const logoUrl =
+        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/loklen1.png';
+    const bottomLogoUrl =
+        'https://gymaidata.blob.core.windows.net/gymaiblobstorage/BlueMILLClonglogo.png';
     const limeGreen = '#a2f4a2';
 
     // #### 3b) Menu & UI states
@@ -102,7 +104,7 @@ function AppContent({ onLogout }) {
     }, []);
 
     // #### 3f) Create new chat
-    const [archivedChats, setArchivedChats] = useState([]); // also used below
+    const [archivedChats, setArchivedChats] = useState([]); // store local archived copies
 
     const createNewChat = async () => {
         try {
@@ -130,11 +132,11 @@ function AppContent({ onLogout }) {
     };
 
     // #### 3g) Additional states
+    // Moved activeTab and setActiveTab here (only once!)
     const [activeTab, setActiveTab] = useState('general');
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
-    // local archiving is archivedChats (already above)
 
     // #### 3h) Server-based user chats
     const [serverUserChats, setServerUserChats] = useState([]);
@@ -376,7 +378,8 @@ function AppContent({ onLogout }) {
     ));
 
     // #### 3q) Settings popup content
-    const [activeTab, setActiveTab] = useState('general'); // re‐declare to avoid confusion
+    // We remove the second/duplicate [activeTab, setActiveTab] declaration
+    // and just use the one declared in 3g above.
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
@@ -967,7 +970,9 @@ function AppContent({ onLogout }) {
                                     <p className="font-bold">{chat.title || 'Untitled Chat'}</p>
                                     <p className="text-xs text-gray-300">
                                         {chat.userKey} |{' '}
-                                        {chat.messages ? `${chat.messages.length} msgs` : '0 msgs'}
+                                        {chat.messages
+                                            ? `${chat.messages.length} msgs`
+                                            : '0 msgs'}
                                     </p>
                                 </div>
                             ))
