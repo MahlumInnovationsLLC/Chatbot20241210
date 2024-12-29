@@ -1,4 +1,4 @@
-﻿// App.jsx
+﻿// App.jsx 
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import TrainDocTool from './components/TrainDocTool';
@@ -132,7 +132,6 @@ function AppContent({ onLogout }) {
     };
 
     // #### 3g) Additional states
-    // Moved activeTab and setActiveTab here (only once!)
     const [activeTab, setActiveTab] = useState('general');
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [aiMood, setAiMood] = useState('');
@@ -325,6 +324,8 @@ function AppContent({ onLogout }) {
                     <ChatInterface
                         onLogout={onLogout}
                         userKey={userKey}
+                        // We pass a callback so child can update chatId if needed
+                        onChatIdUpdate={(newId) => setCurrentChatId(newId)}
                         chatId={currentChatId}
                         messages={messages}
                         setMessages={setMessages}
@@ -378,8 +379,6 @@ function AppContent({ onLogout }) {
     ));
 
     // #### 3q) Settings popup content
-    // We remove the second/duplicate [activeTab, setActiveTab] declaration
-    // and just use the one declared in 3g above.
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
@@ -466,8 +465,8 @@ function AppContent({ onLogout }) {
                                 value={aiMood}
                                 onChange={(e) => setAiMood(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="e.g., Friendly, Professional, Enthusiastic..."
                             />
@@ -478,8 +477,8 @@ function AppContent({ onLogout }) {
                                 value={aiInstructions}
                                 onChange={(e) => setAiInstructions(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Provide instructions for how the AI should behave..."
                                 rows={5}
@@ -507,8 +506,8 @@ function AppContent({ onLogout }) {
                                 value={contactNameFirst}
                                 onChange={(e) => setContactNameFirst(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="First Name"
                             />
@@ -520,8 +519,8 @@ function AppContent({ onLogout }) {
                                 value={contactNameLast}
                                 onChange={(e) => setContactNameLast(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Last Name"
                             />
@@ -533,8 +532,8 @@ function AppContent({ onLogout }) {
                                 value={contactCompany}
                                 onChange={(e) => setContactCompany(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Company Name"
                             />
@@ -546,8 +545,8 @@ function AppContent({ onLogout }) {
                                 value={contactEmail}
                                 onChange={(e) => setContactEmail(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Email Address"
                             />
@@ -558,8 +557,8 @@ function AppContent({ onLogout }) {
                                 value={contactNote}
                                 onChange={(e) => setContactNote(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                        ? 'border-gray-600 bg-gray-700 text-white'
-                                        : 'border-gray-300 bg-white text-black'
+                                    ? 'border-gray-600 bg-gray-700 text-white'
+                                    : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="How can we help?"
                                 rows={5}

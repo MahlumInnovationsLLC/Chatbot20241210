@@ -42,7 +42,9 @@ export default function ChatInterface({
     messages,
     setMessages,
     chatTitle,
-    setChatTitle
+    setChatTitle,
+    // NEW: optionally pass a callback so this component can inform the parent of a new chatId
+    onChatIdUpdate
 }) {
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -120,7 +122,7 @@ export default function ChatInterface({
                 res = await axios.post('/chat', {
                     userMessage: userInput,
                     userKey,
-                    chatId       // pass the existing chatId from props
+                    chatId // pass the existing chatId from props
                 });
             }
 
@@ -136,11 +138,13 @@ export default function ChatInterface({
             setMessages((prev) => [...prev, botMsg]);
 
             // 2a) If the server returns a brand-new chatId (for instance, if it’s auto-generating it),
-            // you could store that in the parent. (This code is commented out for now.)
+            // notify parent if onChatIdUpdate is provided.
             if (res.data.chatId && res.data.chatId !== chatId) {
                 console.log('Server returned a new chatId:', res.data.chatId);
-                // If you want to update your parent’s state:
-                // setChatIdInParent(res.data.chatId);
+                // <-- ADDED THIS:
+                if (onChatIdUpdate) {
+                    onChatIdUpdate(res.data.chatId);
+                }
             }
 
             // 3) Possibly generate a conversation title

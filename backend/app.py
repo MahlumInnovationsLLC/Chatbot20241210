@@ -93,9 +93,6 @@ def extract_text_from_pdf(file_bytes):
     if not FORM_RECOGNIZER_ENDPOINT or not FORM_RECOGNIZER_KEY:
         raise ValueError("FORM_RECOGNIZER_ENDPOINT and FORM_RECOGNIZER_KEY must be set.")
     try:
-        from azure.ai.formrecognizer import DocumentAnalysisClient
-        from azure.core.credentials import AzureKeyCredential
-
         doc_client = DocumentAnalysisClient(
             endpoint=FORM_RECOGNIZER_ENDPOINT,
             credential=AzureKeyCredential(FORM_RECOGNIZER_KEY)
@@ -145,47 +142,46 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 6. Chat Endpoint (Multi-file, Multi-Doc)
+# 6. Chat Endpoint (Multi-file, Multi-Doc) - with create_item / replace_item
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    We store each conversation in Cosmos as a separate doc, keyed by chatId.
-    If a chatId is not provided, we generate a new one automatically.
-    This way, user can pass that chatId in future requests to retrieve the
-    ongoing memory for that conversation.
+    Each conversation is a separate doc keyed by chatId + userKey as partitionKey.
+    If chatId is not provided => generate. Then either create or replace the doc
+    to avoid 409 conflicts.
     """
     import time
     import random
 
+    # 6a) parse userKey & chatId
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
 
+    # Distinguish between multipart vs JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
-        # multipart
         user_input = request.form.get('userMessage', '')
         chat_id = request.form.get('chatId')
         uploaded_files = request.files.getlist('file') or []
     else:
         data = request.get_json(force=True) or {}
         user_input = data.get('userMessage', '')
-        user_key = data.get('userKey', user_key)
+        user_key = data.get('userKey', user_key)  # Ensure consistent userKey usage
         chat_id = data.get('chatId')
         uploaded_files = []
 
-    # If no chatId, generate a new doc ID each time
+    # If no chatId => auto-generate
     if not chat_id:
         chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
 
-
-    # Prepare the messages for AzureOpenAI
+    # 6b) Prepare base messages for the OpenAI call
     messages = [
         {
             "role": "system",
             "content": (
                 "You are a helpful assistant. Use Markdown. If user requests a downloadable report, "
-                "MUST provide `download://report.docx`. If references, show them. Else `References: None`."
+                "MUST provide `download://report.docx`. If references, show them, else `References: None`."
             )
         },
         {
@@ -194,10 +190,13 @@ def chat_endpoint():
         }
     ]
 
-    # Retrieve or create doc in Cosmos
+    # 6c) Attempt to read existing doc
+    doc_exists = True
     try:
         chat_doc = container.read_item(chat_id, partition_key=user_key)
     except exceptions.CosmosResourceNotFoundError:
+        # Doc not found => create a new one
+        doc_exists = False
         chat_doc = {
             "id": chat_id,
             "userKey": user_key,
@@ -205,11 +204,12 @@ def chat_endpoint():
             "files": []
         }
 
-    # Handle multiple file uploads
+    # 6d) If user uploaded files, handle them
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
                 continue
+
             file_bytes = up_file.read()
             filename = up_file.filename
             lower_name = filename.lower()
@@ -223,7 +223,6 @@ def chat_endpoint():
             else:
                 file_ext = 'other'
 
-            # Upload to temp container
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
             if file_ext == 'pdf':
@@ -236,11 +235,9 @@ def chat_endpoint():
                 )
             blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
 
-            # ephemeral URL
             base_url = temp_container_client.url
             blob_url = f"{base_url}/{filename}"
 
-            # optional text extraction
             extracted_text = None
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
@@ -265,7 +262,6 @@ def chat_endpoint():
                     "content": f"Image '{filename}' uploaded.\nAI says: {desc}"
                 })
 
-            # store reference
             chat_doc["files"].append({
                 "filename": filename,
                 "blobUrl": blob_url,
@@ -273,31 +269,28 @@ def chat_endpoint():
                 "extractedText": extracted_text or ""
             })
 
-        # Let user know
+        # Let user know in the system messages
         messages.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add user message to doc
+    # 6e) Add user message to doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # Call AzureOpenAI
+    # 6f) Call AzureOpenAI
     assistant_reply = ""
     try:
-        response = client.chat.completions.create(
-            messages=messages,
-            model=AZURE_DEPLOYMENT_NAME
-        )
+        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
         assistant_reply = response.choices[0].message.content
     except Exception as e:
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # parse references
+    # 6g) parse references from AI
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -316,7 +309,7 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # check for docx link
+    # 6h) check for docx link
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -324,21 +317,27 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    # finalize
+    # 6i) finalize doc w/assistant reply
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # Upsert in Cosmos
-    container.upsert_item(chat_doc)
+    # 6j) Create or Replace to avoid 409 conflict
+    if doc_exists:
+        # This updates the existing doc
+        container.replace_item(chat_doc, chat_doc["id"])
+    else:
+        # This safely creates a brand new doc
+        container.create_item(chat_doc)
 
+    # 6k) Return final JSON
     return jsonify({
         "reply": main_content,
         "references": references_list,
         "downloadUrl": download_url,
         "reportContent": report_content,
-        "chatId": chat_id  # Return the ID so the frontend can store for future
+        "chatId": chat_id
     })
 
 ###############################################################################
@@ -466,7 +465,6 @@ def get_chats():
         enable_cross_partition_query=True
     ))
 
-    # Return entire docs. The front end can interpret them.
     return jsonify({"chats": items}), 200
 
 @app.route('/archiveAllChats', methods=['POST'])
@@ -482,7 +480,7 @@ def archive_all_chats():
 
     for doc in items:
         doc['archived'] = True
-        container.replace_item(doc, doc)
+        container.replace_item(doc, doc['id'])
     return jsonify({"success": True}), 200
 
 @app.route('/deleteAllChats', methods=['POST'])
