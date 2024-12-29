@@ -102,19 +102,23 @@ function AppContent({ onLogout }) {
     }, []);
 
     // #### 3f) Create new chat
+    const [archivedChats, setArchivedChats] = useState([]); // also used below
+
     const createNewChat = async () => {
         try {
-            // If we have a real conversation beyond the system message, 
-            // optionally generate a title (for local archival).
+            // If we have a real conversation beyond the system message,
+            // optionally generate a chat title for the old conversation
             if (messages.length > 1) {
                 const chatTitle = await generateChatTitle(messages);
                 console.log('Archived old chat with title:', chatTitle);
-                // Optionally store it locally if you want a local archive:
+
+                // Store it in local state (archivedChats) if you want a local copy
                 setArchivedChats((prev) => [
                     ...prev,
                     { id: currentChatId, userKey, messages, title: chatTitle }
                 ]);
             }
+
             // Generate a unique chat ID
             const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
             setMessages([systemMessage]);
@@ -130,15 +134,13 @@ function AppContent({ onLogout }) {
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
-    // local archiving
-    const [archivedChats, setArchivedChats] = useState([]);
+    // local archiving is archivedChats (already above)
 
     // #### 3h) Server-based user chats
     const [serverUserChats, setServerUserChats] = useState([]);
     const fetchUserChats = async () => {
         try {
             const res = await axios.get('/chats', { params: { userKey } });
-            // "chats" is an array of cosmos docs
             setServerUserChats(res.data.chats || []);
         } catch (err) {
             console.error('Failed to fetch user chats:', err);
@@ -216,10 +218,8 @@ function AppContent({ onLogout }) {
 
     // #### 3l) Load a chat from server or local
     const loadArchivedChat = (chat) => {
-        // This sets messages to that chat’s messages
         setMessages(chat.messages);
         setManageChatsOpen(false);
-        // also set the chat ID, so continuing convos updates that doc in cosmos
         setCurrentChatId(chat.id);
     };
 
@@ -376,6 +376,7 @@ function AppContent({ onLogout }) {
     ));
 
     // #### 3q) Settings popup content
+    const [activeTab, setActiveTab] = useState('general'); // re‐declare to avoid confusion
     const renderSettingsContent = () => {
         switch (activeTab) {
             case 'general':
@@ -509,7 +510,7 @@ function AppContent({ onLogout }) {
                                 placeholder="First Name"
                             />
                         </div>
-                        <div className="flex flex-col space-y-2">
+                        <div className="flex flex-col space-y=2">
                             <label className="text-lg font-semibold">Last Name:</label>
                             <input
                                 type="text"
@@ -702,7 +703,8 @@ function AppContent({ onLogout }) {
                                             messages
                                                 .map(
                                                     (m) =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content}`
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'
+                                                        } ${m.content}`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -778,8 +780,7 @@ function AppContent({ onLogout }) {
             >
                 <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
                 <span
-                    className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'
-                        }`}
+                    className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}
                 >
                     Powered by Mahlum Innovations, LLC
                 </span>
@@ -796,9 +797,7 @@ function AppContent({ onLogout }) {
                     }}
                 >
                     <div
-                        className={`${theme === 'dark'
-                                ? 'bg-gray-800 text-white'
-                                : 'bg-white text-black'
+                        className={`${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'
                             } w-1/2 h-1/2 rounded p-4 flex flex-col transform origin-top transition-transform duration-200 ease-out scale-y-100 animate-slideDown`}
                         onClick={(e) => e.stopPropagation()}
                         style={{ border: `1px solid ${limeGreen}` }}

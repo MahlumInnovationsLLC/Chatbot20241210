@@ -535,9 +535,9 @@ def rename_chat():
         return jsonify({"error": "chatId and newTitle are required"}), 400
 
     try:
-        doc = container.read_item(chat_id, user_key)
-        doc['title'] = new_title
-        container.upsert_item(doc)
+        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
+        chat_doc['title'] = new_title
+        container.upsert_item(chat_doc)
         return jsonify({"success": True, "message": "Title updated."}), 200
     except exceptions.CosmosResourceNotFoundError:
         return jsonify({"error": "Chat not found."}), 404
