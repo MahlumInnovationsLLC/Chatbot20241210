@@ -680,7 +680,52 @@ def search_in_azure_search(q, user_key, top_k=3):
         return []
 
 ###############################################################################
-# 10. Error Handler and Main
+# 10. Add /generateChatTitle Endpoint (NEW)
+###############################################################################
+@app.route('/generateChatTitle', methods=['POST'])
+def generate_chat_title():
+    """
+    Endpoint to generate a short, descriptive conversation title (3-6 words).
+    Request body:
+    {
+      "messages": [...],
+      "model": "GYMAIEngine-gpt-4o"  # or any other model name
+    }
+    """
+    data = request.get_json(force=True) or {}
+    messages = data.get("messages", [])
+    model_name = data.get("model", "GYMAIEngine-gpt-4o")  # or fallback
+
+    # We'll call AzureOpenAI chat with these messages:
+    # For safety, let's prepend a system directive specifically for short titles
+    system_prompt = {
+        "role": "system",
+        "content": (
+            "You are an assistant that creates short, descriptive conversation titles, "
+            "3-6 words, no quotes. Return only the title as text. Avoid punctuation."
+        )
+    }
+
+    # Insert the system prompt at the front
+    messages_for_title = [system_prompt] + messages
+
+    title_response = "Untitled Chat"
+    try:
+        resp = client.chat.completions.create(
+            messages=messages_for_title,
+            model=model_name
+        )
+        # We assume the AI replies with a short text
+        title_response = resp.choices[0].message.content.strip()
+    except Exception as e:
+        app.logger.error("Error calling AzureOpenAI for chat title:", exc_info=True)
+        title_response = "Untitled Chat"
+
+    # Return as JSON
+    return jsonify({"title": title_response})
+
+###############################################################################
+# 11. Error Handler and Main
 ###############################################################################
 @app.errorhandler(404)
 def not_found(e):

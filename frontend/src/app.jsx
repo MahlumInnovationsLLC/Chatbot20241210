@@ -26,7 +26,7 @@ async function generateChatTitle(messages) {
                     content: 'Please provide a concise, descriptive title for this conversation.'
                 }
             ],
-            model: 'YOUR_OPENAI_MODEL'
+            model: 'GYMAIEngine-gpt-4o'
         };
         const response = await axios.post('/generateChatTitle', requestBody);
         return response.data.title || 'Untitled Chat';
