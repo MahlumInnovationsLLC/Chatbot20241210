@@ -143,24 +143,21 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 6. Chat Endpoint (Multi-file, Multi-Doc) - with create_item / replace_item
+# 6. Chat Endpoint (always upsert)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    Each conversation is a separate doc keyed by chatId + userKey as partitionKey.
-    If chatId is not provided => generate. Then either create or replace the doc
-    to avoid 409 conflicts.
+    - We'll ALWAYS upsert (container.upsert_item) to avoid 409 conflicts.
+    - If user doesn't pass a chatId, we generate one. If a doc with that ID
+      already exists, upsert means we just append to it.
     """
     import time
     import random
 
-    # 6a) parse userKey & chatId
     user_key = request.args.get('userKey', 'default_user')
-    chat_id = None
     user_input = ""
 
-    # Distinguish between multipart vs JSON
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
         chat_id = request.form.get('chatId')
@@ -168,7 +165,7 @@ def chat_endpoint():
     else:
         data = request.get_json(force=True) or {}
         user_input = data.get('userMessage', '')
-        user_key = data.get('userKey', user_key)  # Ensure consistent userKey usage
+        user_key = data.get('userKey', user_key)
         chat_id = data.get('chatId')
         uploaded_files = []
 
@@ -176,7 +173,18 @@ def chat_endpoint():
     if not chat_id:
         chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
 
-    # 6b) Prepare base messages for the OpenAI call
+    # Try to read existing doc; if not found => build a blank
+    try:
+        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
+    except exceptions.CosmosResourceNotFoundError:
+        chat_doc = {
+            "id": chat_id,
+            "userKey": user_key,
+            "messages": [],
+            "files": []
+        }
+
+    # Prepare messages for AzureOpenAI
     messages = [
         {
             "role": "system",
@@ -191,26 +199,11 @@ def chat_endpoint():
         }
     ]
 
-    doc_exists = True
-    try:
-        # Try reading an existing doc => if found, doc_exists stays True
-        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
-    except exceptions.CosmosResourceNotFoundError:
-        # If not found => doc_exists = False => create a new doc
-        doc_exists = False
-        chat_doc = {
-            "id": chat_id,
-            "userKey": user_key,
-            "messages": [],
-            "files": []
-        }
-
-    # 6d) If user uploaded files, handle them
+    # Handle uploaded files
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
                 continue
-
             file_bytes = up_file.read()
             filename = up_file.filename
             lower_name = filename.lower()
@@ -270,28 +263,30 @@ def chat_endpoint():
                 "extractedText": extracted_text or ""
             })
 
-        # Let user know in the system messages
         messages.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # 6e) Add user message to doc
+    # Add user’s message to doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # 6f) Call AzureOpenAI
+    # Call AzureOpenAI
     assistant_reply = ""
     try:
-        response = client.chat.completions.create(messages=messages, model=AZURE_DEPLOYMENT_NAME)
+        response = client.chat.completions.create(
+            messages=messages,
+            model=AZURE_DEPLOYMENT_NAME
+        )
         assistant_reply = response.choices[0].message.content
     except Exception as e:
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # 6g) parse references from AI
+    # parse references
     main_content = assistant_reply
     references_list = []
     if 'References:' in assistant_reply:
@@ -310,7 +305,7 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # 6h) check for docx link
+    # check docx link
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -318,20 +313,16 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    # 6i) finalize doc w/assistant reply
+    # Add assistant reply to doc
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # 6j) Create or Replace to avoid 409 conflict
-    if doc_exists:
-        # ***IMPORTANT FIX***: The first arg is the doc_id (string), second arg is the doc (dict).
-        container.replace_item(item=chat_doc["id"], body=chat_doc)
-    else:
-        container.create_item(chat_doc)
+    # *** ALWAYS UPSERT => No more conflicts ***
+    container.upsert_item(chat_doc)
 
-    # 6k) Return final JSON
+    # Return JSON
     return jsonify({
         "reply": main_content,
         "references": references_list,
@@ -339,6 +330,7 @@ def chat_endpoint():
         "reportContent": report_content,
         "chatId": chat_id
     })
+
 
 ###############################################################################
 # 7. Generate and Send Docx
@@ -480,7 +472,7 @@ def archive_all_chats():
 
     for doc in items:
         doc['archived'] = True
-        container.replace_item(item=doc['id'], body=doc)
+        container.upsert_item(doc)
     return jsonify({"success": True}), 200
 
 @app.route('/deleteAllChats', methods=['POST'])
