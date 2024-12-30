@@ -326,8 +326,22 @@ def chat_endpoint():
     # Default main_content is same as assistant_reply
     main_content = assistant_reply
 
-    # Remove any old (stale) references to /api/generateReport to avoid duplicates
     main_content = re.sub(r"\[[^\]]+\]\(/api/generateReport.*?\)", "", main_content)
+
+    # Remove direct references to "Download the Report" or a leftover link
+    import re
+
+    # 1) Remove any lines that say "[Download the Report](...)" or just "Download the Report"
+    #    This first regex removes any Markdown link text containing "Download the Report"
+    main_content = re.sub(r"\[?[Dd]ownload the [Rr]eport\]?\(.*?\)", "", main_content)
+
+    # 2) Also remove any plain text lines that just read "Download the Report"
+    #    This regex looks for a standalone line with "Download the Report"
+    main_content = re.sub(r"(?m)^\s*[Dd]ownload the [Rr]eport\s*$", "", main_content)
+
+    # 3) If you want to remove leftover parentheses or extra blank lines:
+    main_content = re.sub(r"\(\s*\)", "", main_content)
+    main_content = re.sub(r"\n{2,}", "\n\n", main_content).strip()
 
     # Parse references if present
     references_list = []
@@ -378,7 +392,6 @@ def chat_endpoint():
         "chatId": chat_id
     })
 
-
 ###############################################################################
 # 8. Generate and Send Docx (GET-based)
 ###############################################################################
@@ -386,8 +399,10 @@ def chat_endpoint():
 def generate_report_get():
     """
     GET-based endpoint. Expects ?reportId=<some-uuid> in the querystring.
-    Looks up the expanded text in report_cache, then returns .docx.
+    Looks up the expanded text in report_cache, then returns .docx with headings/bullets/bold.
     """
+    import re
+
     rid = request.args.get('reportId')
     if not rid:
         return "Missing reportId param", 400
@@ -401,6 +416,7 @@ def generate_report_get():
 
     lines = doc_text.split('\n')
 
+    # 1) Derive doc_title from first heading
     doc_title = "Generated Report"
     for idx, line in enumerate(lines):
         s = line.strip()
@@ -417,17 +433,59 @@ def generate_report_get():
     doc = Document()
     doc.add_heading(doc_title, 0)
 
+    # Helper to handle bold text via '**'
+    def handle_bold_text(paragraph, text):
+        segments = text.split('**')
+        for i, seg in enumerate(segments):
+            run = paragraph.add_run(seg)
+            if i % 2 == 1:  # odd segments => bold
+                run.bold = True
+
+    # 2) Convert each line from "pseudo-Markdown" to Word structures
     for line in lines:
         stripped = line.strip()
         if not stripped:
-            doc.add_paragraph('')
+            doc.add_paragraph('')  # blank line
             continue
-        doc.add_paragraph(stripped)
 
+        # Heading level 3
+        if stripped.startswith('### '):
+            heading_text = stripped[4:].strip()
+            doc.add_heading(heading_text, level=3)
+
+        # Heading level 2
+        elif stripped.startswith('## '):
+            heading_text = stripped[3:].strip()
+            doc.add_heading(heading_text, level=2)
+
+        # Heading level 1
+        elif stripped.startswith('# '):
+            heading_text = stripped[2:].strip()
+            doc.add_heading(heading_text, level=1)
+
+        # Bulleted list ("- ")
+        elif re.match(r'^-\s', stripped):
+            bullet_text = stripped[2:].strip()
+            paragraph = doc.add_paragraph(style='List Bullet')
+            handle_bold_text(paragraph, bullet_text)
+
+        # Numbered list ("1. something" => match ^\d+.\s)
+        elif re.match(r'^\d+\.\s', stripped):
+            numbered_text = re.sub(r'^\d+\.\s', '', stripped).strip()
+            paragraph = doc.add_paragraph(style='List Number')
+            handle_bold_text(paragraph, numbered_text)
+
+        else:
+            # Normal paragraph or text
+            paragraph = doc.add_paragraph()
+            handle_bold_text(paragraph, stripped)
+
+    # 3) Save into memory buffer
     buffer = BytesIO()
     doc.save(buffer)
     buffer.seek(0)
 
+    # 4) Safe filename
     safe_title = "".join([c if c.isalnum() else "_" for c in doc_title]) or "report"
     filename = f"{safe_title}.docx"
 
