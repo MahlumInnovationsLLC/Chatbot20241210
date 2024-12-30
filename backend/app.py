@@ -99,7 +99,12 @@ client = AzureOpenAI(
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Your deployment name
 
 ###############################################################################
-# 4. Helper Functions
+# 4. In-Memory Cache for Generated Reports (NEW)
+###############################################################################
+report_cache = {}  # e.g. { "report_uuid": "Full expanded text..." }
+
+###############################################################################
+# 5. Helper Functions
 ###############################################################################
 def extract_text_from_pdf(file_bytes):
     if not FORM_RECOGNIZER_ENDPOINT or not FORM_RECOGNIZER_KEY:
@@ -148,14 +153,14 @@ def generate_detailed_report(base_content):
         return base_content + "\n\n(Additional detail could not be generated.)"
 
 ###############################################################################
-# 5. Serve Frontend
+# 6. Serve Frontend
 ###############################################################################
 @app.route('/')
 def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 6. Chat Endpoint (Upsert-based)
+# 7. Chat Endpoint (Upsert-based)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
@@ -276,7 +281,7 @@ def chat_endpoint():
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add user message
+    # Add user's new message
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
@@ -297,7 +302,7 @@ def chat_endpoint():
     # Default main_content is the same as assistant_reply
     main_content = assistant_reply
 
-    # ### parse references if present
+    # Parse references if present
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
@@ -315,29 +320,21 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # ### check for docx link in text
+    # Check for docx link in text (download://report.docx)
     download_url = None
-    report_content = None
     if 'download://report.docx' in main_content:
-        # 1) We'll remove that placeholder from the text
+        # Remove that placeholder from the text
         new_text = main_content.replace('download://report.docx', '').strip()
 
-        # 2) Generate the big chunk of text for the doc
-        report_content = generate_detailed_report(new_text)
+        # Generate the big chunk of text for the doc
+        expanded_text = generate_detailed_report(new_text)
 
-        # ### CHANGED OR ADDED ###
-        # Instead of returning a separate button link, embed a hyperlink in the final text
-        # We'll do something like a markdown link pointing to the existing /api/generateReport
-        # but note that /api/generateReport currently expects a POST with JSON. 
-        # If you want a direct GET hyperlink, you must either 
-        # (a) change that route to GET or 
-        # (b) do something else. 
-        # For now, let's keep it as a placeholder link that calls /api/generateReport. 
-        # The user will need to handle the POST in the front-end if they truly want a single click.
+        # Create a unique ID for the report, store in memory
+        rid = str(uuid.uuid4())
+        report_cache[rid] = expanded_text
 
-        hyperlink_markdown = "[Click here to download the doc](/api/generateReport) (Requires a POST, or adapt for GET)"
-
-        # Insert that link into main_content
+        # Provide a GET hyperlink => /api/generateReport?reportId=rid
+        hyperlink_markdown = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
         main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink_markdown}"
 
     # Add bot's reply to doc
@@ -349,26 +346,39 @@ def chat_endpoint():
     # Upsert once => no 409 conflicts
     container.upsert_item(chat_doc)
 
-    # ### Return JSON to front-end
+    # Return JSON to front-end
     return jsonify({
         "reply": main_content,
         "references": references_list,
-        "downloadUrl": None,          # no separate button link anymore
-        "reportContent": report_content,
+        "downloadUrl": None,   # not needed, since we have hyperlink
+        "reportContent": None, # no direct content returned
         "chatId": chat_id
     })
 
 ###############################################################################
-# 7. Generate and Send Docx
+# 8. Generate and Send Docx (Now a GET)
 ###############################################################################
-@app.route('/api/generateReport', methods=['POST'])
-def generate_report():
-    data = request.get_json(force=True)
-    report_content = data.get('reportContent', 'No content provided')
+@app.route('/api/generateReport', methods=['GET'])
+def generate_report_get():
+    """
+    GET-based endpoint. Expects ?reportId=<some-uuid> in the querystring.
+    Looks up the expanded text in report_cache, then returns .docx.
+    """
+    rid = request.args.get('reportId')
+    if not rid:
+        return "Missing reportId param", 400
 
-    lines = report_content.split('\n')
-    lines = [l.rstrip() for l in lines]
+    doc_text = report_cache.get(rid)
+    if not doc_text:
+        return "No report found for that ID or it expired.", 404
 
+    # Optional: remove from cache after single use:
+    del report_cache[rid]
+
+    # Convert doc_text to .docx
+    lines = doc_text.split('\n')
+
+    # Minimal logic to parse doc_title from lines, or fallback
     doc_title = "Generated Report"
     for idx, line in enumerate(lines):
         s = line.strip()
@@ -382,9 +392,6 @@ def generate_report():
             doc_title = s[4:].strip()
             break
 
-    safe_title = "".join([c if c.isalnum() else "_" for c in doc_title]) or "report"
-    filename = f"{safe_title}.docx"
-
     doc = Document()
     doc.add_heading(doc_title, 0)
 
@@ -393,32 +400,14 @@ def generate_report():
         if not stripped:
             doc.add_paragraph('')
             continue
-        if stripped.startswith('#### '):
-            doc.add_heading(stripped[5:].strip(), level=4)
-        elif stripped.startswith('### '):
-            doc.add_heading(stripped[4:].strip(), level=3)
-        elif stripped.startswith('## '):
-            doc.add_heading(stripped[3:].strip(), level=2)
-        elif stripped.startswith('# '):
-            doc.add_heading(stripped[2:].strip(), level=1)
-        elif re.match(r'^-\s', stripped):
-            doc.add_paragraph(stripped[2:].strip(), style='List Bullet')
-        elif re.match(r'^\d+\.\s', stripped):
-            doc.add_paragraph(
-                re.sub(r'^\d+\.\s', '', stripped).strip(),
-                style='List Number'
-            )
-        else:
-            p = doc.add_paragraph()
-            segments = stripped.split('**')
-            for i, seg in enumerate(segments):
-                run = p.add_run(seg)
-                if i % 2 == 1:
-                    run.bold = True
+        doc.add_paragraph(stripped)
 
     buffer = BytesIO()
     doc.save(buffer)
     buffer.seek(0)
+
+    safe_title = "".join([c if c.isalnum() else "_" for c in doc_title]) or "report"
+    filename = f"{safe_title}.docx"
 
     return send_file(
         buffer,
@@ -428,7 +417,7 @@ def generate_report():
     )
 
 ###############################################################################
-# 8. Contact, Chats, Archive, Delete
+# 9. Contact, Chats, Archive, Delete
 ###############################################################################
 @app.route('/contact', methods=['POST'])
 def contact_endpoint():
@@ -562,7 +551,7 @@ def rename_chat():
         return jsonify({"error": str(e)}), 500
 
 ###############################################################################
-# 9. Large File Upload + Searching
+# 10. Large File Upload + Searching
 ###############################################################################
 AZURE_SEARCH_ENDPOINT = os.environ.get("AZURE_SEARCH_ENDPOINT", "")
 AZURE_SEARCH_KEY = os.environ.get("AZURE_SEARCH_KEY", "")
@@ -614,6 +603,9 @@ def upload_large_file():
         return jsonify({"error": "Please do multipart/form-data"}), 400
 
 def upsert_chunks_to_search(chunks, user_key):
+    from azure.search.documents import SearchClient
+    from azure.core.credentials import AzureKeyCredential
+
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
         app.logger.error("Azure Search env not set.")
         return 0
@@ -674,6 +666,9 @@ def ask_doc():
         return jsonify({"error": str(e)}), 500
 
 def search_in_azure_search(q, user_key, top_k=3):
+    from azure.search.documents import SearchClient
+    from azure.core.credentials import AzureKeyCredential
+
     if not (AZURE_SEARCH_ENDPOINT and AZURE_SEARCH_KEY and AZURE_SEARCH_INDEX):
         app.logger.error("Azure Search not configured.")
         return []
@@ -695,7 +690,7 @@ def search_in_azure_search(q, user_key, top_k=3):
         return []
 
 ###############################################################################
-# 10. Add /generateChatTitle Endpoint (NEW)
+# 11. Add /generateChatTitle Endpoint (NEW)
 ###############################################################################
 @app.route('/generateChatTitle', methods=['POST'])
 def generate_chat_title():
@@ -727,7 +722,7 @@ def generate_chat_title():
     return jsonify({"title": title_response})
 
 ###############################################################################
-# 11. Error Handler and Main
+# 12. Error Handler and Main
 ###############################################################################
 @app.errorhandler(404)
 def not_found(e):
