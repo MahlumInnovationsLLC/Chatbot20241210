@@ -159,10 +159,6 @@ def serve_frontend():
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
-    """
-    SINGLE Upsert approach to store conversation docs keyed by (id=chatId, partitionKey=userKey).
-    This prevents 409 conflicts by using upsert_item for creation or replacement.
-    """
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
@@ -208,7 +204,7 @@ def chat_endpoint():
             "files": []
         }
 
-    # If user uploaded files
+    # Handle uploaded files
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
@@ -218,7 +214,6 @@ def chat_endpoint():
             filename = up_file.filename
             lower_name = filename.lower()
 
-            # figure out extension
             if lower_name.endswith('.pdf'):
                 file_ext = 'pdf'
             elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
@@ -281,7 +276,7 @@ def chat_endpoint():
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add user's new message to doc
+    # Add user message
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
@@ -299,8 +294,10 @@ def chat_endpoint():
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # parse references
+    # Default main_content is the same as assistant_reply
     main_content = assistant_reply
+
+    # ### parse references if present
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
@@ -318,13 +315,30 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # check for docx link
+    # ### check for docx link in text
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
-        main_content = main_content.replace('download://report.docx', '').strip()
-        report_content = generate_detailed_report(main_content)
-        download_url = '/api/generateReport'
+        # 1) We'll remove that placeholder from the text
+        new_text = main_content.replace('download://report.docx', '').strip()
+
+        # 2) Generate the big chunk of text for the doc
+        report_content = generate_detailed_report(new_text)
+
+        # ### CHANGED OR ADDED ###
+        # Instead of returning a separate button link, embed a hyperlink in the final text
+        # We'll do something like a markdown link pointing to the existing /api/generateReport
+        # but note that /api/generateReport currently expects a POST with JSON. 
+        # If you want a direct GET hyperlink, you must either 
+        # (a) change that route to GET or 
+        # (b) do something else. 
+        # For now, let's keep it as a placeholder link that calls /api/generateReport. 
+        # The user will need to handle the POST in the front-end if they truly want a single click.
+
+        hyperlink_markdown = "[Click here to download the doc](/api/generateReport) (Requires a POST, or adapt for GET)"
+
+        # Insert that link into main_content
+        main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink_markdown}"
 
     # Add bot's reply to doc
     chat_doc["messages"].append({
@@ -335,10 +349,11 @@ def chat_endpoint():
     # Upsert once => no 409 conflicts
     container.upsert_item(chat_doc)
 
+    # ### Return JSON to front-end
     return jsonify({
         "reply": main_content,
         "references": references_list,
-        "downloadUrl": download_url,
+        "downloadUrl": None,          # no separate button link anymore
         "reportContent": report_content,
         "chatId": chat_id
     })
@@ -684,20 +699,10 @@ def search_in_azure_search(q, user_key, top_k=3):
 ###############################################################################
 @app.route('/generateChatTitle', methods=['POST'])
 def generate_chat_title():
-    """
-    Endpoint to generate a short, descriptive conversation title (3-6 words).
-    Request body:
-    {
-      "messages": [...],
-      "model": "GYMAIEngine-gpt-4o"  # or any other model name
-    }
-    """
     data = request.get_json(force=True) or {}
     messages = data.get("messages", [])
-    model_name = data.get("model", "GYMAIEngine-gpt-4o")  # or fallback
+    model_name = data.get("model", "GYMAIEngine-gpt-4o")
 
-    # We'll call AzureOpenAI chat with these messages:
-    # For safety, let's prepend a system directive specifically for short titles
     system_prompt = {
         "role": "system",
         "content": (
@@ -706,7 +711,6 @@ def generate_chat_title():
         )
     }
 
-    # Insert the system prompt at the front
     messages_for_title = [system_prompt] + messages
 
     title_response = "Untitled Chat"
@@ -715,13 +719,11 @@ def generate_chat_title():
             messages=messages_for_title,
             model=model_name
         )
-        # We assume the AI replies with a short text
         title_response = resp.choices[0].message.content.strip()
     except Exception as e:
         app.logger.error("Error calling AzureOpenAI for chat title:", exc_info=True)
         title_response = "Untitled Chat"
 
-    # Return as JSON
     return jsonify({"title": title_response})
 
 ###############################################################################

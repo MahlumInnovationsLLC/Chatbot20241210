@@ -515,7 +515,7 @@ function AppContent({ onLogout }) {
                     </div>
                 );
 
-            case 'empty1': // "Contact Us"
+            case 'ContactUs': // "Contact Us"
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
@@ -861,11 +861,11 @@ function AppContent({ onLogout }) {
                             </button>
 
                             <button
-                                className={`px-2 py-1 rounded ${activeTab === 'empty1'
+                                className={`px-2 py-1 rounded ${activeTab === 'ContactUs'
                                         ? 'bg-[#a2f4a2] text-black font-bold'
                                         : 'bg-gray-700 text-white'
                                     }`}
-                                onClick={() => setActiveTab('empty1')}
+                                onClick={() => setActiveTab('ContactUs')}
                             >
                                 <i className="fa-light fa-address-book mr-2"></i>
                                 Contact Us
