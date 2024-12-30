@@ -8,6 +8,8 @@ import uuid
 import traceback
 from io import BytesIO
 from docx import Document
+import time
+import random
 
 from openai import AzureOpenAI
 
@@ -70,9 +72,19 @@ if AZURE_STORAGE_CONNECTION_STRING:
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
         temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
-        temp_container_client.create_container()  # idempotent
+        # Create container once; handle if already exists
+        try:
+            temp_container_client.create_container()
+            app.logger.info(f"Created container '{AZURE_TEMP_CONTAINER}'")
+        except Exception as ex:
+            if "ContainerAlreadyExists" in str(ex):
+                app.logger.info(f"Container '{AZURE_TEMP_CONTAINER}' already existed; ignoring.")
+            else:
+                app.logger.error("Error creating container: %s", ex)
+                temp_container_client = None
     except Exception as ex:
         app.logger.error("Error initializing BlobServiceClient for temp container: %s", ex)
+        temp_container_client = None
 else:
     app.logger.warning("No AZURE_STORAGE_CONNECTION_STRING found. Temp file uploads will fail.")
 
@@ -143,20 +155,18 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 6. Chat Endpoint (always upsert)
+# 6. Chat Endpoint (Upsert-based)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
     SINGLE Upsert approach to store conversation docs keyed by (id=chatId, partitionKey=userKey).
-    No separate create_item/replace_item calls — just upsert_item. This prevents 409 conflicts.
+    This prevents 409 conflicts by using upsert_item for creation or replacement.
     """
-    import time
-    import random
-    
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
+    uploaded_files = []
 
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
@@ -186,14 +196,11 @@ def chat_endpoint():
         {"role": "user", "content": user_input}
     ]
 
-    # Try to retrieve or build the doc
-    # NOTE: We'll do only upsert_item in the end, so if doc does not exist, it’s created; if it does, replaced.
+    # Attempt to retrieve or create doc
     try:
         existing_doc = container.read_item(item=chat_id, partition_key=user_key)
-        # We found an existing doc => reuse it
         chat_doc = existing_doc
     except exceptions.CosmosResourceNotFoundError:
-        # doc doesn’t exist => create the skeleton
         chat_doc = {
             "id": chat_id,
             "userKey": user_key,
@@ -222,11 +229,8 @@ def chat_endpoint():
                 file_ext = 'other'
 
             # Upload to blob
-            # (Try/catch if desired)
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
-            # set content_settings if needed
-            from azure.storage.blob import ContentSettings
             if file_ext == 'pdf':
                 content_settings = ContentSettings(content_type="application/pdf")
             elif file_ext == 'image':
@@ -328,9 +332,7 @@ def chat_endpoint():
         "content": assistant_reply
     })
 
-    # Finally do a single upsert.
-    # This avoids 409 conflicts because it either creates or replaces automatically.
-    # Make sure doc["id"] == chat_id, doc["userKey"] == user_key, which we do.
+    # Upsert once => no 409 conflicts
     container.upsert_item(chat_doc)
 
     return jsonify({
@@ -340,7 +342,6 @@ def chat_endpoint():
         "reportContent": report_content,
         "chatId": chat_id
     })
-
 
 ###############################################################################
 # 7. Generate and Send Docx
