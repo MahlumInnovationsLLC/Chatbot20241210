@@ -99,7 +99,7 @@ client = AzureOpenAI(
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Your deployment name
 
 ###############################################################################
-# 4. In-Memory Cache for Generated Reports (NEW)
+# 4. In-Memory Cache for Generated Reports
 ###############################################################################
 report_cache = {}  # e.g. { "report_uuid": "Full expanded text..." }
 
@@ -164,6 +164,12 @@ def serve_frontend():
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
+    """
+    Creates or updates a chat doc. 
+    If no chatId is provided, we generate a guaranteed unique chatId
+    that doesn't already exist in ANY partition. 
+    Then we store the doc in the partition keyed by userKey.
+    """
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
@@ -180,9 +186,24 @@ def chat_endpoint():
         chat_id = data.get('chatId')
         uploaded_files = []
 
-    # If no chatId => generate a new one
+    # ------------------------------------------------------------
+    # If no chatId => generate a new one, ensure it is truly unique
+    # across *all partitions*, so no 409 conflict can arise.
+    # ------------------------------------------------------------
     if not chat_id:
-        chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+        while True:
+            temp_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+            # Check if ANY doc with this temp_id across partitions
+            existing = list(container.query_items(
+                query="SELECT * FROM c WHERE c.id=@id",
+                parameters=[{"name":"@id","value":temp_id}],
+                enable_cross_partition_query=True
+            ))
+            if len(existing) == 0:
+                # It's truly unique
+                chat_id = temp_id
+                break
+            # Otherwise loop again
 
     # Prepare base messages for AzureOpenAI
     messages_for_openai = [
@@ -197,7 +218,10 @@ def chat_endpoint():
         {"role": "user", "content": user_input}
     ]
 
-    # Attempt to retrieve or create doc
+    # ---------------------------------------------------------------------
+    # Try to read the doc from THIS partition ( userKey ) only. 
+    # If not found, we create a new skeleton doc. 
+    # ---------------------------------------------------------------------
     try:
         existing_doc = container.read_item(item=chat_id, partition_key=user_key)
         chat_doc = existing_doc
@@ -299,8 +323,11 @@ def chat_endpoint():
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # Default main_content is the same as assistant_reply
+    # Default main_content is same as assistant_reply
     main_content = assistant_reply
+
+    # Remove any old (stale) references to /api/generateReport to avoid duplicates
+    main_content = re.sub(r"\[[^\]]+\]\(/api/generateReport.*?\)", "", main_content)
 
     # Parse references if present
     references_list = []
@@ -321,19 +348,13 @@ def chat_endpoint():
                         })
 
     # Check for docx link in text (download://report.docx)
-    download_url = None
     if 'download://report.docx' in main_content:
-        # Remove that placeholder from the text
         new_text = main_content.replace('download://report.docx', '').strip()
-
-        # Generate the big chunk of text for the doc
         expanded_text = generate_detailed_report(new_text)
-
-        # Create a unique ID for the report, store in memory
         rid = str(uuid.uuid4())
         report_cache[rid] = expanded_text
 
-        # Provide a GET hyperlink => /api/generateReport?reportId=rid
+        # Provide GET hyperlink => /api/generateReport?reportId=rid
         hyperlink_markdown = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
         main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink_markdown}"
 
@@ -343,20 +364,23 @@ def chat_endpoint():
         "content": assistant_reply
     })
 
-    # Upsert once => no 409 conflicts
+    # Upsert once => no 409 conflict in the same partition
+    # Because we verified the ID is unique across partitions 
+    # if it is a brand-new chat.
     container.upsert_item(chat_doc)
 
     # Return JSON to front-end
     return jsonify({
         "reply": main_content,
         "references": references_list,
-        "downloadUrl": None,   # not needed, since we have hyperlink
-        "reportContent": None, # no direct content returned
+        "downloadUrl": None,
+        "reportContent": None,
         "chatId": chat_id
     })
 
+
 ###############################################################################
-# 8. Generate and Send Docx (Now a GET)
+# 8. Generate and Send Docx (GET-based)
 ###############################################################################
 @app.route('/api/generateReport', methods=['GET'])
 def generate_report_get():
@@ -372,13 +396,11 @@ def generate_report_get():
     if not doc_text:
         return "No report found for that ID or it expired.", 404
 
-    # Optional: remove from cache after single use:
+    # Optional: remove from cache after single use
     del report_cache[rid]
 
-    # Convert doc_text to .docx
     lines = doc_text.split('\n')
 
-    # Minimal logic to parse doc_title from lines, or fallback
     doc_title = "Generated Report"
     for idx, line in enumerate(lines):
         s = line.strip()
@@ -690,7 +712,7 @@ def search_in_azure_search(q, user_key, top_k=3):
         return []
 
 ###############################################################################
-# 11. Add /generateChatTitle Endpoint (NEW)
+# 11. Add /generateChatTitle Endpoint
 ###############################################################################
 @app.route('/generateChatTitle', methods=['POST'])
 def generate_chat_title():
