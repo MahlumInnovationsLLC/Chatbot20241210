@@ -113,7 +113,8 @@ def generate_detailed_report(base_content):
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant that specializes in creating detailed, comprehensive reports."
+                "You are a helpful assistant that specializes in creating detailed, "
+                "comprehensive reports."
             )
         },
         {
@@ -190,12 +191,12 @@ def chat_endpoint():
         }
     ]
 
-    # 6c) Attempt to read existing doc
     doc_exists = True
     try:
-        chat_doc = container.read_item(chat_id, partition_key=user_key)
+        # Try reading an existing doc => if found, doc_exists stays True
+        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
     except exceptions.CosmosResourceNotFoundError:
-        # Doc not found => create a new one
+        # If not found => doc_exists = False => create a new doc
         doc_exists = False
         chat_doc = {
             "id": chat_id,
@@ -325,10 +326,9 @@ def chat_endpoint():
 
     # 6j) Create or Replace to avoid 409 conflict
     if doc_exists:
-        # This updates the existing doc
-        container.replace_item(chat_doc, chat_doc["id"])
+        # ***IMPORTANT FIX***: The first arg is the doc_id (string), second arg is the doc (dict).
+        container.replace_item(item=chat_doc["id"], body=chat_doc)
     else:
-        # This safely creates a brand new doc
         container.create_item(chat_doc)
 
     # 6k) Return final JSON
@@ -480,7 +480,7 @@ def archive_all_chats():
 
     for doc in items:
         doc['archived'] = True
-        container.replace_item(doc, doc['id'])
+        container.replace_item(item=doc['id'], body=doc)
     return jsonify({"success": True}), 200
 
 @app.route('/deleteAllChats', methods=['POST'])
