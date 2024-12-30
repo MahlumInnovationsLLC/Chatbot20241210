@@ -328,9 +328,6 @@ def chat_endpoint():
 
     main_content = re.sub(r"\[[^\]]+\]\(/api/generateReport.*?\)", "", main_content)
 
-    # Remove direct references to "Download the Report" or a leftover link
-    import re
-
     # 1) Remove any lines that say "[Download the Report](...)" or just "Download the Report"
     #    This first regex removes any Markdown link text containing "Download the Report"
     main_content = re.sub(r"\[?[Dd]ownload the [Rr]eport\]?\(.*?\)", "", main_content)
@@ -401,7 +398,6 @@ def generate_report_get():
     GET-based endpoint. Expects ?reportId=<some-uuid> in the querystring.
     Looks up the expanded text in report_cache, then returns .docx with headings/bullets/bold.
     """
-    import re
 
     rid = request.args.get('reportId')
     if not rid:
