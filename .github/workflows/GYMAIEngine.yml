@@ -100,7 +100,7 @@ jobs:
 
   deploy:
     needs: dockerize
-    runs-on: ubuntu-latest
+    runs-on: uself-hosted
     steps:
       - name: Azure Login
         uses: azure/login@v1.6.0
@@ -112,5 +112,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
           images: "ghcr.io/mahluminnovationsllc/chatbot-app:latest"
