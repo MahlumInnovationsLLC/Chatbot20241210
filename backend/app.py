@@ -336,7 +336,15 @@ def chat_endpoint():
     #    This regex looks for a standalone line with "Download the Report"
     main_content = re.sub(r"(?m)^\s*[Dd]ownload the [Rr]eport\s*$", "", main_content)
 
-    # 3) If you want to remove leftover parentheses or extra blank lines:
+    # 3) Remove any lines that say "[Download Report](...)" or just "Download Report"
+    #    This first regex removes any Markdown link text containing "Download Report"
+    main_content = re.sub(r"\[?[Dd]ownload [Rr]eport\]?\(.*?\)", "", main_content)
+
+    # 4) Also remove any plain text lines that just read "Download Report"
+    #    This regex looks for a standalone line with "Download the Report"
+    main_content = re.sub(r"(?m)^\s*[Dd]ownload [Rr]eport\s*$", "", main_content)
+
+    # 5) If you want to remove leftover parentheses or extra blank lines:
     main_content = re.sub(r"\(\s*\)", "", main_content)
     main_content = re.sub(r"\n{2,}", "\n\n", main_content).strip()
 
