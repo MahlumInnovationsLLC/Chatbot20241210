@@ -43,7 +43,7 @@ export default function ChatInterface({
     setMessages,
     chatTitle,
     setChatTitle,
-    // NEW: optionally pass a callback so this component can inform the parent of a new chatId
+    // optionally pass a callback so this component can inform the parent of a new chatId
     onChatIdUpdate
 }) {
     const [userInput, setUserInput] = useState('');
@@ -70,10 +70,10 @@ export default function ChatInterface({
                 if (setChatTitle) setChatTitle(title);
                 setHasGeneratedTitle(true);
 
-                // rename doc
+                // rename doc in backend
                 await axios.post('/renameChat', {
                     userKey,
-                    chatId,         // pass the same chatId
+                    chatId,
                     newTitle: title
                 });
             } catch (err) {
@@ -109,7 +109,7 @@ export default function ChatInterface({
                 // multi-part form
                 const formData = new FormData();
                 formData.append('userMessage', userInput);
-                formData.append('chatId', chatId);  // pass the existing chatId from props
+                formData.append('chatId', chatId);
                 files.forEach((f) => {
                     formData.append('file', f, f.name);
                 });
@@ -122,7 +122,7 @@ export default function ChatInterface({
                 res = await axios.post('/chat', {
                     userMessage: userInput,
                     userKey,
-                    chatId // pass the existing chatId from props
+                    chatId
                 });
             }
 
@@ -141,7 +141,6 @@ export default function ChatInterface({
             // notify parent if onChatIdUpdate is provided.
             if (res.data.chatId && res.data.chatId !== chatId) {
                 console.log('Server returned a new chatId:', res.data.chatId);
-                // <-- ADDED THIS:
                 if (onChatIdUpdate) {
                     onChatIdUpdate(res.data.chatId);
                 }
@@ -191,17 +190,25 @@ export default function ChatInterface({
     const filteredMessages = messages.filter((m) => m.role !== 'system');
     const showStartContent = filteredMessages.length === 0 && !isLoading;
 
-    // Let user rename the chat manually
+    /**
+     * Let user rename the chat manually.
+     * This updates the server doc first, then sets local state to re-render.
+     */
     const handleTitleEdit = async () => {
         const newTitle = prompt('Enter new chat title:', chatTitle || '');
         if (newTitle && newTitle.trim() !== '') {
-            if (setChatTitle) setChatTitle(newTitle.trim());
             try {
+                // 1) rename doc in the backend
                 await axios.post('/renameChat', {
                     userKey,
                     chatId,
                     newTitle: newTitle.trim()
                 });
+
+                // 2) update local state
+                if (setChatTitle) {
+                    setChatTitle(newTitle.trim());
+                }
             } catch (err) {
                 console.error('Error renaming chat on server:', err);
             }
@@ -213,7 +220,7 @@ export default function ChatInterface({
      **************************************************************************/
     return (
         <div className="w-full h-full flex flex-col relative overflow-visible">
-            {/* If there's conversation beyond system, show title + pencil */}
+            {/* Title row if there's a conversation beyond system or if loading */}
             {(filteredMessages.length > 0 || isLoading) && (
                 <div className="px-4 py-2 mb-2 flex items-center space-x-2">
                     <h2 className="text-xl font-bold text-blue-400">

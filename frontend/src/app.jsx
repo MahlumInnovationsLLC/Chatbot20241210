@@ -13,6 +13,7 @@ import axios from 'axios';
 ///////////////////////////////////////////////////////////////////////////////
 async function generateChatTitle(messages) {
     try {
+        // Taking up to last 10 messages from this conversation to guess a short title
         const snippet = messages.slice(-10);
         const requestBody = {
             messages: [
@@ -26,7 +27,7 @@ async function generateChatTitle(messages) {
                     content: 'Please provide a concise, descriptive title for this conversation.'
                 }
             ],
-            model: 'GYMAIEngine-gpt-4o'
+            model: 'GYMAIEngine-gpt-4o' // or your actual model name
         };
         const response = await axios.post('/generateChatTitle', requestBody);
         return response.data.title || 'Untitled Chat';
@@ -93,9 +94,10 @@ function AppContent({ onLogout }) {
     // #### 3e) On mount, auto-create new chat if none, ensure system msg is top
     useEffect(() => {
         if (!currentChatId) {
-            createNewChat(); // automatically
+            createNewChat(); // automatically create a brand-new chat
         }
         if (messages.length === 0) {
+            // Make sure the system message is the first
             setMessages([systemMessage]);
         } else if (messages[0].role !== 'system') {
             setMessages((prev) => [systemMessage, ...prev]);
@@ -103,13 +105,15 @@ function AppContent({ onLogout }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // #### 3f) Create new chat
+    // -------------------------------------------------------------------------
+    // >>> THIS is your createNewChat function <<<
+    // It sets a fresh ID, resets messages to the system message, etc.
+    // -------------------------------------------------------------------------
     const [archivedChats, setArchivedChats] = useState([]); // store local archived copies
 
-    const createNewChat = async () => {
+    async function createNewChat() {
         try {
-            // If we have a real conversation beyond the system message,
-            // optionally generate a chat title for the old conversation
+            // If the old conversation had real user content, optionally generate a title for it
             if (messages.length > 1) {
                 const chatTitle = await generateChatTitle(messages);
                 console.log('Archived old chat with title:', chatTitle);
@@ -121,7 +125,7 @@ function AppContent({ onLogout }) {
                 ]);
             }
 
-            // Generate a unique chat ID
+            // Generate a unique chat ID for the new conversation
             const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
             setMessages([systemMessage]);
             setCurrentChatId(newId);
@@ -129,7 +133,7 @@ function AppContent({ onLogout }) {
         } catch (err) {
             console.error('Error creating new chat:', err);
         }
-    };
+    }
 
     // #### 3g) Additional states
     const [activeTab, setActiveTab] = useState('general');
@@ -465,8 +469,8 @@ function AppContent({ onLogout }) {
                                 value={aiMood}
                                 onChange={(e) => setAiMood(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="e.g., Friendly, Professional, Enthusiastic..."
                             />
@@ -477,8 +481,8 @@ function AppContent({ onLogout }) {
                                 value={aiInstructions}
                                 onChange={(e) => setAiInstructions(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Provide instructions for how the AI should behave..."
                                 rows={5}
@@ -506,8 +510,8 @@ function AppContent({ onLogout }) {
                                 value={contactNameFirst}
                                 onChange={(e) => setContactNameFirst(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="First Name"
                             />
@@ -519,8 +523,8 @@ function AppContent({ onLogout }) {
                                 value={contactNameLast}
                                 onChange={(e) => setContactNameLast(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Last Name"
                             />
@@ -532,8 +536,8 @@ function AppContent({ onLogout }) {
                                 value={contactCompany}
                                 onChange={(e) => setContactCompany(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Company Name"
                             />
@@ -545,8 +549,8 @@ function AppContent({ onLogout }) {
                                 value={contactEmail}
                                 onChange={(e) => setContactEmail(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="Email Address"
                             />
@@ -557,8 +561,8 @@ function AppContent({ onLogout }) {
                                 value={contactNote}
                                 onChange={(e) => setContactNote(e.target.value)}
                                 className={`w-full p-2 rounded border ${theme === 'dark'
-                                    ? 'border-gray-600 bg-gray-700 text-white'
-                                    : 'border-gray-300 bg-white text-black'
+                                        ? 'border-gray-600 bg-gray-700 text-white'
+                                        : 'border-gray-300 bg-white text-black'
                                     }`}
                                 placeholder="How can we help?"
                                 rows={5}
@@ -657,6 +661,7 @@ function AppContent({ onLogout }) {
                             className="absolute top-16 right-0 bg-gray-700 text-white rounded shadow-lg py-2 w-44 z-50 transform origin-top transition-transform duration-200 ease-out animate-slideDown"
                             style={{ marginRight: '0.5rem' }}
                         >
+                            {/* Clicking this calls createNewChat */}
                             <button
                                 className="block w-full text-left px-4 py-2 hover:bg-opacity-80 flex items-center"
                                 onClick={createNewChat}
@@ -705,8 +710,8 @@ function AppContent({ onLogout }) {
                                             messages
                                                 .map(
                                                     (m) =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'
-                                                        } ${m.content}`
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
+                                                        }`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -961,6 +966,7 @@ function AppContent({ onLogout }) {
                                     key={idx}
                                     className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
                                     onClick={() => {
+                                        // load from server
                                         setMessages(chat.messages);
                                         setManageChatsOpen(false);
                                         setCurrentChatId(chat.id);
