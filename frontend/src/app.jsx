@@ -1,4 +1,4 @@
-﻿// App.jsx 
+﻿// App.jsx
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import TrainDocTool from './components/TrainDocTool';
@@ -80,6 +80,12 @@ function AppContent({ onLogout }) {
 
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
 
+    // -------------------------------------------------------------------------
+    // >>> KEY NEW STATE #1: We hold chatTitle here in the parent so 
+    // >>> ChatInterface can always display the correct "blue text" title.
+    // -------------------------------------------------------------------------
+    const [chatTitle, setChatTitle] = useState('');
+
     // #### 3c) Chat messages & currentChatId
     const [messages, setMessages] = useState([]);
     const [currentChatId, setCurrentChatId] = useState(null);
@@ -106,8 +112,8 @@ function AppContent({ onLogout }) {
     }, []);
 
     // -------------------------------------------------------------------------
-    // >>> THIS is your createNewChat function <<<
-    // It sets a fresh ID, resets messages to the system message, etc.
+    // >>> THIS is your createNewChat function.  It sets a fresh ID, resets
+    // >>> messages to just the system message, and sets chatTitle to "" as well.
     // -------------------------------------------------------------------------
     const [archivedChats, setArchivedChats] = useState([]); // store local archived copies
 
@@ -115,20 +121,21 @@ function AppContent({ onLogout }) {
         try {
             // If the old conversation had real user content, optionally generate a title for it
             if (messages.length > 1) {
-                const chatTitle = await generateChatTitle(messages);
-                console.log('Archived old chat with title:', chatTitle);
+                const chatTitleFromOld = await generateChatTitle(messages);
+                console.log('Archived old chat with title:', chatTitleFromOld);
 
-                // Store it in local state (archivedChats) if you want a local copy
+                // store it in local state (archivedChats) if you want a local copy
                 setArchivedChats((prev) => [
                     ...prev,
-                    { id: currentChatId, userKey, messages, title: chatTitle }
+                    { id: currentChatId, userKey, messages, title: chatTitleFromOld }
                 ]);
             }
 
-            // Generate a unique chat ID for the new conversation
+            // Generate a unique chat ID for the new conversation => No conflict with server
             const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
             setMessages([systemMessage]);
             setCurrentChatId(newId);
+            setChatTitle('');  // reset to blank (or "Untitled Chat") for the new chat
             console.log('Created new chat:', newId);
         } catch (err) {
             console.error('Error creating new chat:', err);
@@ -223,9 +230,14 @@ function AppContent({ onLogout }) {
 
     // #### 3l) Load a chat from server or local
     const loadArchivedChat = (chat) => {
+        // load the messages
         setMessages(chat.messages);
-        setManageChatsOpen(false);
+        // set the chat id
         setCurrentChatId(chat.id);
+        // set the chat title from doc
+        setChatTitle(chat.title || '');
+        // close side panel
+        setManageChatsOpen(false);
     };
 
     // #### 3m) Close menus on outside click
@@ -333,6 +345,10 @@ function AppContent({ onLogout }) {
                         chatId={currentChatId}
                         messages={messages}
                         setMessages={setMessages}
+                        // Now we pass chatTitle & setChatTitle => 
+                        // so the child can do "blue text" changes
+                        chatTitle={chatTitle}
+                        setChatTitle={setChatTitle}
                     />
                 </div>
             )
@@ -968,6 +984,7 @@ function AppContent({ onLogout }) {
                                     onClick={() => {
                                         // load from server
                                         setMessages(chat.messages);
+                                        setChatTitle(chat.title || '');
                                         setManageChatsOpen(false);
                                         setCurrentChatId(chat.id);
                                     }}
