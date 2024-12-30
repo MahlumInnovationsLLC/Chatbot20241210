@@ -148,14 +148,14 @@ def serve_frontend():
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    - We'll ALWAYS upsert (container.upsert_item) to avoid 409 conflicts.
-    - If user doesn't pass a chatId, we generate one. If a doc with that ID
-      already exists, upsert means we just append to it.
+    SINGLE Upsert approach to store conversation docs keyed by (id=chatId, partitionKey=userKey).
+    No separate create_item/replace_item calls — just upsert_item. This prevents 409 conflicts.
     """
     import time
     import random
-
+    
     user_key = request.args.get('userKey', 'default_user')
+    chat_id = None
     user_input = ""
 
     if request.content_type and 'multipart/form-data' in request.content_type:
@@ -169,14 +169,31 @@ def chat_endpoint():
         chat_id = data.get('chatId')
         uploaded_files = []
 
-    # If no chatId => auto-generate
+    # If no chatId => generate a new one
     if not chat_id:
         chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
 
-    # Try to read existing doc; if not found => build a blank
+    # Prepare base messages for AzureOpenAI
+    messages_for_openai = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful assistant. Use Markdown. "
+                "If user requests a downloadable report, MUST provide `download://report.docx`. "
+                "If references, show them, else `References: None`."
+            )
+        },
+        {"role": "user", "content": user_input}
+    ]
+
+    # Try to retrieve or build the doc
+    # NOTE: We'll do only upsert_item in the end, so if doc does not exist, it’s created; if it does, replaced.
     try:
-        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
+        existing_doc = container.read_item(item=chat_id, partition_key=user_key)
+        # We found an existing doc => reuse it
+        chat_doc = existing_doc
     except exceptions.CosmosResourceNotFoundError:
+        # doc doesn’t exist => create the skeleton
         chat_doc = {
             "id": chat_id,
             "userKey": user_key,
@@ -184,30 +201,17 @@ def chat_endpoint():
             "files": []
         }
 
-    # Prepare messages for AzureOpenAI
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are a helpful assistant. Use Markdown. If user requests a downloadable report, "
-                "MUST provide `download://report.docx`. If references, show them, else `References: None`."
-            )
-        },
-        {
-            "role": "user",
-            "content": user_input
-        }
-    ]
-
-    # Handle uploaded files
+    # If user uploaded files
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
                 continue
+
             file_bytes = up_file.read()
             filename = up_file.filename
             lower_name = filename.lower()
 
+            # figure out extension
             if lower_name.endswith('.pdf'):
                 file_ext = 'pdf'
             elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
@@ -217,8 +221,12 @@ def chat_endpoint():
             else:
                 file_ext = 'other'
 
+            # Upload to blob
+            # (Try/catch if desired)
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
+            # set content_settings if needed
+            from azure.storage.blob import ContentSettings
             if file_ext == 'pdf':
                 content_settings = ContentSettings(content_type="application/pdf")
             elif file_ext == 'image':
@@ -235,13 +243,13 @@ def chat_endpoint():
             extracted_text = None
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
-                messages.append({
+                messages_for_openai.append({
                     "role": "system",
                     "content": f"PDF '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
                 })
             elif file_ext == 'docx':
                 extracted_text = extract_text_from_docx(file_bytes)
-                messages.append({
+                messages_for_openai.append({
                     "role": "system",
                     "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{extracted_text[:1000]}..."
                 })
@@ -251,7 +259,7 @@ def chat_endpoint():
                 if vision_result.description and vision_result.description.captions:
                     desc = vision_result.description.captions[0].text
                 extracted_text = f"Image AI Description: {desc}"
-                messages.append({
+                messages_for_openai.append({
                     "role": "system",
                     "content": f"Image '{filename}' uploaded.\nAI says: {desc}"
                 })
@@ -263,12 +271,13 @@ def chat_endpoint():
                 "extractedText": extracted_text or ""
             })
 
-        messages.append({
+        # Let user know in system messages
+        messages_for_openai.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add user’s message to doc
+    # Add user's new message to doc
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
@@ -278,7 +287,7 @@ def chat_endpoint():
     assistant_reply = ""
     try:
         response = client.chat.completions.create(
-            messages=messages,
+            messages=messages_for_openai,
             model=AZURE_DEPLOYMENT_NAME
         )
         assistant_reply = response.choices[0].message.content
@@ -305,7 +314,7 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # check docx link
+    # check for docx link
     download_url = None
     report_content = None
     if 'download://report.docx' in main_content:
@@ -313,16 +322,17 @@ def chat_endpoint():
         report_content = generate_detailed_report(main_content)
         download_url = '/api/generateReport'
 
-    # Add assistant reply to doc
+    # Add bot's reply to doc
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # *** ALWAYS UPSERT => No more conflicts ***
+    # Finally do a single upsert.
+    # This avoids 409 conflicts because it either creates or replaces automatically.
+    # Make sure doc["id"] == chat_id, doc["userKey"] == user_key, which we do.
     container.upsert_item(chat_doc)
 
-    # Return JSON
     return jsonify({
         "reply": main_content,
         "references": references_list,
