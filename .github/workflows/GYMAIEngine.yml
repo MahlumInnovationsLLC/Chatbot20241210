@@ -100,7 +100,7 @@ jobs:
 
   deploy:
     needs: dockerize
-    runs-on: uself-hosted
+    runs-on: self-hosted
     steps:
       - name: Azure Login
         uses: azure/login@v1.6.0
