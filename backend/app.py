@@ -97,10 +97,8 @@ client = AzureOpenAI(
 )
 AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Your deployment name
 
-###############################################################################
-# 4. In-Memory Cache for Generated Reports
-###############################################################################
-report_cache = {}  # e.g. { "report_uuid": "Full expanded text..." }
+# In-memory report cache
+report_cache = {}
 
 ###############################################################################
 # 5. Helper Functions
@@ -159,15 +157,17 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 7. Chat Endpoint (Upsert-based)
+# 7. Chat Endpoint (Approach B for new chat IDs)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    Creates or updates a chat doc. 
-    If no chatId is provided, we generate a guaranteed unique chatId
-    that doesn't already exist in ANY partition. 
-    Then we store the doc in the partition keyed by userKey.
+    If the client provides no chatId, we always create a brand-new globally
+    unique chatId (checked cross-partition). Then we build a fresh doc
+    and upsert it. No re-check or re-use of an existing doc.
+    
+    If the client does provide chatId, we try reading that doc from the
+    userKey partition. If not found => new doc anyway.
     """
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
@@ -185,24 +185,18 @@ def chat_endpoint():
         chat_id = data.get('chatId')
         uploaded_files = []
 
-    # ------------------------------------------------------------
-    # If no chatId => generate a new one, ensure it is truly unique
-    # across *all partitions*, so no 409 conflict can arise.
-    # ------------------------------------------------------------
+    # If no chatId => always create a brand-new globally unique ID
     if not chat_id:
         while True:
             temp_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
-            # Check if ANY doc with this temp_id across partitions
             existing = list(container.query_items(
                 query="SELECT * FROM c WHERE c.id=@id",
-                parameters=[{"name":"@id","value":temp_id}],
+                parameters=[{"name": "@id", "value": temp_id}],
                 enable_cross_partition_query=True
             ))
             if len(existing) == 0:
-                # It's truly unique
                 chat_id = temp_id
                 break
-            # Otherwise loop again
 
     # Prepare base messages for AzureOpenAI
     messages_for_openai = [
@@ -217,10 +211,8 @@ def chat_endpoint():
         {"role": "user", "content": user_input}
     ]
 
-    # ---------------------------------------------------------------------
-    # Try to read the doc from THIS partition ( userKey ) only. 
-    # If not found, we create a new skeleton doc. 
-    # ---------------------------------------------------------------------
+    # Attempt to read the doc from the userKey partition
+    # If not found, we create a new doc skeleton
     try:
         existing_doc = container.read_item(item=chat_id, partition_key=user_key)
         chat_doc = existing_doc
@@ -232,7 +224,7 @@ def chat_endpoint():
             "files": []
         }
 
-    # Handle uploaded files
+    # Handle uploaded files (if any)
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
@@ -304,13 +296,13 @@ def chat_endpoint():
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add user's new message
+    # Append user’s new message
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # Call AzureOpenAI
+    # Call AzureOpenAI for the response
     assistant_reply = ""
     try:
         response = client.chat.completions.create(
@@ -322,32 +314,20 @@ def chat_endpoint():
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # Default main_content is same as assistant_reply
+    # Now do any transformations on assistant_reply => main_content
     main_content = assistant_reply
 
-    main_content = re.sub(r"\[[^\]]+\]\(/api/generateReport.*?\)", "", main_content)
+    # Example: removing undesired lines with "download" links that don't have reportId
+    lines = main_content.split('\n')
+    keep = []
+    for line in lines:
+        if re.search(r'download.*\[[^\]]+\]\([^\)]+\)', line, flags=re.IGNORECASE) and 'reportId=' not in line:
+            continue
+        keep.append(line)
+    main_content = '\n'.join(keep)
+    main_content = re.sub(r'\n{2,}', '\n\n', main_content).strip()
 
-    # 1) Remove any lines that say "[Download the Report](...)" or just "Download the Report"
-    #    This first regex removes any Markdown link text containing "Download the Report"
-    main_content = re.sub(r"\[?[Dd]ownload the [Rr]eport\]?\(.*?\)", "", main_content)
-
-    # 2) Also remove any plain text lines that just read "Download the Report"
-    #    This regex looks for a standalone line with "Download the Report"
-    main_content = re.sub(r"(?m)^\s*[Dd]ownload the [Rr]eport\s*$", "", main_content)
-
-    # 3) Remove any lines that say "[Download Report](...)" or just "Download Report"
-    #    This first regex removes any Markdown link text containing "Download Report"
-    main_content = re.sub(r"\[?[Dd]ownload [Rr]eport\]?\(.*?\)", "", main_content)
-
-    # 4) Also remove any plain text lines that just read "Download Report"
-    #    This regex looks for a standalone line with "Download the Report"
-    main_content = re.sub(r"(?m)^\s*[Dd]ownload [Rr]eport\s*$", "", main_content)
-
-    # 5) If you want to remove leftover parentheses or extra blank lines:
-    main_content = re.sub(r"\(\s*\)", "", main_content)
-    main_content = re.sub(r"\n{2,}", "\n\n", main_content).strip()
-
-    # Parse references if present
+    # References parsing
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
@@ -365,26 +345,23 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # Check for docx link in text (download://report.docx)
+    # Look for 'download://report.docx'
     if 'download://report.docx' in main_content:
         new_text = main_content.replace('download://report.docx', '').strip()
         expanded_text = generate_detailed_report(new_text)
         rid = str(uuid.uuid4())
         report_cache[rid] = expanded_text
 
-        # Provide GET hyperlink => /api/generateReport?reportId=rid
-        hyperlink_markdown = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
-        main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink_markdown}"
+        # Insert GET hyperlink
+        hyperlink = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
+        main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink}"
 
-    # Add bot's reply to doc
+    # Add bot’s reply to doc
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # Upsert once => no 409 conflict in the same partition
-    # Because we verified the ID is unique across partitions 
-    # if it is a brand-new chat.
     container.upsert_item(chat_doc)
 
     # Return JSON to front-end
@@ -396,16 +373,12 @@ def chat_endpoint():
         "chatId": chat_id
     })
 
+
 ###############################################################################
 # 8. Generate and Send Docx (GET-based)
 ###############################################################################
 @app.route('/api/generateReport', methods=['GET'])
 def generate_report_get():
-    """
-    GET-based endpoint. Expects ?reportId=<some-uuid> in the querystring.
-    Looks up the expanded text in report_cache, then returns .docx with headings/bullets/bold.
-    """
-
     rid = request.args.get('reportId')
     if not rid:
         return "Missing reportId param", 400
@@ -414,11 +387,9 @@ def generate_report_get():
     if not doc_text:
         return "No report found for that ID or it expired.", 404
 
-    # Optional: remove from cache after single use
-    del report_cache[rid]
+    del report_cache[rid]  # optional single-use removal
 
     lines = doc_text.split('\n')
-
     # 1) Derive doc_title from first heading
     doc_title = "Generated Report"
     for idx, line in enumerate(lines):
@@ -436,52 +407,37 @@ def generate_report_get():
     doc = Document()
     doc.add_heading(doc_title, 0)
 
-    # Helper to handle bold text via '**'
-    def handle_bold_text(paragraph, text):
+    def handle_bold(par, text):
         segments = text.split('**')
         for i, seg in enumerate(segments):
-            run = paragraph.add_run(seg)
-            if i % 2 == 1:  # odd segments => bold
+            run = par.add_run(seg)
+            if i % 2 == 1:
                 run.bold = True
 
     # 2) Convert each line from "pseudo-Markdown" to Word structures
     for line in lines:
         stripped = line.strip()
         if not stripped:
-            doc.add_paragraph('')  # blank line
+            doc.add_paragraph('')
             continue
-
         # Heading level 3
         if stripped.startswith('### '):
-            heading_text = stripped[4:].strip()
-            doc.add_heading(heading_text, level=3)
-
+            doc.add_heading(stripped[4:].strip(), level=3)
         # Heading level 2
         elif stripped.startswith('## '):
-            heading_text = stripped[3:].strip()
-            doc.add_heading(heading_text, level=2)
-
-        # Heading level 1
+            doc.add_heading(stripped[3:].strip(), level=2)
         elif stripped.startswith('# '):
-            heading_text = stripped[2:].strip()
-            doc.add_heading(heading_text, level=1)
-
-        # Bulleted list ("- ")
+            doc.add_heading(stripped[2:].strip(), level=1)
         elif re.match(r'^-\s', stripped):
-            bullet_text = stripped[2:].strip()
-            paragraph = doc.add_paragraph(style='List Bullet')
-            handle_bold_text(paragraph, bullet_text)
-
-        # Numbered list ("1. something" => match ^\d+.\s)
+            p = doc.add_paragraph(style='List Bullet')
+            handle_bold(p, stripped[2:].strip())
         elif re.match(r'^\d+\.\s', stripped):
-            numbered_text = re.sub(r'^\d+\.\s', '', stripped).strip()
-            paragraph = doc.add_paragraph(style='List Number')
-            handle_bold_text(paragraph, numbered_text)
-
+            p = doc.add_paragraph(style='List Number')
+            text_part = re.sub(r'^\d+\.\s', '', stripped).strip()
+            handle_bold(p, text_part)
         else:
-            # Normal paragraph or text
-            paragraph = doc.add_paragraph()
-            handle_bold_text(paragraph, stripped)
+            par = doc.add_paragraph()
+            handle_bold(par, stripped)
 
     # 3) Save into memory buffer
     buffer = BytesIO()
@@ -498,6 +454,7 @@ def generate_report_get():
         download_name=filename,
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
+
 
 ###############################################################################
 # 9. Contact, Chats, Archive, Delete
