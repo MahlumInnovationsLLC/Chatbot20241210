@@ -1,19 +1,20 @@
 ###############################################################################
 # app.py
 ###############################################################################
-from flask import Flask, send_from_directory, request, jsonify, send_file
 import os
 import re
+import time
+import random
 import uuid
 import traceback
 from io import BytesIO
+
+from flask import Flask, send_from_directory, request, jsonify, send_file
 from docx import Document
-import time
-import random
 
 from openai import AzureOpenAI
 
-# For reading images, DOCX, PDF
+# For reading images, DOCX, PDF (via Form Recognizer)
 from vision_api import analyze_image_from_bytes
 from document_processing import extract_text_from_docx
 from azure.ai.formrecognizer import DocumentAnalysisClient
@@ -22,7 +23,6 @@ from azure.core.credentials import AzureKeyCredential
 # Azure Cosmos + SendGrid
 from azure.cosmos import CosmosClient, PartitionKey, exceptions
 import sendgrid
-from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, To, Content
 
 # Azure Cognitive Search
@@ -35,7 +35,7 @@ from azure.storage.blob import BlobServiceClient, ContentSettings
 ###############################################################################
 # 1. Flask and Cosmos Setup
 ###############################################################################
-app = Flask(__name__, static_folder='src/public', static_url_path='')
+app = Flask(__name__, static_folder="src/public", static_url_path="")
 
 COSMOS_ENDPOINT = os.environ.get("COSMOS_ENDPOINT", "")
 COSMOS_KEY = os.environ.get("COSMOS_KEY", "")
@@ -72,19 +72,17 @@ if AZURE_STORAGE_CONNECTION_STRING:
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
         temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
-        # Create container once; handle if already exists
         try:
             temp_container_client.create_container()
             app.logger.info(f"Created container '{AZURE_TEMP_CONTAINER}'")
         except Exception as ex:
-            # If container already exists => ignore
             if "ContainerAlreadyExists" in str(ex):
                 app.logger.info(f"Container '{AZURE_TEMP_CONTAINER}' already existed; ignoring.")
             else:
                 app.logger.error("Error creating container: %s", ex)
                 temp_container_client = None
     except Exception as ex:
-        app.logger.error("Error initializing BlobServiceClient for temp container: %s", ex)
+        app.logger.error("Error initializing BlobServiceClient: %s", ex)
         temp_container_client = None
 else:
     app.logger.warning("No AZURE_STORAGE_CONNECTION_STRING found. Temp file uploads will fail.")
@@ -97,9 +95,11 @@ client = AzureOpenAI(
     azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
     api_version="2023-05-15"
 )
-AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"  # Your deployment name
+AZURE_DEPLOYMENT_NAME = "GYMAIEngine-gpt-4o"
 
-# In-memory cache for expanded docx text
+###############################################################################
+# 4. In-Memory Cache for Generated Reports
+###############################################################################
 report_cache = {}
 
 ###############################################################################
@@ -121,14 +121,17 @@ def extract_text_from_pdf(file_bytes):
                 all_text.append(line.content)
         return "\n".join(all_text)
     except Exception as ex:
-        app.logger.error("Form Recognizer PDF extraction failed:", exc_info=True)
-        raise RuntimeError(f"Error extracting text with Form Recognizer: {ex}")
+        app.logger.error("PDF extraction failed:", exc_info=True)
+        raise RuntimeError(f"Error extracting PDF text: {ex}")
 
 def generate_detailed_report(base_content):
     detail_messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant that specializes in creating detailed reports."
+            "content": (
+                "You are a helpful assistant that specializes in creating detailed, "
+                "comprehensive reports."
+            )
         },
         {
             "role": "user",
@@ -151,62 +154,38 @@ def generate_detailed_report(base_content):
 ###############################################################################
 # 6. Serve Frontend
 ###############################################################################
-@app.route('/')
+@app.route("/")
 def serve_frontend():
-    return send_from_directory('src/public', 'index.html')
+    return send_from_directory("src/public", "index.html")
 
 ###############################################################################
-# 7. Chat Endpoint (Memory-based, with file uploads & doc generation)
+# 7. Chat Endpoint
 ###############################################################################
-@app.route('/chat', methods=['POST'])
+# (If you originally wanted POST, keep it POST. If you had reasons for GET, do so.)
+@app.route("/chat", methods=["POST"])
 def chat_endpoint():
     """
-    If no chatId is provided => create a brand-new chat doc with a globally 
-    unique ID (using a timestamp + random or a uuid4), stored in the userKey partition.
-    If a chatId is provided => fetch that doc from the userKey partition 
-    so we can remember the entire conversation (the “memory”).
-    
-    Along the way:
-    - We allow multi-part file uploads.
-    - We pass the entire conversation to AzureOpenAI.
-    - We remove any “download” lines that do not contain a 'reportId=' parameter.
-    - If ‘download://report.docx’ is found, we produce a new doc with a GET link.
-
-    Returns JSON with:
-        {
-          "reply": <assistant content with cleanup>,
-          "references": [],
-          "downloadUrl": None,
-          "reportContent": None,
-          "chatId": <the ID used>
-        }
+    Creates or updates a chat doc. If no chatId is provided, we generate
+    a globally unique chatId (checked cross-partition).
     """
-
-    ################################################################
-    # STEP 1: Gather user input, handle JSON vs. multipart form
-    ################################################################
-    user_key = request.args.get('userKey', 'default_user')
-    user_input = ""
+    user_key = request.args.get("userKey", "default_user")
     chat_id = None
+    user_input = ""
     uploaded_files = []
 
-    # Because it's POST, handle either JSON or multipart form-data:
-    if request.content_type and 'multipart/form-data' in request.content_type:
-        user_input = request.form.get('userMessage', '')
-        chat_id = request.form.get('chatId')
-        uploaded_files = request.files.getlist('file') or []
+    if request.content_type and "multipart/form-data" in request.content_type:
+        user_input = request.form.get("userMessage", "")
+        chat_id = request.form.get("chatId")
+        uploaded_files = request.files.getlist("file") or []
     else:
         data = request.get_json(force=True) or {}
-        user_input = data.get('userMessage', '')
-        user_key = data.get('userKey', user_key)
-        chat_id = data.get('chatId')
+        user_input = data.get("userMessage", "")
+        user_key = data.get("userKey", user_key)
+        chat_id = data.get("chatId")
         uploaded_files = []
 
-    ################################################################
-    # STEP 2: If no chatId => generate a new doc ID
-    ################################################################
+    # Guarantee uniqueness
     if not chat_id:
-        # Example approach: time-based + random
         while True:
             temp_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
             existing = list(container.query_items(
@@ -214,29 +193,11 @@ def chat_endpoint():
                 parameters=[{"name": "@id", "value": temp_id}],
                 enable_cross_partition_query=True
             ))
-            if not existing:
+            if len(existing) == 0:
                 chat_id = temp_id
                 break
-            # else keep looping
 
-    ################################################################
-    # STEP 3: Try loading existing doc from userKey partition
-    ################################################################
-    try:
-        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
-    except exceptions.CosmosResourceNotFoundError:
-        # Not found => create a brand-new skeleton doc
-        chat_doc = {
-            "id": chat_id,
-            "userKey": user_key,
-            "messages": [],
-            "files": []
-        }
-
-    ################################################################
-    # STEP 4: Build the entire conversation => pass to AzureOpenAI
-    ################################################################
-    # 4a) Start with a system prompt
+    # Prepare base messages
     messages_for_openai = [
         {
             "role": "system",
@@ -245,99 +206,93 @@ def chat_endpoint():
                 "If user requests a downloadable report, MUST provide `download://report.docx`. "
                 "If references, show them, else `References: None`."
             )
-        }
+        },
+        {"role": "user", "content": user_input}
     ]
-    # 4b) Append all existing conversation from DB as “memory”
-    for m in chat_doc["messages"]:
-        messages_for_openai.append({
-            "role": m["role"],
-            "content": m["content"]
-        })
 
-    ################################################################
-    # STEP 5: Handle uploaded files => add system messages for each
-    ################################################################
+    # Attempt to read doc from this partition
+    try:
+        existing_doc = container.read_item(item=chat_id, partition_key=user_key)
+        chat_doc = existing_doc
+    except exceptions.CosmosResourceNotFoundError:
+        chat_doc = {
+            "id": chat_id,
+            "userKey": user_key,
+            "messages": [],
+            "files": []
+        }
+
+    # Handle uploads
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
                 continue
-
             file_bytes = up_file.read()
             filename = up_file.filename
             lower_name = filename.lower()
 
-            if lower_name.endswith('.pdf'):
-                file_ext = 'pdf'
-            elif lower_name.endswith(('.png', '.jpg', '.jpeg')):
-                file_ext = 'image'
-            elif lower_name.endswith('.docx'):
-                file_ext = 'docx'
+            # extension
+            if lower_name.endswith(".pdf"):
+                file_ext = "pdf"
+            elif lower_name.endswith((".png", ".jpg", ".jpeg")):
+                file_ext = "image"
+            elif lower_name.endswith(".docx"):
+                file_ext = "docx"
             else:
-                file_ext = 'other'
+                file_ext = "other"
 
+            # Upload to blob
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
-            if file_ext == 'pdf':
+            if file_ext == "pdf":
                 content_settings = ContentSettings(content_type="application/pdf")
-            elif file_ext == 'image':
+            elif file_ext == "image":
                 content_settings = ContentSettings(content_type="image/jpeg")
-            elif file_ext == 'docx':
+            elif file_ext == "docx":
                 content_settings = ContentSettings(
                     content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
             blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
 
-            # Possibly parse text from the file
+            base_url = temp_container_client.url
+            blob_url = f"{base_url}/{filename}"
+
+            # Possibly parse the text
             extracted_text = None
-            if file_ext == 'pdf':
+            if file_ext == "pdf":
                 extracted_text = extract_text_from_pdf(file_bytes)
-                snippet = extracted_text[:1000] + '...' if len(extracted_text) > 1000 else extracted_text
                 messages_for_openai.append({
                     "role": "system",
-                    "content": f"PDF '{filename}' uploaded.\nExtracted:\n{snippet}"
+                    "content": f"PDF '{filename}' uploaded. Extracted:\n{extracted_text[:1000]}..."
                 })
-            elif file_ext == 'docx':
+            elif file_ext == "docx":
                 extracted_text = extract_text_from_docx(file_bytes)
-                snippet = extracted_text[:1000] + '...' if len(extracted_text) > 1000 else extracted_text
                 messages_for_openai.append({
                     "role": "system",
-                    "content": f"DOCX '{filename}' uploaded.\nExtracted:\n{snippet}"
+                    "content": f"DOCX '{filename}' uploaded. Extracted:\n{extracted_text[:1000]}..."
                 })
-            elif file_ext == 'image':
+            elif file_ext == "image":
                 vision_result = analyze_image_from_bytes(file_bytes)
                 desc = "No description available."
                 if vision_result.description and vision_result.description.captions:
                     desc = vision_result.description.captions[0].text
-                extracted_text = desc
+                extracted_text = f"Image AI Description: {desc}"
                 messages_for_openai.append({
                     "role": "system",
-                    "content": f"Image '{filename}' uploaded.\nAI says: {desc}"
+                    "content": f"Image '{filename}' uploaded. AI says: {desc}"
                 })
 
             chat_doc["files"].append({
                 "filename": filename,
-                "blobUrl": blob_client.url,
+                "blobUrl": blob_url,
                 "fileExt": file_ext,
                 "extractedText": extracted_text or ""
             })
 
-        messages_for_openai.append({
-            "role": "system",
-            "content": "File upload(s) successful. You can now ask questions about them."
-        })
+    # Add user's new message
+    chat_doc["messages"].append({"role": "user", "content": user_input})
 
-    ################################################################
-    # STEP 6: Add the new user message to the conversation
-    ################################################################
-    messages_for_openai.append({"role": "user", "content": user_input})
-    chat_doc["messages"].append({
-        "role": "user",
-        "content": user_input
-    })
-
-    ################################################################
-    # STEP 7: Call AzureOpenAI
-    ################################################################
+    # Call AzureOpenAI
     assistant_reply = ""
     try:
         response = client.chat.completions.create(
@@ -346,35 +301,31 @@ def chat_endpoint():
         )
         assistant_reply = response.choices[0].message.content
     except Exception as e:
-        assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
+        assistant_reply = f"Error calling AzureOpenAI: {e}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    ################################################################
-    # STEP 8: Clean up the assistant's reply => main_content
-    ################################################################
     main_content = assistant_reply
 
-    # 8a) Remove lines with “download” but no “reportId=”
-    lines = main_content.split('\n')
-    keep_lines = []
-    for line in lines:
-        if (re.search(r'download.*\[[^\]]+\]\([^\)]+\)', line, flags=re.IGNORECASE)
-                and 'reportId=' not in line):
+    # Basic example of removing lines that have a "download" link but not a reportId
+    lines = main_content.split("\n")
+    filtered_lines = []
+    for ln in lines:
+        if re.search(r"download.*\[[^\]]+\]\([^\)]+\)", ln, flags=re.IGNORECASE) and "reportId=" not in ln:
             continue
-        keep_lines.append(line)
-    main_content = '\n'.join(keep_lines)
-    main_content = re.sub(r'\n{2,}', '\n\n', main_content).strip()
+        filtered_lines.append(ln)
+    main_content = "\n".join(filtered_lines)
+    main_content = re.sub(r"\n{2,}", "\n\n", main_content).strip()
 
-    # 8b) Parse references if present
+    # references
     references_list = []
-    if 'References:' in assistant_reply:
-        parts = assistant_reply.split('References:')
+    if "References:" in assistant_reply:
+        parts = assistant_reply.split("References:")
         main_content = parts[0].strip()
         ref_section = parts[1].strip() if len(parts) > 1 else "None"
-        if not ref_section.lower().startswith('none'):
-            for line in ref_section.split('\n'):
+        if not ref_section.lower().startswith("none"):
+            for line in ref_section.split("\n"):
                 line = line.strip()
-                if line.startswith('-'):
+                if line.startswith("-"):
                     m = re.match(r"- \[(.*?)\]\((.*?)\): (.*)", line)
                     if m:
                         references_list.append({
@@ -383,62 +334,36 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # 8c) Check for 'download://report.docx'
-    if 'download://report.docx' in main_content:
-        new_text = main_content.replace('download://report.docx', '').strip()
+    # If docx link requested
+    if "download://report.docx" in main_content:
+        new_text = main_content.replace("download://report.docx", "").strip()
         expanded_text = generate_detailed_report(new_text)
         rid = str(uuid.uuid4())
         report_cache[rid] = expanded_text
+        hyperlink = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
+        main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink}"
 
-        link_md = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
-        main_content = f"{new_text}\n\nDownloadable Report:\n{link_md}"
+    # Add bot reply to doc
+    chat_doc["messages"].append({"role": "assistant", "content": assistant_reply})
 
-    ################################################################
-    # STEP 9: Append the assistant's final reply => doc memory
-    ################################################################
-    chat_doc["messages"].append({
-        "role": "assistant",
-        "content": assistant_reply
-    })
+    # Upsert
+    container.upsert_item(chat_doc)
 
-    ################################################################
-    # STEP 10: Upsert => handle conflict by re-generating ID if needed
-    ################################################################
-    attempts = 0
-    while True:
-        attempts += 1
-        try:
-            container.upsert_item(chat_doc)
-            break  # success
-        except exceptions.CosmosResourceExistsError:
-            app.logger.warning(
-                "409 Conflict from Cosmos: doc with that ID already exists. Generating new ID now."
-            )
-            if attempts > 5:
-                raise RuntimeError("Could not find a unique chat ID after multiple attempts.")
-            new_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
-            chat_doc["id"] = new_id
-            # IMPORTANT: also update local `chat_id` so we return the correct one:
-            chat_id = new_id
-            # then loop again
-
-    ################################################################
-    # STEP 11: Return JSON to front-end
-    ################################################################
     return jsonify({
         "reply": main_content,
         "references": references_list,
         "downloadUrl": None,
         "reportContent": None,
-        "chatId": chat_id  # make sure we return the possibly-updated ID
+        "chatId": chat_id
     })
+
 
 ###############################################################################
 # 8. Generate and Send Docx (GET-based)
 ###############################################################################
-@app.route('/api/generateReport', methods=['GET'])
+@app.route("/api/generateReport", methods=["GET"])
 def generate_report_get():
-    rid = request.args.get('reportId')
+    rid = request.args.get("reportId")
     if not rid:
         return "Missing reportId param", 400
 
@@ -448,17 +373,17 @@ def generate_report_get():
 
     del report_cache[rid]  # optional single-use removal
 
-    lines = doc_text.split('\n')
+    lines = doc_text.split("\n")
     doc_title = "Generated Report"
-    for line in lines:
+    for idx, line in enumerate(lines):
         s = line.strip()
-        if s.startswith('# '):
+        if s.startswith("# "):
             doc_title = s[2:].strip()
             break
-        elif s.startswith('## '):
+        elif s.startswith("## "):
             doc_title = s[3:].strip()
             break
-        elif s.startswith('### '):
+        elif s.startswith("### "):
             doc_title = s[4:].strip()
             break
 
@@ -466,7 +391,7 @@ def generate_report_get():
     doc.add_heading(doc_title, 0)
 
     def handle_bold(par, text):
-        segments = text.split('**')
+        segments = text.split("**")
         for i, seg in enumerate(segments):
             run = par.add_run(seg)
             if i % 2 == 1:
@@ -475,21 +400,22 @@ def generate_report_get():
     for line in lines:
         stripped = line.strip()
         if not stripped:
-            doc.add_paragraph('')
+            doc.add_paragraph("")
             continue
-        if stripped.startswith('### '):
+
+        if stripped.startswith("### "):
             doc.add_heading(stripped[4:].strip(), level=3)
-        elif stripped.startswith('## '):
+        elif stripped.startswith("## "):
             doc.add_heading(stripped[3:].strip(), level=2)
-        elif stripped.startswith('# '):
+        elif stripped.startswith("# "):
             doc.add_heading(stripped[2:].strip(), level=1)
-        elif re.match(r'^-\s', stripped):
-            p = doc.add_paragraph(style='List Bullet')
+        elif re.match(r"^-\s", stripped):
+            p = doc.add_paragraph(style="List Bullet")
             handle_bold(p, stripped[2:].strip())
-        elif re.match(r'^\d+\.\s', stripped):
-            p = doc.add_paragraph(style='List Number')
-            text_part = re.sub(r'^\d+\.\s', '', stripped).strip()
-            handle_bold(p, text_part)
+        elif re.match(r"^\d+\.\s", stripped):
+            p = doc.add_paragraph(style="List Number")
+            txt_part = re.sub(r"^\d+\.\s", "", stripped).strip()
+            handle_bold(p, txt_part)
         else:
             par = doc.add_paragraph()
             handle_bold(par, stripped)
@@ -505,35 +431,32 @@ def generate_report_get():
         buffer,
         as_attachment=True,
         download_name=filename,
-        mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
 ###############################################################################
 # 9. Contact, Chats, Archive, Delete
 ###############################################################################
-@app.route('/contact', methods=['POST'])
+@app.route("/contact", methods=["POST"])
 def contact_endpoint():
     data = request.get_json(force=True)
-    firstName = data.get('firstName', '')
-    lastName = data.get('lastName', '')
-    company = data.get('company', '')
-    email = data.get('email', '')
-    note = data.get('note', '')
+    firstName = data.get("firstName", "")
+    lastName = data.get("lastName", "")
+    company = data.get("company", "")
+    email = data.get("email", "")
+    note = data.get("note", "")
 
     app.logger.info(
-        f"Contact form submission:\n"
-        f"Name: {firstName} {lastName}\n"
-        f"Company: {company}\n"
-        f"Email: {email}\n"
-        f"Note: {note}"
+        f"Contact form:\nName: {firstName} {lastName}\n"
+        f"Company: {company}\nEmail: {email}\nNote: {note}"
     )
     if not SENDGRID_API_KEY:
         return jsonify({"status": "error", "message": "SendGrid key missing"}), 500
 
     try:
         sg = sendgrid.SendGridAPIClient(api_key=SENDGRID_API_KEY)
-        from_email = Email("noreply@myapp.com")
-        to_email = To("helpdesk@myapp.com")
+        from_email = Email("colter@mahluminnovations.com")
+        to_email = To("colter@mahluminnovations.com")
         subject = f"Contact Form from {firstName} {lastName}"
         content_text = f"""
         Contact Form Submission:
@@ -544,15 +467,16 @@ def contact_endpoint():
         """
         content = Content("text/plain", content_text)
         mail = Mail(from_email, to_email, subject, content)
-        _ = sg.client.mail.send.post(request_body=mail.get())
+        sg.client.mail.send.post(request_body=mail.get())
         return jsonify({"status": "success", "message": "Your message has been sent."}), 200
     except Exception as e:
         app.logger.error("Error sending email via SendGrid", exc_info=True)
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/chats', methods=['GET'])
+
+@app.route("/chats", methods=["GET"])
 def get_chats():
-    user_key = request.args.get('userKey', '')
+    user_key = request.args.get("userKey", "")
     if not user_key:
         return jsonify({"chats": []}), 200
 
@@ -565,10 +489,11 @@ def get_chats():
     ))
     return jsonify({"chats": items}), 200
 
-@app.route('/archiveAllChats', methods=['POST'])
+
+@app.route("/archiveAllChats", methods=["POST"])
 def archive_all_chats():
     data = request.get_json(force=True)
-    user_key = data.get('userKey', '')
+    user_key = data.get("userKey", "")
     if not user_key:
         return jsonify({"error": "No userKey"}), 400
 
@@ -577,19 +502,20 @@ def archive_all_chats():
     items = list(container.query_items(query=query, parameters=params))
 
     for doc in items:
-        doc['archived'] = True
+        doc["archived"] = True
         container.upsert_item(doc)
     return jsonify({"success": True}), 200
 
-@app.route('/deleteAllChats', methods=['POST'])
+
+@app.route("/deleteAllChats", methods=["POST"])
 def delete_all_chats():
     data = request.get_json(force=True)
-    user_key = data.get('userKey', '')
+    user_key = data.get("userKey", "")
     if not user_key:
         return jsonify({"error": "No userKey provided"}), 400
 
-    container_client = None
     if AZURE_STORAGE_CONNECTION_STRING:
+        from azure.storage.blob import BlobServiceClient
         try:
             bsc = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
             container_client = bsc.get_container_client("gymaitempcontainer")
@@ -597,7 +523,8 @@ def delete_all_chats():
             app.logger.error("Could not connect to azure storage container:", exc_info=True)
             container_client = None
     else:
-        app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set. Can't remove blobs.")
+        app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set; can't remove blobs.")
+        container_client = None
 
     query = "SELECT * FROM c WHERE c.userKey=@userKey"
     params = [{"name": "@userKey", "value": user_key}]
@@ -607,30 +534,29 @@ def delete_all_chats():
         file_list = doc.get("files", [])
         if container_client and file_list:
             for f in file_list:
-                blob_name = f["filename"]
                 try:
-                    container_client.delete_blob(blob_name)
-                    app.logger.info(f"Deleted blob '{blob_name}' from gymaitempcontainer.")
+                    container_client.delete_blob(f["filename"])
+                    app.logger.info(f"Deleted blob '{f['filename']}' from gymaitempcontainer.")
                 except Exception as ex:
-                    app.logger.error(f"Error deleting blob '{blob_name}': {ex}", exc_info=True)
-
-        container.delete_item(doc['id'], doc['userKey'])
+                    app.logger.error(f"Error deleting blob '{f['filename']}': {ex}", exc_info=True)
+        container.delete_item(doc["id"], doc["userKey"])
 
     return jsonify({"success": True}), 200
 
-@app.route('/renameChat', methods=['POST'])
+
+@app.route("/renameChat", methods=["POST"])
 def rename_chat():
     data = request.get_json(force=True)
-    user_key = data.get('userKey', 'default_user')
-    chat_id = data.get('chatId', '')
-    new_title = data.get('newTitle', '')
+    user_key = data.get("userKey", "default_user")
+    chat_id = data.get("chatId", "")
+    new_title = data.get("newTitle", "")
 
     if not chat_id or not new_title:
         return jsonify({"error": "chatId and newTitle are required"}), 400
 
     try:
         chat_doc = container.read_item(item=chat_id, partition_key=user_key)
-        chat_doc['title'] = new_title
+        chat_doc["title"] = new_title
         container.upsert_item(chat_doc)
         return jsonify({"success": True, "message": "Title updated."}), 200
     except exceptions.CosmosResourceNotFoundError:
@@ -662,19 +588,19 @@ def chunk_text(text, chunk_size=1000):
         chunks.append(" ".join(current_chunk))
     return chunks
 
-@app.route('/uploadLargeFile', methods=['POST'])
+@app.route("/uploadLargeFile", methods=["POST"])
 def upload_large_file():
-    user_key = request.args.get('userKey', 'default_user')
-    if request.content_type and 'multipart/form-data' in request.content_type:
-        up_file = request.files.get('file')
+    user_key = request.args.get("userKey", "default_user")
+    if request.content_type and "multipart/form-data" in request.content_type:
+        up_file = request.files.get("file")
         if not up_file:
             return jsonify({"error": "No file uploaded"}), 400
         try:
             b = up_file.read()
             fname = up_file.filename.lower()
-            if fname.endswith('.pdf'):
+            if fname.endswith(".pdf"):
                 extracted_text = extract_text_from_pdf(b)
-            elif fname.endswith('.docx'):
+            elif fname.endswith(".docx"):
                 extracted_text = extract_text_from_docx(b)
             else:
                 return jsonify({"error": "Unsupported file type"}), 400
@@ -715,11 +641,11 @@ def upsert_chunks_to_search(chunks, user_key):
         app.logger.error("Error upserting to Search:", exc_info=True)
         return 0
 
-@app.route('/askDoc', methods=['POST'])
+@app.route("/askDoc", methods=["POST"])
 def ask_doc():
     data = request.get_json(force=True) or {}
-    question = data.get('question', '')
-    user_key = data.get('userKey', 'default_user')
+    question = data.get("question", "")
+    user_key = data.get("userKey", "default_user")
     if not question:
         return jsonify({"error": "No question"}), 400
 
@@ -735,7 +661,7 @@ def ask_doc():
             "content": (
                 "You are an AI that uses the following doc context. "
                 "If not answered by context, say not enough info.\n"
-                "Context:\n" + prompt_content
+                f"Context:\n{prompt_content}"
             )
         },
         {"role": "user", "content": question}
@@ -764,7 +690,7 @@ def search_in_azure_search(q, user_key, top_k=3):
         res = sc.search(search_text=q, filter=f"userKey eq '{user_key}'", top=top_k)
         chunks = []
         for r in res:
-            c = r.get('content', '')
+            c = r.get("content", "")
             if c:
                 chunks.append(c)
         return chunks
@@ -775,7 +701,7 @@ def search_in_azure_search(q, user_key, top_k=3):
 ###############################################################################
 # 11. Add /generateChatTitle Endpoint
 ###############################################################################
-@app.route('/generateChatTitle', methods=['POST'])
+@app.route("/generateChatTitle", methods=["POST"])
 def generate_chat_title():
     data = request.get_json(force=True) or {}
     messages = data.get("messages", [])
@@ -792,10 +718,7 @@ def generate_chat_title():
 
     title_response = "Untitled Chat"
     try:
-        resp = client.chat.completions.create(
-            messages=messages_for_title,
-            model=model_name
-        )
+        resp = client.chat.completions.create(messages=messages_for_title, model=model_name)
         title_response = resp.choices[0].message.content.strip()
     except Exception as e:
         app.logger.error("Error calling AzureOpenAI for chat title:", exc_info=True)
@@ -808,12 +731,8 @@ def generate_chat_title():
 ###############################################################################
 @app.errorhandler(404)
 def not_found(e):
-    return send_from_directory('src/public', 'index.html')
+    return send_from_directory("src/public", "index.html")
 
 if __name__ == "__main__":
-    # Make sure we use UTF-8 so logs won't crash if they see weird chars
-    os.environ["PYTHONIOENCODING"] = "utf-8"
-    os.environ["LANG"] = "C.UTF-8"
-
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    # Make sure we listen on port 8080 for Azure
+    app.run(host="0.0.0.0", port=8080, debug=True)
