@@ -156,21 +156,41 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 7. Chat Endpoint
+# 7. Chat Endpoint (Memory-based, with file uploads & doc generation)
 ###############################################################################
 @app.route('/chat', methods=['POST'])
 def chat_endpoint():
     """
-    Approach: If no chatId is provided => create a brand-new chat doc with 
-    globally unique ID using uuid4. If chatId is provided, we read that doc
-    from the partition keyed by userKey, and keep adding messages so it has memory.
+    If no chatId is provided => create a brand-new chat doc with a globally 
+    unique ID (using a timestamp + random or a uuid4), stored in the userKey partition.
+    If a chatId is provided => fetch that doc from the userKey partition 
+    so we can remember the entire conversation (the “memory”).
+    
+    Along the way:
+    - We allow multi-part file uploads.
+    - We pass the entire conversation to AzureOpenAI.
+    - We remove any “download” lines that do not contain a 'reportId=' parameter.
+    - If ‘download://report.docx’ is found, we produce a new doc with a GET link.
+
+    Returns JSON with:
+        {
+          "reply": <assistant content with cleanup>,
+          "references": [],
+          "downloadUrl": None,
+          "reportContent": None,
+          "chatId": <the ID used>
+        }
     """
+
+    ################################################################
+    # STEP 1: Gather user input, handle JSON vs. multipart form
+    ################################################################
     user_key = request.args.get('userKey', 'default_user')
     user_input = ""
     chat_id = None
     uploaded_files = []
 
-    # Because it's POST, we handle either JSON or multipart form
+    # Because it's POST, handle either JSON or multipart form-data:
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
         chat_id = request.form.get('chatId')
@@ -182,14 +202,30 @@ def chat_endpoint():
         chat_id = data.get('chatId')
         uploaded_files = []
 
-    # If no chatId => generate a brand-new one with uuid4
+    ################################################################
+    # STEP 2: If no chatId => generate a new doc ID
+    ################################################################
     if not chat_id:
-        chat_id = f"chat_{str(uuid.uuid4())}"
+        # Example approach: time-based + random
+        while True:
+            temp_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+            existing = list(container.query_items(
+                query="SELECT * FROM c WHERE c.id=@id",
+                parameters=[{"name": "@id", "value": temp_id}],
+                enable_cross_partition_query=True
+            ))
+            if not existing:
+                chat_id = temp_id
+                break
+            # else keep looping
 
-    # Try to read existing doc from userKey partition
+    ################################################################
+    # STEP 3: Try loading existing doc from userKey partition
+    ################################################################
     try:
         chat_doc = container.read_item(item=chat_id, partition_key=user_key)
     except exceptions.CosmosResourceNotFoundError:
+        # Not found => create a brand-new skeleton doc
         chat_doc = {
             "id": chat_id,
             "userKey": user_key,
@@ -198,9 +234,9 @@ def chat_endpoint():
         }
 
     ################################################################
-    # 1) Build the entire conversation to pass to AzureOpenAI
+    # STEP 4: Build the entire conversation => pass to AzureOpenAI
     ################################################################
-    # We'll have a system prompt at top:
+    # 4a) Start with a system prompt
     messages_for_openai = [
         {
             "role": "system",
@@ -211,14 +247,16 @@ def chat_endpoint():
             )
         }
     ]
-    # Then all existing conversation
+    # 4b) Append all existing conversation from DB as “memory”
     for m in chat_doc["messages"]:
         messages_for_openai.append({
             "role": m["role"],
             "content": m["content"]
         })
 
-    # Handle file uploads => add system messages indicating the file was uploaded
+    ################################################################
+    # STEP 5: Handle uploaded files => add system messages for each
+    ################################################################
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
@@ -237,7 +275,6 @@ def chat_endpoint():
             else:
                 file_ext = 'other'
 
-            # Upload to blob
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
             if file_ext == 'pdf':
@@ -250,11 +287,10 @@ def chat_endpoint():
                 )
             blob_client.upload_blob(file_bytes, overwrite=True, content_settings=content_settings)
 
-            # Build a system message describing the file & partial extraction
+            # Possibly parse text from the file
             extracted_text = None
             if file_ext == 'pdf':
                 extracted_text = extract_text_from_pdf(file_bytes)
-                # Truncate extremely large text if needed
                 snippet = extracted_text[:1000] + '...' if len(extracted_text) > 1000 else extracted_text
                 messages_for_openai.append({
                     "role": "system",
@@ -278,7 +314,6 @@ def chat_endpoint():
                     "content": f"Image '{filename}' uploaded.\nAI says: {desc}"
                 })
 
-            # Store file info
             chat_doc["files"].append({
                 "filename": filename,
                 "blobUrl": blob_client.url,
@@ -286,13 +321,14 @@ def chat_endpoint():
                 "extractedText": extracted_text or ""
             })
 
-        # Optional extra system message to confirm
         messages_for_openai.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Add the new user message
+    ################################################################
+    # STEP 6: Add the new user message to the conversation
+    ################################################################
     messages_for_openai.append({"role": "user", "content": user_input})
     chat_doc["messages"].append({
         "role": "user",
@@ -300,7 +336,7 @@ def chat_endpoint():
     })
 
     ################################################################
-    # 2) Call AzureOpenAI
+    # STEP 7: Call AzureOpenAI
     ################################################################
     assistant_reply = ""
     try:
@@ -313,18 +349,23 @@ def chat_endpoint():
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # Possibly remove extra lines with "download" links lacking 'reportId='
+    ################################################################
+    # STEP 8: Clean up the assistant's reply => main_content
+    ################################################################
     main_content = assistant_reply
+
+    # 8a) Remove lines with “download” but no “reportId=”
     lines = main_content.split('\n')
-    keep = []
+    keep_lines = []
     for line in lines:
-        if re.search(r'download.*\[[^\]]+\]\([^\)]+\)', line, flags=re.IGNORECASE) and 'reportId=' not in line:
+        if (re.search(r'download.*\[[^\]]+\]\([^\)]+\)', line, flags=re.IGNORECASE)
+                and 'reportId=' not in line):
             continue
-        keep.append(line)
-    main_content = '\n'.join(keep)
+        keep_lines.append(line)
+    main_content = '\n'.join(keep_lines)
     main_content = re.sub(r'\n{2,}', '\n\n', main_content).strip()
 
-    # References
+    # 8b) Parse references if present
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
@@ -342,38 +383,54 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # If there's a 'download://report.docx'
+    # 8c) Check for 'download://report.docx'
     if 'download://report.docx' in main_content:
         new_text = main_content.replace('download://report.docx', '').strip()
         expanded_text = generate_detailed_report(new_text)
         rid = str(uuid.uuid4())
         report_cache[rid] = expanded_text
+
         link_md = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
         main_content = f"{new_text}\n\nDownloadable Report:\n{link_md}"
 
-    # Add the assistant's reply to the doc so it remembers
+    ################################################################
+    # STEP 9: Append the assistant's final reply => doc memory
+    ################################################################
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
     })
 
-    # Upsert once => no conflict if ID + userKey is truly unique
-    try:
-        container.upsert_item(chat_doc)
-    except exceptions.CosmosResourceExistsError as cex:
-        # If there's still a conflict, generate a new ID. 
-        # But typically if we used uuid4, we won't conflict:
-        app.logger.warning("Conflict: doc with that ID already existed. Generating new ID.")
-        chat_id = f"chat_{str(uuid.uuid4())}"
-        chat_doc["id"] = chat_id
-        container.upsert_item(chat_doc)
+    ################################################################
+    # STEP 10: Upsert => handle conflict by re-generating ID if needed
+    ################################################################
+    attempts = 0
+    while True:
+        attempts += 1
+        try:
+            container.upsert_item(chat_doc)
+            break  # success
+        except exceptions.CosmosResourceExistsError:
+            app.logger.warning(
+                "409 Conflict from Cosmos: doc with that ID already exists. Generating new ID now."
+            )
+            if attempts > 5:
+                raise RuntimeError("Could not find a unique chat ID after multiple attempts.")
+            new_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+            chat_doc["id"] = new_id
+            # IMPORTANT: also update local `chat_id` so we return the correct one:
+            chat_id = new_id
+            # then loop again
 
+    ################################################################
+    # STEP 11: Return JSON to front-end
+    ################################################################
     return jsonify({
         "reply": main_content,
         "references": references_list,
         "downloadUrl": None,
         "reportContent": None,
-        "chatId": chat_id
+        "chatId": chat_id  # make sure we return the possibly-updated ID
     })
 
 ###############################################################################
