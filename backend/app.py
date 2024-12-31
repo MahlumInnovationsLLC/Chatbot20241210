@@ -366,7 +366,7 @@ def chat_endpoint():
     if is_new_doc:
         container.create_item(chat_doc)
     else:
-        container.replace_item(chat_doc["id"], chat_doc, partition_key=user_key)
+        container.upsert_item(chat_doc)
 
     # 10) Return JSON
     return jsonify({
@@ -722,7 +722,7 @@ def search_in_azure_search(q, user_key, top_k=3):
 def generate_chat_title():
     data = request.get_json(force=True) or {}
     messages = data.get("messages", [])
-    model_name = data.get("model", "GYMAIEngine-gpt-4o")
+    model_name = data.get("model", AZURE_DEPLOYMENT_NAME)
 
     system_prompt = {
         "role": "system",
