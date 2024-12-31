@@ -72,7 +72,6 @@ if AZURE_STORAGE_CONNECTION_STRING:
     try:
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
         temp_container_client = blob_service_client.get_container_client(AZURE_TEMP_CONTAINER)
-        # Create container once; handle if already exists
         try:
             temp_container_client.create_container()
             app.logger.info(f"Created container '{AZURE_TEMP_CONTAINER}'")
