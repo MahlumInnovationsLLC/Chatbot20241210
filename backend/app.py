@@ -159,7 +159,7 @@ def serve_frontend():
 ###############################################################################
 # 7. Chat Endpoint (Approach B for new chat IDs)
 ###############################################################################
-@app.route('/chat', methods=['POST'])
+@app.route('/chat', methods=['GET'])
 def chat_endpoint():
     """
     If the client provides no chatId, we always create a brand-new globally
