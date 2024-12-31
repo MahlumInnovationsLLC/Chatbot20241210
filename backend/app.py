@@ -157,23 +157,26 @@ def serve_frontend():
     return send_from_directory('src/public', 'index.html')
 
 ###############################################################################
-# 7. Chat Endpoint (Approach B for new chat IDs)
+# 7. Chat Endpoint (Approach B for new chat IDs + Memory)
 ###############################################################################
 @app.route('/chat', methods=['GET'])
 def chat_endpoint():
     """
     If the client provides no chatId, we always create a brand-new globally
     unique chatId (checked cross-partition). Then we build a fresh doc
-    and upsert it. No re-check or re-use of an existing doc.
-    
+    and upsert it. 
     If the client does provide chatId, we try reading that doc from the
-    userKey partition. If not found => new doc anyway.
+    userKey partition (for memory). If not found => new doc anyway.
+    Then we re-send all prior user + assistant messages as context.
     """
+
     user_key = request.args.get('userKey', 'default_user')
     chat_id = None
     user_input = ""
     uploaded_files = []
 
+    # Because this is GET-based, you might pass userInput, chatId, etc. via query or form data
+    # but let's just handle it similar to your existing code:
     if request.content_type and 'multipart/form-data' in request.content_type:
         user_input = request.form.get('userMessage', '')
         chat_id = request.form.get('chatId')
@@ -198,24 +201,10 @@ def chat_endpoint():
                 chat_id = temp_id
                 break
 
-    # Prepare base messages for AzureOpenAI
-    messages_for_openai = [
-        {
-            "role": "system",
-            "content": (
-                "You are a helpful assistant. Use Markdown. "
-                "If user requests a downloadable report, MUST provide `download://report.docx`. "
-                "If references, show them, else `References: None`."
-            )
-        },
-        {"role": "user", "content": user_input}
-    ]
-
     # Attempt to read the doc from the userKey partition
     # If not found, we create a new doc skeleton
     try:
-        existing_doc = container.read_item(item=chat_id, partition_key=user_key)
-        chat_doc = existing_doc
+        chat_doc = container.read_item(item=chat_id, partition_key=user_key)
     except exceptions.CosmosResourceNotFoundError:
         chat_doc = {
             "id": chat_id,
@@ -224,12 +213,37 @@ def chat_endpoint():
             "files": []
         }
 
-    # Handle uploaded files (if any)
+    # --------------------------------------------------------------------------
+    # 1) Build messages_for_openai by including:
+    #    - A system instruction at the top
+    #    - ALL the prior messages in chat_doc["messages"], in order
+    #    - Then we will append system placeholders for uploaded files (if any)
+    #    - Then the new user message
+    # --------------------------------------------------------------------------
+    messages_for_openai = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful assistant. Use Markdown. "
+                "If user requests a downloadable report, MUST provide `download://report.docx`. "
+                "If references, show them, else `References: None`."
+            )
+        }
+    ]
+
+    # Add all existing conversation messages to the context
+    for msg in chat_doc["messages"]:
+        # msg["role"] is "user" or "assistant"
+        messages_for_openai.append({
+            "role": msg["role"],
+            "content": msg["content"]
+        })
+
+    # Handle uploaded files (if any) by adding them as system messages
     if uploaded_files and temp_container_client:
         for up_file in uploaded_files:
             if not up_file or not up_file.filename:
                 continue
-
             file_bytes = up_file.read()
             filename = up_file.filename
             lower_name = filename.lower()
@@ -246,6 +260,7 @@ def chat_endpoint():
             # Upload to blob
             blob_client = temp_container_client.get_blob_client(filename)
             content_settings = None
+            from azure.storage.blob import ContentSettings
             if file_ext == 'pdf':
                 content_settings = ContentSettings(content_type="application/pdf")
             elif file_ext == 'image':
@@ -283,6 +298,7 @@ def chat_endpoint():
                     "content": f"Image '{filename}' uploaded.\nAI says: {desc}"
                 })
 
+            # Store file info in doc
             chat_doc["files"].append({
                 "filename": filename,
                 "blobUrl": blob_url,
@@ -290,19 +306,24 @@ def chat_endpoint():
                 "extractedText": extracted_text or ""
             })
 
-        # Let user know in system messages
+        # Optional system message confirming uploads
         messages_for_openai.append({
             "role": "system",
             "content": "File upload(s) successful. You can now ask questions about them."
         })
 
-    # Append user’s new message
+    # Now add the *new* user message to both the doc and the openai context
+    messages_for_openai.append({
+        "role": "user",
+        "content": user_input
+    })
+
     chat_doc["messages"].append({
         "role": "user",
         "content": user_input
     })
 
-    # Call AzureOpenAI for the response
+    # Call AzureOpenAI
     assistant_reply = ""
     try:
         response = client.chat.completions.create(
@@ -314,10 +335,9 @@ def chat_endpoint():
         assistant_reply = f"Error calling AzureOpenAI: {str(e)}"
         app.logger.error("OpenAI error:", exc_info=True)
 
-    # Now do any transformations on assistant_reply => main_content
     main_content = assistant_reply
 
-    # Example: removing undesired lines with "download" links that don't have reportId
+    # Example of removing "download" lines that do not have a valid reportId
     lines = main_content.split('\n')
     keep = []
     for line in lines:
@@ -327,7 +347,7 @@ def chat_endpoint():
     main_content = '\n'.join(keep)
     main_content = re.sub(r'\n{2,}', '\n\n', main_content).strip()
 
-    # References parsing
+    # Parse references
     references_list = []
     if 'References:' in assistant_reply:
         parts = assistant_reply.split('References:')
@@ -345,18 +365,16 @@ def chat_endpoint():
                             "description": m.group(3)
                         })
 
-    # Look for 'download://report.docx'
+    # If there's a request for a docx link
     if 'download://report.docx' in main_content:
         new_text = main_content.replace('download://report.docx', '').strip()
         expanded_text = generate_detailed_report(new_text)
         rid = str(uuid.uuid4())
         report_cache[rid] = expanded_text
+        link_md = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
+        main_content = f"{new_text}\n\nDownloadable Report:\n{link_md}"
 
-        # Insert GET hyperlink
-        hyperlink = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
-        main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink}"
-
-    # Add bot’s reply to doc
+    # Save the assistant response in doc
     chat_doc["messages"].append({
         "role": "assistant",
         "content": assistant_reply
@@ -364,7 +382,6 @@ def chat_endpoint():
 
     container.upsert_item(chat_doc)
 
-    # Return JSON to front-end
     return jsonify({
         "reply": main_content,
         "references": references_list,
@@ -372,6 +389,7 @@ def chat_endpoint():
         "reportContent": None,
         "chatId": chat_id
     })
+
 
 
 ###############################################################################
