@@ -8,8 +8,9 @@ import random
 import uuid
 import traceback
 import logging
-    logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
-    logging.basicConfig(level=logging.DEBUG)  # Add this line
+logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)  # Add this line
+
 from io import BytesIO
 
 from flask import Flask, send_from_directory, request, jsonify, send_file
