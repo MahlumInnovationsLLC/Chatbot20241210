@@ -9,7 +9,7 @@ import uuid
 import traceback
 import logging
     logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
-    
+    logging.basicConfig(level=logging.DEBUG)  # Add this line
 from io import BytesIO
 
 from flask import Flask, send_from_directory, request, jsonify, send_file
@@ -761,6 +761,9 @@ def generate_chat_title():
 def not_found(e):
     return send_from_directory("src/public", "index.html")
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
-    logging.basicConfig(level=logging.DEBUG)  # Add this line
+ if __name__ == "__main__":
+     try:
+         app.run(host="0.0.0.0", port=8080)
+     except Exception as e:
+         logging.exception("Failed to start the Flask application.")
+     
