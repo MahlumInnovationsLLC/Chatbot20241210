@@ -7,6 +7,9 @@ import time
 import random
 import uuid
 import traceback
+import logging
+    logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
+    
 from io import BytesIO
 
 from flask import Flask, send_from_directory, request, jsonify, send_file
@@ -168,7 +171,8 @@ def chat_endpoint():
     If chatId is provided, we attempt to read that doc and then replace it
     upon changes. No 'upsert_item' is used here.
     """
-    user_key = request.args.get("userKey", "default_user")
+ 
+    user_key = request.args.get("userKey") or request.form.get("userKey") or "default_user"
     chat_id = None
     user_input = ""
     uploaded_files = []
@@ -216,12 +220,12 @@ def chat_endpoint():
     # 2) Either read existing doc or create from scratch
     chat_doc = None
     if not is_new_doc:
-        # Means user supplied a chat_id, or we discovered one
+        # Means user supplied a chat_id
         try:
             existing_doc = container.read_item(item=chat_id, partition_key=user_key)
             chat_doc = existing_doc
         except exceptions.CosmosResourceNotFoundError:
-            # The user gave a chatId but it doesn't exist => We'll create it from scratch
+            # Document doesn't exist; create a new one
             chat_doc = {
                 "id": chat_id,
                 "userKey": user_key,
@@ -229,8 +233,11 @@ def chat_endpoint():
                 "files": []
             }
             is_new_doc = True
+        except Exception as e:
+            app.logger.error("Error reading chat document:", exc_info=True)
+            return jsonify({"error": "Failed to read chat document"}), 500
     else:
-        # We have a brand-new ID => brand-new doc
+        # We have a brand-new ID; create a new document
         chat_doc = {
             "id": chat_id,
             "userKey": user_key,
@@ -363,10 +370,14 @@ def chat_endpoint():
     chat_doc["messages"].append({"role": "assistant", "content": assistant_reply})
 
     # 9) Write the doc back: create_item if new, otherwise replace_item
-    if is_new_doc:
-        container.create_item(chat_doc)
-    else:
-        container.upsert_item(chat_doc)
+    try:
+        if is_new_doc:
+            container.create_item(chat_doc)
+        else:
+            container.upsert_item(chat_doc)
+    except Exception as e:
+        app.logger.error("Error saving chat document:", exc_info=True)
+        return jsonify({"error": "Failed to save chat document"}), 500
 
     # 10) Return JSON
     return jsonify({
@@ -496,7 +507,7 @@ def contact_endpoint():
 def get_chats():
     user_key = request.args.get("userKey", "")
     if not user_key:
-        return jsonify({"chats": []}), 200
+        return jsonify({"error": "Missing userKey in request"}), 400
 
     query = "SELECT * FROM c WHERE c.userKey=@userKey"
     params = [{"name": "@userKey", "value": user_key}]
@@ -752,3 +763,4 @@ def not_found(e):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080, debug=True)
+    logging.basicConfig(level=logging.DEBUG)  # Add this line
