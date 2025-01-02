@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/pro-light-svg-icons'; // Import from Font Awesome Pro
+import { faTrashAlt } from '@fortawesome/pro-light-svg-icons'; // Import the light trash can icon from Font Awesome Pro
 
 /**
  * A ChatHistoryDrawer that:
@@ -57,7 +57,7 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
             <div className="flex items-center justify-between p-4 border-b border-gray-600">
                 <h3 className="text-xl font-bold">Manage Chats</h3>
                 <button onClick={onClose} className="text-sm font-bold">
-                    <i className="fa-light fa-xmark-large"></i>
+                    <FontAwesomeIcon icon={faTimes} />
                 </button>
             </div>
 
@@ -102,7 +102,7 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                             className="text-red-600 hover:text-red-800"
                             title="Delete chat"
                         >
-                            <i class="fa-light fa-trash"></i>
+                            <FontAwesomeIcon icon={faTrashAlt} />
                         </button>
                     </div>
                 ))}
