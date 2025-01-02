@@ -23,7 +23,7 @@ export default function MessageBubble({
     useEffect(() => {
         if (isTyping) {
             let currentIndex = 0;
-            const typingSpeed = 50; // Adjust typing speed (ms per character)
+            const typingSpeed = 25; // Adjust typing speed (ms per character)
 
             const typeNextCharacter = () => {
                 if (currentIndex < content.length) {
@@ -222,8 +222,7 @@ export default function MessageBubble({
 
     return (
         <div
-            className={`mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end' : 'bg-gray-700 text-white self-start'
-                } ${isUser ? 'slide-up' : ''}`}
+            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end user' : 'bg-gray-700 text-white self-start assistant'}`}
         >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
 

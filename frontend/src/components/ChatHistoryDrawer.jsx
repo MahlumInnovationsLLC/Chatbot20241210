@@ -1,5 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/pro-light-svg-icons'; // Import from Font Awesome Pro
 
 /**
  * A ChatHistoryDrawer that:
@@ -22,6 +24,19 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                 });
         }
     }, [isOpen, userKey]);
+
+    const handleDeleteChat = async (chatId) => {
+        try {
+            // Remove chat from server
+            await axios.post('/deleteChat', { userKey, chatId });
+
+            // Update local state
+            setRecentChats((prevChats) => prevChats.filter((chat) => chat.id !== chatId));
+        } catch (err) {
+            console.error('Error deleting chat:', err);
+            alert('Failed to delete chat. Please try again.');
+        }
+    };
 
     // If closed, render nothing
     if (!isOpen) return null;
@@ -56,30 +71,39 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                 {recentChats.map((chat, idx) => (
                     <div
                         key={chat.id || idx}
-                        className="p-2 border-b border-gray-700 cursor-pointer hover:bg-gray-700"
-                        // onSelectChat is an optional callback you can define in your parent
-                        onClick={() => {
-                            if (onSelectChat) {
-                                onSelectChat(chat);
-                            } else {
-                                console.log('Selected chat:', chat.id);
-                            }
-                        }}
+                        className="flex justify-between items-center p-2 border-b border-gray-700 cursor-pointer hover:bg-gray-700"
                     >
-                        {/* 1) Show chat.title if it exists, else fallback */}
-                        <p className="text-sm font-semibold">
-                            {chat.title || `Chat #${idx + 1}`}
-                        </p>
-
-                        {/* 2) You can also show a date or the # of messages if you like */}
-                        {/* Example: The doc might not have createdAt, so we skip if missing */}
-                        {chat.createdAt ? (
-                            <p className="text-xs text-gray-400">{chat.createdAt}</p>
-                        ) : (
-                            <p className="text-xs text-gray-400">
-                                {chat.messages ? `${chat.messages.length} messages` : 'No messages'}
+                        <div
+                            onClick={() => {
+                                if (onSelectChat) {
+                                    onSelectChat(chat);
+                                } else {
+                                    console.log('Selected chat:', chat.id);
+                                }
+                            }}
+                        >
+                            {/* 1) Show chat.title if it exists, else fallback */}
+                            <p className="text-sm font-semibold">
+                                {chat.title || `Chat #${idx + 1}`}
                             </p>
-                        )}
+
+                            {/* 2) You can also show a date or the # of messages if you like */}
+                            {/* Example: The doc might not have createdAt, so we skip if missing */}
+                            {chat.createdAt ? (
+                                <p className="text-xs text-gray-400">{chat.createdAt}</p>
+                            ) : (
+                                <p className="text-xs text-gray-400">
+                                    {chat.messages ? `${chat.messages.length} messages` : 'No messages'}
+                                </p>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => handleDeleteChat(chat.id)}
+                            className="text-red-600 hover:text-red-800"
+                            title="Delete chat"
+                        >
+                            <i class="fa-light fa-trash"></i>
+                        </button>
                     </div>
                 ))}
             </div>

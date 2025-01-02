@@ -4,9 +4,8 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
-import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
-import '../styles/ChatInterface.css'; // Import the CSS file
+import '../styles/ChatInterface.css'; // Update the path to the styles folder
 
 /**
  * Helper to generate a short, descriptive title from the user’s first message.
@@ -294,7 +293,6 @@ export default function ChatInterface({
                                 files={m.attachedFiles || []}
                             />
                         ))}
-                        {isLoading && <ThinkingBubble />}
                     </>
                 )}
             </div>

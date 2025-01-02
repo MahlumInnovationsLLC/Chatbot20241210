@@ -605,6 +605,45 @@ try:
 
         return jsonify({"success": True}), 200
 
+    @app.route("/deleteChat", methods=["POST"])
+    def delete_chat():
+        data = request.get_json(force=True)
+        user_key = data.get("userKey", "")
+        chat_id = data.get("chatId", "")
+    
+        if not user_key or not chat_id:
+            return jsonify({"error": "userKey and chatId are required"}), 400
+
+        if AZURE_STORAGE_CONNECTION_STRING:
+            try:
+                bsc = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+                container_client = bsc.get_container_client(AZURE_TEMP_CONTAINER)
+            except Exception as e:
+                app.logger.error("Could not connect to Azure storage container:", exc_info=True)
+                container_client = None
+        else:
+            app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set; can't remove blobs.")
+            container_client = None
+
+        try:
+            chat_doc = container.read_item(item=chat_id, partition_key=user_key)
+            file_list = chat_doc.get("files", [])
+        
+            if container_client and file_list:
+                for f in file_list:
+                    try:
+                        container_client.delete_blob(f["filename"])
+                        app.logger.info(f"Deleted blob '{f['filename']}' from {AZURE_TEMP_CONTAINER}.")
+                    except Exception as ex:
+                        app.logger.error(f"Error deleting blob '{f['filename']}': {ex}", exc_info=True)
+
+            container.delete_item(chat_id, user_key)
+            return jsonify({"success": True, "message": "Chat deleted successfully."}), 200
+        except exceptions.CosmosResourceNotFoundError:
+            return jsonify({"error": "Chat not found."}), 404
+        except Exception as e:
+            app.logger.error("Error deleting chat:", exc_info=True)
+            return jsonify({"error": str(e)}), 500
     @app.route("/renameChat", methods=["POST"])
     def rename_chat():
         data = request.get_json(force=True)
