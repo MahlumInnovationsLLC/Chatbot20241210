@@ -324,7 +324,8 @@ try:
         try:
             response = client.chat.completions.create(
                 messages=messages_for_openai,
-                model=AZURE_DEPLOYMENT_NAME
+                model=AZURE_DEPLOYMENT_NAME,
+                timeout=60  # Increase the timeout duration
             )
             assistant_reply = response.choices[0].message.content
         except Exception as e:
