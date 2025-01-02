@@ -1,0 +1,3310 @@
+[2025-01-01 00:09:48Z INFO HostContext] No proxy settings were found based on environmental variables (http_proxy/https_proxy/HTTP_PROXY/HTTPS_PROXY)
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO HostContext] Well known config file 'Runner': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner'
+[2025-01-01 00:09:48Z INFO Worker] Version: 2.321.0
+[2025-01-01 00:09:48Z INFO Worker] Commit: e249007931b7c8e857797fa259c167f0bd4f997a
+[2025-01-01 00:09:48Z INFO Worker] Culture: en-US
+[2025-01-01 00:09:48Z INFO Worker] UI Culture: en-US
+[2025-01-01 00:09:48Z INFO Worker] Waiting to receive the job message from the channel.
+[2025-01-01 00:09:48Z INFO ProcessChannel] Receiving message of length 26127, with hash '65089001a7c719bed9145b5789dda2c119e2daa00dbe1323b1df75df51c17423'
+[2025-01-01 00:09:48Z INFO Worker] Message received.
+[2025-01-01 00:09:48Z INFO Worker] Job message:
+ ***
+  "fileTable": [
+    ".github/workflows/GYMAIEngine.yml"
+  ],
+  "mask": [
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***,
+    ***
+      "type": "regex",
+      "value": "***"
+    ***
+  ],
+  "steps": [
+    ***
+      "type": "action",
+      "reference": ***
+        "type": "repository",
+        "name": "azure/login",
+        "ref": "v1.6.0",
+        "repositoryType": "GitHub",
+        "path": ""
+      ***,
+      "displayNameToken": ***
+        "type": 0,
+        "file": 1,
+        "line": 105,
+        "col": 15,
+        "lit": "Azure Login"
+      ***,
+      "contextName": "__azure_login",
+      "inputs": ***
+        "type": 2,
+        "file": 1,
+        "line": 108,
+        "col": 11,
+        "map": [
+          ***
+            "key": ***
+              "type": 0,
+              "file": 1,
+              "line": 108,
+              "col": 11,
+              "lit": "auth-type"
+            ***,
+            "value": ***
+              "type": 0,
+              "file": 1,
+              "line": 108,
+              "col": 22,
+              "lit": "SERVICE_PRINCIPAL"
+            ***
+          ***,
+          ***
+            "key": ***
+              "type": 0,
+              "file": 1,
+              "line": 109,
+              "col": 11,
+              "lit": "creds"
+            ***,
+            "value": ***
+              "type": 3,
+              "file": 1,
+              "line": 109,
+              "col": 18,
+              "expr": "secrets.AZURE_CREDENTIALS"
+            ***
+          ***
+        ]
+      ***,
+      "condition": "success()",
+      "id": "79dfe5d2-a5db-5f7c-cf39-95ca2120f571",
+      "name": "__azure_login"
+    ***,
+    ***
+      "type": "action",
+      "reference": ***
+        "type": "repository",
+        "name": "azure/webapps-deploy",
+        "ref": "v2",
+        "repositoryType": "GitHub",
+        "path": ""
+      ***,
+      "displayNameToken": ***
+        "type": 0,
+        "file": 1,
+        "line": 111,
+        "col": 15,
+        "lit": "Deploy to Azure WebApp"
+      ***,
+      "contextName": "__azure_webapps-deploy",
+      "inputs": ***
+        "type": 2,
+        "file": 1,
+        "line": 114,
+        "col": 11,
+        "map": [
+          ***
+            "key": ***
+              "type": 0,
+              "file": 1,
+              "line": 114,
+              "col": 11,
+              "lit": "app-name"
+            ***,
+            "value": ***
+              "type": 3,
+              "file": 1,
+              "line": 114,
+              "col": 21,
+              "expr": "secrets.AZURE_WEBAPP_NAME"
+            ***
+          ***,
+          ***
+            "key": ***
+              "type": 0,
+              "file": 1,
+              "line": 115,
+              "col": 11,
+              "lit": "resource-group-name"
+            ***,
+            "value": ***
+              "type": 3,
+              "file": 1,
+              "line": 115,
+              "col": 32,
+              "expr": "secrets.AZURE_RESOURCE_GROUP"
+            ***
+          ***,
+          ***
+            "key": ***
+              "type": 0,
+              "file": 1,
+              "line": 116,
+              "col": 11,
+              "lit": "images"
+            ***,
+            "value": ***
+              "type": 0,
+              "file": 1,
+              "line": 116,
+              "col": 19,
+              "lit": "ghcr.io/mahluminnovationsllc/chatbot-app:latest"
+            ***
+          ***
+        ]
+      ***,
+      "condition": "success()",
+      "id": "1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59",
+      "name": "__azure_webapps-deploy"
+    ***
+  ],
+  "variables": ***
+    "AZURE_CREDENTIALS": ***
+      "value": "***",
+      "isSecret": true
+    ***,
+    "AZURE_RESOURCE_GROUP": ***
+      "value": "***",
+      "isSecret": true
+    ***,
+    "AZURE_WEBAPP_NAME": ***
+      "value": "***",
+      "isSecret": true
+    ***,
+    "system.runnerGroupName": ***
+      "value": "Default"
+    ***,
+    "system.orchestrationId": ***
+      "value": "559c2d1d-e23f-41e3-99e9-8e9f70269d2e.deploy.__default"
+    ***,
+    "system.dotNet8CompatibilityWarning": ***
+      "value": "The Actions runner will no longer support your OS version on November 1, 2024. Please upgrade to a supported version. For information, refer https://github.blog/changelog/2024-08-19-notice-of-upcoming-deprecations-and-breaking-changes-in-github-actions-runners/"
+    ***,
+    "system.dotNet8CompatibilityOutputPattern": ***
+      "value": "GLIBCXX"
+    ***,
+    "system.dotNet8CompatibilityOutputLength": ***
+      "value": "200"
+    ***,
+    "system.testDotNet8Compatibility": ***
+      "value": "true"
+    ***,
+    "system.isScheduled": ***
+      "value": "False"
+    ***,
+    "system.servertype": ***
+      "value": "Hosted"
+    ***,
+    "system.culture": ***
+      "value": ""
+    ***,
+    "system.pipelineStartTime": ***
+      "value": "2025-01-01 00:09:46+00:00"
+    ***,
+    "system.runner.lowdiskspacethreshold": ***
+      "value": "100"
+    ***,
+    "DistributedTask.NewActionMetadata": ***
+      "value": "true"
+    ***,
+    "DistributedTask.EnableCompositeActions": ***
+      "value": "true"
+    ***,
+    "DistributedTask.EnhancedAnnotations": ***
+      "value": "true"
+    ***,
+    "DistributedTask.UploadStepSummary": ***
+      "value": "true"
+    ***,
+    "DistributedTask.ForceGithubJavascriptActionsToNode16": ***
+      "value": "true"
+    ***,
+    "DistributedTask.ForceGithubJavascriptActionsToNode20": ***
+      "value": "true"
+    ***,
+    "DistributedTask.AddWarningToNode12Action": ***
+      "value": "true"
+    ***,
+    "DistributedTask.AddWarningToNode16Action": ***
+      "value": "true"
+    ***,
+    "DistributedTask.LogTemplateErrorsAsDebugMessages": ***
+      "value": "true"
+    ***,
+    "DistributedTask.AllowRunnerContainerHooks": ***
+      "value": "true"
+    ***,
+    "DistributedTask.DeprecateStepOutputCommands": ***
+      "value": "true"
+    ***,
+    "DistributedTask.UseWhich2": ***
+      "value": "true"
+    ***,
+    "DistributedTask.DetailUntarFailure": ***
+      "value": "true"
+    ***,
+    "DistributedTask.UseActionArchiveCache": ***
+      "value": "true"
+    ***,
+    "DistributedTask.EnableJobServerQueueTelemetry": ***
+      "value": "true"
+    ***,
+    "DistributedTask.MarkJobAsFailedOnWorkerCrash": ***
+      "value": "true"
+    ***,
+    "Actions.EnableHttpRedirects": ***
+      "value": "true"
+    ***,
+    "system.teamProjectId": ***
+      "value": "00000000-0000-0000-0000-000000000000"
+    ***,
+    "build.buildId": ***
+      "value": "327"
+    ***,
+    "build.containerId": ***
+      "value": "48536659"
+    ***,
+    "build.allowCreateArtifacts": ***
+      "value": "False"
+    ***,
+    "system.workflowFilePath": ***
+      "value": ".github/workflows/GYMAIEngine.yml"
+    ***,
+    "system.phaseDisplayName": ***
+      "value": "deploy"
+    ***,
+    "system.phaseId": ***
+      "value": "d4a9a205-d52e-57fb-7b17-15a9d984af62"
+    ***,
+    "system.phaseName": ***
+      "value": "deploy"
+    ***,
+    "system.phaseAttempt": ***
+      "value": "1"
+    ***,
+    "system.jobIdentifier": ***
+      "value": "deploy.__default"
+    ***,
+    "system.jobAttempt": ***
+      "value": "1"
+    ***,
+    "System.JobPositionInPhase": ***
+      "value": "1"
+    ***,
+    "System.TotalJobsInPhase": ***
+      "value": "1"
+    ***,
+    "system.github.job": ***
+      "value": "deploy"
+    ***,
+    "system.jobDisplayName": ***
+      "value": "deploy"
+    ***,
+    "system.jobId": ***
+      "value": "e07742bd-189a-5079-918b-43f8b2f94b89"
+    ***,
+    "system.jobName": ***
+      "value": "__default"
+    ***,
+    "system.github.token.permissions": ***
+      "value": "***\"Contents\":\"read\",\"Metadata\":\"read\",\"Packages\":\"write\"***"
+    ***,
+    "system.github.token": ***
+      "value": "***",
+      "isSecret": true
+    ***,
+    "system.runnerEnvironment": ***
+      "value": "self-hosted"
+    ***,
+    "system.github.results_endpoint": ***
+      "value": "https://results-receiver.actions.githubusercontent.com/"
+    ***,
+    "system.github.results_upload_with_sdk": ***
+      "value": "True"
+    ***
+  ***,
+  "messageType": "PipelineAgentJobRequest",
+  "plan": ***
+    "scopeIdentifier": "00000000-0000-0000-0000-000000000000",
+    "planType": "Actions",
+    "version": 41,
+    "planId": "559c2d1d-e23f-41e3-99e9-8e9f70269d2e",
+    "planGroup": "Actions:00000000-0000-0000-0000-000000000000:1",
+    "artifactUri": "vstfs:///Build/Build/327",
+    "artifactLocation": null,
+    "definition": ***
+      "_links": ***,
+      "id": 3,
+      "name": "Chatbot20241210"
+    ***,
+    "owner": ***
+      "_links": ***,
+      "id": 3,
+      "name": "MahlumInnovationsLLC"
+    ***
+  ***,
+  "timeline": ***
+    "id": "559c2d1d-e23f-41e3-99e9-8e9f70269d2e",
+    "changeId": 0,
+    "location": null
+  ***,
+  "jobId": "e07742bd-189a-5079-918b-43f8b2f94b89",
+  "jobDisplayName": "deploy",
+  "jobName": "__default",
+  "requestId": 848,
+  "lockedUntil": "0001-01-01T00:00:00",
+  "resources": ***
+    "endpoints": [
+      ***
+        "data": ***
+          "ServerId": "fd5a1ddc-8770-430c-afee-b90ea4548db2",
+          "ServerName": "klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl",
+          "CacheServerUrl": "https://acghubeus1.actions.githubusercontent.com/klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl/",
+          "FeedStreamUrl": "https://results-receiver.actions.githubusercontent.com/_ws/ingest.sock",
+          "ResultsServiceUrl": "https://results-receiver.actions.githubusercontent.com/",
+          "ConnectivityChecks": "[\"https://acghubeus0.actions.githubusercontent.com/_apis/health\",\"https://results-receiver.actions.githubusercontent.com/health\",\"https://pkg.actions.githubusercontent.com\",\"https://actions-results-receiver-production.githubapp.com/health\",\"https://pipelinesghubeus24.actions.githubusercontent.com/_apis/health\"]"
+        ***,
+        "name": "SystemVssConnection",
+        "url": "https://pipelinesghubeus24.actions.githubusercontent.com/klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl/",
+        "authorization": ***
+          "parameters": ***
+            "AccessToken": ***
+          ***,
+          "scheme": "OAuth"
+        ***,
+        "isShared": false,
+        "isReady": true
+      ***
+    ]
+  ***,
+  "contextData": ***
+    "github": ***
+      "t": 2,
+      "d": [
+        ***
+          "k": "ref",
+          "v": "refs/heads/main"
+        ***,
+        ***
+          "k": "sha",
+          "v": "ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+        ***,
+        ***
+          "k": "repository",
+          "v": "MahlumInnovationsLLC/Chatbot20241210"
+        ***,
+        ***
+          "k": "repository_owner",
+          "v": "MahlumInnovationsLLC"
+        ***,
+        ***
+          "k": "repository_owner_id",
+          "v": "187681476"
+        ***,
+        ***
+          "k": "repositoryUrl",
+          "v": "git://github.com/MahlumInnovationsLLC/Chatbot20241210.git"
+        ***,
+        ***
+          "k": "run_id",
+          "v": "12565180793"
+        ***,
+        ***
+          "k": "run_number",
+          "v": "320"
+        ***,
+        ***
+          "k": "retention_days",
+          "v": "90"
+        ***,
+        ***
+          "k": "run_attempt",
+          "v": "1"
+        ***,
+        ***
+          "k": "artifact_cache_size_limit",
+          "v": "10"
+        ***,
+        ***
+          "k": "repository_visibility",
+          "v": "public"
+        ***,
+        ***
+          "k": "repo-self-hosted-runners-disabled",
+          "v": false
+        ***,
+        ***
+          "k": "enterprise-managed-business-id",
+          "v": ""
+        ***,
+        ***
+          "k": "repository_id",
+          "v": "901382924"
+        ***,
+        ***
+          "k": "actor_id",
+          "v": "187681476"
+        ***,
+        ***
+          "k": "actor",
+          "v": "MahlumInnovationsLLC"
+        ***,
+        ***
+          "k": "triggering_actor",
+          "v": "MahlumInnovationsLLC"
+        ***,
+        ***
+          "k": "workflow",
+          "v": "GYMAIEngine"
+        ***,
+        ***
+          "k": "head_ref",
+          "v": ""
+        ***,
+        ***
+          "k": "base_ref",
+          "v": ""
+        ***,
+        ***
+          "k": "event_name",
+          "v": "push"
+        ***,
+        ***
+          "k": "event",
+          "v": ***
+            "t": 2,
+            "d": [
+              ***
+                "k": "after",
+                "v": "ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+              ***,
+              ***
+                "k": "base_ref",
+                "v": null
+              ***,
+              ***
+                "k": "before",
+                "v": "f4df9f1c981ec5b0b5f43d370bd2d475e89f1526"
+              ***,
+              ***
+                "k": "commits",
+                "v": ***
+                  "t": 1,
+                  "a": [
+                    ***
+                      "t": 2,
+                      "d": [
+                        ***
+                          "k": "author",
+                          "v": ***
+                            "t": 2,
+                            "d": [
+                              ***
+                                "k": "email",
+                                "v": "colter@mahluminnovations.com"
+                              ***,
+                              ***
+                                "k": "name",
+                                "v": "Mahlum Innovations LLC"
+                              ***,
+                              ***
+                                "k": "username",
+                                "v": "MahlumInnovationsLLC"
+                              ***
+                            ]
+                          ***
+                        ***,
+                        ***
+                          "k": "committer",
+                          "v": ***
+                            "t": 2,
+                            "d": [
+                              ***
+                                "k": "email",
+                                "v": "colter@mahluminnovations.com"
+                              ***,
+                              ***
+                                "k": "name",
+                                "v": "Mahlum Innovations LLC"
+                              ***,
+                              ***
+                                "k": "username",
+                                "v": "MahlumInnovationsLLC"
+                              ***
+                            ]
+                          ***
+                        ***,
+                        ***
+                          "k": "distinct",
+                          "v": true
+                        ***,
+                        ***
+                          "k": "id",
+                          "v": "ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+                        ***,
+                        ***
+                          "k": "message",
+                          "v": "Chagnes for error logging and userkey"
+                        ***,
+                        ***
+                          "k": "timestamp",
+                          "v": "2024-12-31T17:06:56-07:00"
+                        ***,
+                        ***
+                          "k": "tree_id",
+                          "v": "20b471bd0694ba6bdebd24f301568d2d645d0652"
+                        ***,
+                        ***
+                          "k": "url",
+                          "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210/commit/ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+                        ***
+                      ]
+                    ***
+                  ]
+                ***
+              ***,
+              ***
+                "k": "compare",
+                "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210/compare/f4df9f1c981e...ddcef919eb1a"
+              ***,
+              ***
+                "k": "created",
+                "v": false
+              ***,
+              ***
+                "k": "deleted",
+                "v": false
+              ***,
+              ***
+                "k": "forced",
+                "v": false
+              ***,
+              ***
+                "k": "head_commit",
+                "v": ***
+                  "t": 2,
+                  "d": [
+                    ***
+                      "k": "author",
+                      "v": ***
+                        "t": 2,
+                        "d": [
+                          ***
+                            "k": "email",
+                            "v": "colter@mahluminnovations.com"
+                          ***,
+                          ***
+                            "k": "name",
+                            "v": "Mahlum Innovations LLC"
+                          ***,
+                          ***
+                            "k": "username",
+                            "v": "MahlumInnovationsLLC"
+                          ***
+                        ]
+                      ***
+                    ***,
+                    ***
+                      "k": "committer",
+                      "v": ***
+                        "t": 2,
+                        "d": [
+                          ***
+                            "k": "email",
+                            "v": "colter@mahluminnovations.com"
+                          ***,
+                          ***
+                            "k": "name",
+                            "v": "Mahlum Innovations LLC"
+                          ***,
+                          ***
+                            "k": "username",
+                            "v": "MahlumInnovationsLLC"
+                          ***
+                        ]
+                      ***
+                    ***,
+                    ***
+                      "k": "distinct",
+                      "v": true
+                    ***,
+                    ***
+                      "k": "id",
+                      "v": "ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+                    ***,
+                    ***
+                      "k": "message",
+                      "v": "Chagnes for error logging and userkey"
+                    ***,
+                    ***
+                      "k": "timestamp",
+                      "v": "2024-12-31T17:06:56-07:00"
+                    ***,
+                    ***
+                      "k": "tree_id",
+                      "v": "20b471bd0694ba6bdebd24f301568d2d645d0652"
+                    ***,
+                    ***
+                      "k": "url",
+                      "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210/commit/ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+                    ***
+                  ]
+                ***
+              ***,
+              ***
+                "k": "pusher",
+                "v": ***
+                  "t": 2,
+                  "d": [
+                    ***
+                      "k": "email",
+                      "v": "colter@mahluminnovations.com"
+                    ***,
+                    ***
+                      "k": "name",
+                      "v": "MahlumInnovationsLLC"
+                    ***
+                  ]
+                ***
+              ***,
+              ***
+                "k": "ref",
+                "v": "refs/heads/main"
+              ***,
+              ***
+                "k": "repository",
+                "v": ***
+                  "t": 2,
+                  "d": [
+                    ***
+                      "k": "allow_forking",
+                      "v": true
+                    ***,
+                    ***
+                      "k": "archive_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/***archive_format***/ref***"
+                    ***,
+                    ***
+                      "k": "archived",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "assignees_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/assignees***/user***"
+                    ***,
+                    ***
+                      "k": "blobs_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/git/blobs***/sha***"
+                    ***,
+                    ***
+                      "k": "branches_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/branches***/branch***"
+                    ***,
+                    ***
+                      "k": "clone_url",
+                      "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210.git"
+                    ***,
+                    ***
+                      "k": "collaborators_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/collaborators***/collaborator***"
+                    ***,
+                    ***
+                      "k": "comments_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/comments***/number***"
+                    ***,
+                    ***
+                      "k": "commits_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/commits***/sha***"
+                    ***,
+                    ***
+                      "k": "compare_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/compare/***base***...***head***"
+                    ***,
+                    ***
+                      "k": "contents_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/contents/***+path***"
+                    ***,
+                    ***
+                      "k": "contributors_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/contributors"
+                    ***,
+                    ***
+                      "k": "created_at",
+                      "v": 1733842691.0
+                    ***,
+                    ***
+                      "k": "default_branch",
+                      "v": "main"
+                    ***,
+                    ***
+                      "k": "deployments_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/deployments"
+                    ***,
+                    ***
+                      "k": "description",
+                      "v": "User Interface Customization for Chatbots"
+                    ***,
+                    ***
+                      "k": "disabled",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "downloads_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/downloads"
+                    ***,
+                    ***
+                      "k": "events_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/events"
+                    ***,
+                    ***
+                      "k": "fork",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "forks",
+                      "v": 0.0
+                    ***,
+                    ***
+                      "k": "forks_count",
+                      "v": 0.0
+                    ***,
+                    ***
+                      "k": "forks_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/forks"
+                    ***,
+                    ***
+                      "k": "full_name",
+                      "v": "MahlumInnovationsLLC/Chatbot20241210"
+                    ***,
+                    ***
+                      "k": "git_commits_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/git/commits***/sha***"
+                    ***,
+                    ***
+                      "k": "git_refs_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/git/refs***/sha***"
+                    ***,
+                    ***
+                      "k": "git_tags_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/git/tags***/sha***"
+                    ***,
+                    ***
+                      "k": "git_url",
+                      "v": "git://github.com/MahlumInnovationsLLC/Chatbot20241210.git"
+                    ***,
+                    ***
+                      "k": "has_discussions",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "has_downloads",
+                      "v": true
+                    ***,
+                    ***
+                      "k": "has_issues",
+                      "v": true
+                    ***,
+                    ***
+                      "k": "has_pages",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "has_projects",
+                      "v": true
+                    ***,
+                    ***
+                      "k": "has_wiki",
+                      "v": true
+                    ***,
+                    ***
+                      "k": "homepage",
+                      "v": null
+                    ***,
+                    ***
+                      "k": "hooks_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/hooks"
+                    ***,
+                    ***
+                      "k": "html_url",
+                      "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210"
+                    ***,
+                    ***
+                      "k": "id",
+                      "v": 901382924.0
+                    ***,
+                    ***
+                      "k": "is_template",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "issue_comment_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/issues/comments***/number***"
+                    ***,
+                    ***
+                      "k": "issue_events_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/issues/events***/number***"
+                    ***,
+                    ***
+                      "k": "issues_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/issues***/number***"
+                    ***,
+                    ***
+                      "k": "keys_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/keys***/key_id***"
+                    ***,
+                    ***
+                      "k": "labels_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/labels***/name***"
+                    ***,
+                    ***
+                      "k": "language",
+                      "v": "JavaScript"
+                    ***,
+                    ***
+                      "k": "languages_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/languages"
+                    ***,
+                    ***
+                      "k": "license",
+                      "v": null
+                    ***,
+                    ***
+                      "k": "master_branch",
+                      "v": "main"
+                    ***,
+                    ***
+                      "k": "merges_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/merges"
+                    ***,
+                    ***
+                      "k": "milestones_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/milestones***/number***"
+                    ***,
+                    ***
+                      "k": "mirror_url",
+                      "v": null
+                    ***,
+                    ***
+                      "k": "name",
+                      "v": "Chatbot20241210"
+                    ***,
+                    ***
+                      "k": "node_id",
+                      "v": "R_kgDONboDDA"
+                    ***,
+                    ***
+                      "k": "notifications_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/notifications***?since,all,participating***"
+                    ***,
+                    ***
+                      "k": "open_issues",
+                      "v": 0.0
+                    ***,
+                    ***
+                      "k": "open_issues_count",
+                      "v": 0.0
+                    ***,
+                    ***
+                      "k": "owner",
+                      "v": ***
+                        "t": 2,
+                        "d": [
+                          ***
+                            "k": "avatar_url",
+                            "v": "https://avatars.githubusercontent.com/u/187681476?v=4"
+                          ***,
+                          ***
+                            "k": "email",
+                            "v": "colter@mahluminnovations.com"
+                          ***,
+                          ***
+                            "k": "events_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/events***/privacy***"
+                          ***,
+                          ***
+                            "k": "followers_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/followers"
+                          ***,
+                          ***
+                            "k": "following_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/following***/other_user***"
+                          ***,
+                          ***
+                            "k": "gists_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/gists***/gist_id***"
+                          ***,
+                          ***
+                            "k": "gravatar_id",
+                            "v": ""
+                          ***,
+                          ***
+                            "k": "html_url",
+                            "v": "https://github.com/MahlumInnovationsLLC"
+                          ***,
+                          ***
+                            "k": "id",
+                            "v": 187681476.0
+                          ***,
+                          ***
+                            "k": "login",
+                            "v": "MahlumInnovationsLLC"
+                          ***,
+                          ***
+                            "k": "name",
+                            "v": "MahlumInnovationsLLC"
+                          ***,
+                          ***
+                            "k": "node_id",
+                            "v": "U_kgDOCy_KxA"
+                          ***,
+                          ***
+                            "k": "organizations_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/orgs"
+                          ***,
+                          ***
+                            "k": "received_events_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/received_events"
+                          ***,
+                          ***
+                            "k": "repos_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/repos"
+                          ***,
+                          ***
+                            "k": "site_admin",
+                            "v": false
+                          ***,
+                          ***
+                            "k": "starred_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/starred***/owner***/repo***"
+                          ***,
+                          ***
+                            "k": "subscriptions_url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC/subscriptions"
+                          ***,
+                          ***
+                            "k": "type",
+                            "v": "User"
+                          ***,
+                          ***
+                            "k": "url",
+                            "v": "https://api.github.com/users/MahlumInnovationsLLC"
+                          ***,
+                          ***
+                            "k": "user_view_type",
+                            "v": "public"
+                          ***
+                        ]
+                      ***
+                    ***,
+                    ***
+                      "k": "private",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "pulls_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/pulls***/number***"
+                    ***,
+                    ***
+                      "k": "pushed_at",
+                      "v": 1735690020.0
+                    ***,
+                    ***
+                      "k": "releases_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/releases***/id***"
+                    ***,
+                    ***
+                      "k": "size",
+                      "v": 265037.0
+                    ***,
+                    ***
+                      "k": "ssh_url",
+                      "v": "git@github.com:MahlumInnovationsLLC/Chatbot20241210.git"
+                    ***,
+                    ***
+                      "k": "stargazers",
+                      "v": 1.0
+                    ***,
+                    ***
+                      "k": "stargazers_count",
+                      "v": 1.0
+                    ***,
+                    ***
+                      "k": "stargazers_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/stargazers"
+                    ***,
+                    ***
+                      "k": "statuses_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/statuses/***sha***"
+                    ***,
+                    ***
+                      "k": "subscribers_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/subscribers"
+                    ***,
+                    ***
+                      "k": "subscription_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/subscription"
+                    ***,
+                    ***
+                      "k": "svn_url",
+                      "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210"
+                    ***,
+                    ***
+                      "k": "tags_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/tags"
+                    ***,
+                    ***
+                      "k": "teams_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/teams"
+                    ***,
+                    ***
+                      "k": "topics",
+                      "v": ***
+                        "t": 1
+                      ***
+                    ***,
+                    ***
+                      "k": "trees_url",
+                      "v": "https://api.github.com/repos/MahlumInnovationsLLC/Chatbot20241210/git/trees***/sha***"
+                    ***,
+                    ***
+                      "k": "updated_at",
+                      "v": "2024-12-31T19:20:22Z"
+                    ***,
+                    ***
+                      "k": "url",
+                      "v": "https://github.com/MahlumInnovationsLLC/Chatbot20241210"
+                    ***,
+                    ***
+                      "k": "visibility",
+                      "v": "public"
+                    ***,
+                    ***
+                      "k": "watchers",
+                      "v": 1.0
+                    ***,
+                    ***
+                      "k": "watchers_count",
+                      "v": 1.0
+                    ***,
+                    ***
+                      "k": "web_commit_signoff_required",
+                      "v": false
+                    ***
+                  ]
+                ***
+              ***,
+              ***
+                "k": "sender",
+                "v": ***
+                  "t": 2,
+                  "d": [
+                    ***
+                      "k": "avatar_url",
+                      "v": "https://avatars.githubusercontent.com/u/187681476?v=4"
+                    ***,
+                    ***
+                      "k": "events_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/events***/privacy***"
+                    ***,
+                    ***
+                      "k": "followers_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/followers"
+                    ***,
+                    ***
+                      "k": "following_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/following***/other_user***"
+                    ***,
+                    ***
+                      "k": "gists_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/gists***/gist_id***"
+                    ***,
+                    ***
+                      "k": "gravatar_id",
+                      "v": ""
+                    ***,
+                    ***
+                      "k": "html_url",
+                      "v": "https://github.com/MahlumInnovationsLLC"
+                    ***,
+                    ***
+                      "k": "id",
+                      "v": 187681476.0
+                    ***,
+                    ***
+                      "k": "login",
+                      "v": "MahlumInnovationsLLC"
+                    ***,
+                    ***
+                      "k": "node_id",
+                      "v": "U_kgDOCy_KxA"
+                    ***,
+                    ***
+                      "k": "organizations_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/orgs"
+                    ***,
+                    ***
+                      "k": "received_events_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/received_events"
+                    ***,
+                    ***
+                      "k": "repos_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/repos"
+                    ***,
+                    ***
+                      "k": "site_admin",
+                      "v": false
+                    ***,
+                    ***
+                      "k": "starred_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/starred***/owner***/repo***"
+                    ***,
+                    ***
+                      "k": "subscriptions_url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC/subscriptions"
+                    ***,
+                    ***
+                      "k": "type",
+                      "v": "User"
+                    ***,
+                    ***
+                      "k": "url",
+                      "v": "https://api.github.com/users/MahlumInnovationsLLC"
+                    ***,
+                    ***
+                      "k": "user_view_type",
+                      "v": "public"
+                    ***
+                  ]
+                ***
+              ***
+            ]
+          ***
+        ***,
+        ***
+          "k": "server_url",
+          "v": "https://github.com"
+        ***,
+        ***
+          "k": "api_url",
+          "v": "https://api.github.com"
+        ***,
+        ***
+          "k": "graphql_url",
+          "v": "https://api.github.com/graphql"
+        ***,
+        ***
+          "k": "ref_name",
+          "v": "main"
+        ***,
+        ***
+          "k": "ref_protected",
+          "v": false
+        ***,
+        ***
+          "k": "ref_type",
+          "v": "branch"
+        ***,
+        ***
+          "k": "secret_source",
+          "v": "Actions"
+        ***,
+        ***
+          "k": "workflow_ref",
+          "v": "MahlumInnovationsLLC/Chatbot20241210/.github/workflows/GYMAIEngine.yml@refs/heads/main"
+        ***,
+        ***
+          "k": "workflow_sha",
+          "v": "ddcef919eb1a7d26635c5e4880c8d75f920c255c"
+        ***
+      ]
+    ***,
+    "run-feature-flags": ***
+      "t": 2,
+      "d": [
+        ***
+          "k": "actions_stream_logs_via_results_service",
+          "v": true
+        ***,
+        ***
+          "k": "actions_use_results_service",
+          "v": true
+        ***,
+        ***
+          "k": "actions_uses_cache_service_v2",
+          "v": false
+        ***,
+        ***
+          "k": "block_artifacts_v3_exempted",
+          "v": false
+        ***,
+        ***
+          "k": "larger_runners_custom_image_generation",
+          "v": false
+        ***
+      ]
+    ***,
+    "partialrerun": false,
+    "needs": ***
+      "t": 2,
+      "d": [
+        ***
+          "k": "dockerize",
+          "v": ***
+            "t": 2,
+            "d": [
+              ***
+                "k": "result",
+                "v": "success"
+              ***,
+              ***
+                "k": "outputs",
+                "v": ***
+                  "t": 2
+                ***
+              ***
+            ]
+          ***
+        ***
+      ]
+    ***,
+    "vars": null,
+    "inputs": ***
+      "t": 2
+    ***,
+    "matrix": null,
+    "strategy": ***
+      "t": 2,
+      "d": [
+        ***
+          "k": "fail-fast",
+          "v": true
+        ***,
+        ***
+          "k": "job-index",
+          "v": 0.0
+        ***,
+        ***
+          "k": "job-total",
+          "v": 1.0
+        ***,
+        ***
+          "k": "max-parallel",
+          "v": 1.0
+        ***
+      ]
+    ***,
+    "EndpointsOverride": null
+  ***
+***
+[2025-01-01 00:09:48Z INFO JobRunner] Job ID e07742bd-189a-5079-918b-43f8b2f94b89
+[2025-01-01 00:09:48Z INFO ConfigurationStore] currentAssemblyLocation: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin\Runner.Worker.dll
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO ConfigurationStore] binPath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO ConfigurationStore] RootFolder: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO HostContext] Well known config file 'Runner': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner'
+[2025-01-01 00:09:48Z INFO ConfigurationStore] ConfigFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.runner
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2025-01-01 00:09:48Z INFO ConfigurationStore] CredFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO HostContext] Well known config file 'MigratedCredentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_migrated'
+[2025-01-01 00:09:48Z INFO ConfigurationStore] MigratedCredFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials_migrated
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:48Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:48Z INFO HostContext] Well known config file 'Service': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.service'
+[2025-01-01 00:09:48Z INFO ConfigurationStore] ServiceConfigFilePath: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.service
+[2025-01-01 00:09:48Z INFO ConfigurationStore] Read setting file: 334 chars
+[2025-01-01 00:09:48Z INFO JobRunner] Creating job server with URL: https://pipelinesghubeus24.actions.githubusercontent.com/klaMcpZaDwto19vzuzROhaH2gyaIbwywbi2vq32K7nQWUsnZWl/
+[2025-01-01 00:09:48Z INFO GitHubActionsService] Starting operation Location.GetConnectionData
+[2025-01-01 00:09:48Z INFO Worker] Listening for cancel message from the channel.
+[2025-01-01 00:09:48Z INFO Worker] Waiting for the job to complete or for a cancel message from the channel.
+[2025-01-01 00:09:49Z INFO GitHubActionsService] Finished operation Location.GetConnectionData
+[2025-01-01 00:09:49Z INFO JobServer] Creating websocket client ...wss://results-receiver.actions.githubusercontent.com/_ws/ingest.sock
+[2025-01-01 00:09:49Z INFO JobServer] Attempting to start websocket client with delay 00:00:00.
+[2025-01-01 00:09:49Z INFO JobServerQueue] Initializing results client
+[2025-01-01 00:09:49Z INFO JobServerQueue] Start process web console line queue.
+[2025-01-01 00:09:49Z INFO JobServerQueue] Start process file upload queue.
+[2025-01-01 00:09:49Z INFO JobServerQueue] Start results file upload queue.
+[2025-01-01 00:09:49Z INFO JobServerQueue] Starting results-based upload queue...
+[2025-01-01 00:09:49Z INFO JobServerQueue] Start process timeline update queue.
+[2025-01-01 00:09:49Z INFO ExecutionContext] Initialize GitHub context
+[2025-01-01 00:09:49Z INFO ExecutionContext] Initialize Env context
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:09:49Z INFO JobRunner] Starting the job execution context.
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO JobRunner] Validating directory permissions for: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Tools': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_tool'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:09:49Z INFO JobRunner] Getting job extension.
+[2025-01-01 00:09:49Z INFO JobRunner] Initialize job. Getting all job steps.
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known config file 'Credentials': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.credentials'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known config file 'SetupInfo': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\.setup_info'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO PipelineDirectoryManager] Loading tracking config if exists: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_PipelineMapping\MahlumInnovationsLLC/Chatbot20241210\PipelineFolder.json
+[2025-01-01 00:09:49Z INFO PipelineDirectoryManager] Updating job run properties.
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO JobExtension] Downloading actions
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:49Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:09:50Z INFO JobServer] Successfully started websocket client.
+[2025-01-01 00:09:50Z INFO JobServerQueue] Try to append 1 batches web console lines for record '72291a17-062d-4131-8080-a2b494d1e01b', success rate: 1/1.
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:09:50Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:09:50Z INFO ActionManager] Save archive 'https://api.github.com/repos/Azure/login/zipball/e15b166166a8746d1a47596803bd8c1b595455cf' into C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\_temp_aae1799b-0d41-4af6-b547-c4a6a2716cce\f491310b-bfe0-4f51-8b19-47fbd2ef4a61.zip.
+[2025-01-01 00:09:50Z INFO JobServerQueue] Try to append 1 batches web console lines for record '72291a17-062d-4131-8080-a2b494d1e01b', success rate: 1/1.
+[2025-01-01 00:09:50Z INFO JobServerQueue] Job timeline record has been updated for the first time.
+[2025-01-01 00:09:54Z INFO ActionManager] Request URL: https://api.github.com/repos/Azure/login/zipball/e15b166166a8746d1a47596803bd8c1b595455cf X-GitHub-Request-Id: F9D5:2AAFDA:E00B11:11CAB0A:677487CE Http Status: OK
+[2025-01-01 00:10:05Z INFO ActionManager] Finished getting action repository.
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:05Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:05Z INFO ActionManager] Save archive 'https://api.github.com/repos/Azure/webapps-deploy/zipball/4bfb30bef2c330e36be280cb1e5726d0fac06233' into C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\_temp_b0f9514a-68ac-4ef2-9b74-c679f762c918\eba571b1-2c2e-4f29-857d-da37d2dfc548.zip.
+[2025-01-01 00:10:05Z INFO JobServerQueue] Try to append 1 batches web console lines for record '72291a17-062d-4131-8080-a2b494d1e01b', success rate: 1/1.
+[2025-01-01 00:10:07Z INFO ActionManager] Request URL: https://api.github.com/repos/Azure/webapps-deploy/zipball/4bfb30bef2c330e36be280cb1e5726d0fac06233 X-GitHub-Request-Id: F9DD:2AAFDA:E00C11:11CAC73:677487DD Http Status: OK
+[2025-01-01 00:10:21Z INFO ActionManager] Finished getting action repository.
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Load schema file with definitions: [
+  "null",
+  "boolean",
+  "number",
+  "string",
+  "sequence",
+  "mapping",
+  "any",
+  "action-root",
+  "inputs",
+  "input",
+  "outputs",
+  "output-definition",
+  "runs",
+  "container-runs",
+  "container-runs-args",
+  "container-runs-env",
+  "node-runs",
+  "plugin-runs",
+  "composite-runs",
+  "composite-steps",
+  "composite-step",
+  "run-step",
+  "uses-step",
+  "container-runs-context",
+  "output-value",
+  "input-default-context",
+  "non-empty-string",
+  "string-steps-context",
+  "boolean-steps-context",
+  "step-env",
+  "step-if",
+  "step-with"
+]
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure Login",
+  "description": "Authenticate to Azure and run your Azure CLI or Azure PowerShell based actions or scripts.",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 5,
+          "col": 3,
+          "lit": "creds"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 8,
+          "col": 3,
+          "lit": "client-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 11,
+          "col": 3,
+          "lit": "tenant-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 14,
+          "col": 3,
+          "lit": "subscription-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 17,
+          "col": 3,
+          "lit": "enable-AzPSSession"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 20,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 21,
+          "col": 3,
+          "lit": "environment"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 24,
+          "col": 14,
+          "lit": "azurecloud"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 25,
+          "col": 3,
+          "lit": "allow-no-subscriptions"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 28,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 29,
+          "col": 3,
+          "lit": "audience"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 32,
+          "col": 14,
+          "lit": "api://AzureADTokenExchange"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 33,
+          "col": 3,
+          "lit": "auth-type"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 36,
+          "col": 14,
+          "lit": "SERVICE_PRINCIPAL"
+        ***
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": true,
+    "hasPost": true,
+    "script": "lib/main.js",
+    "pre": "lib/cleanup.js",
+    "post": "lib/cleanup.js",
+    "nodeVersion": "node16",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:21Z INFO ActionManager] Action node.js file: lib/main.js, no more preparation.
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManager] Load action that reference repository from 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure Login",
+  "description": "Authenticate to Azure and run your Azure CLI or Azure PowerShell based actions or scripts.",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 5,
+          "col": 3,
+          "lit": "creds"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 8,
+          "col": 3,
+          "lit": "client-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 11,
+          "col": 3,
+          "lit": "tenant-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 14,
+          "col": 3,
+          "lit": "subscription-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 17,
+          "col": 3,
+          "lit": "enable-AzPSSession"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 20,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 21,
+          "col": 3,
+          "lit": "environment"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 24,
+          "col": 14,
+          "lit": "azurecloud"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 25,
+          "col": 3,
+          "lit": "allow-no-subscriptions"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 28,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 29,
+          "col": 3,
+          "lit": "audience"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 32,
+          "col": 14,
+          "lit": "api://AzureADTokenExchange"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 33,
+          "col": 3,
+          "lit": "auth-type"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 36,
+          "col": 14,
+          "lit": "SERVICE_PRINCIPAL"
+        ***
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": true,
+    "hasPost": true,
+    "script": "lib/main.js",
+    "pre": "lib/cleanup.js",
+    "post": "lib/cleanup.js",
+    "nodeVersion": "node16",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:21Z INFO ActionManager] Action pre node.js file: lib/cleanup.js.
+[2025-01-01 00:10:21Z INFO ActionManager] Action node.js file: lib/main.js.
+[2025-01-01 00:10:21Z INFO ActionManager] Action post node.js file: lib/cleanup.js.
+[2025-01-01 00:10:21Z INFO ActionManager] Add 'pre' execution for 79dfe5d2-a5db-5f7c-cf39-95ca2120f571
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure WebApp",
+  "description": "Deploy Web Apps/Containerized Web Apps to Azure. github.com/Azure/Actions",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 5,
+          "col": 3,
+          "lit": "app-name"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 8,
+          "col": 3,
+          "lit": "publish-profile"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 11,
+          "col": 3,
+          "lit": "slot-name"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 3,
+          "line": 14,
+          "col": 14,
+          "lit": "production"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 15,
+          "col": 3,
+          "lit": "package"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 3,
+          "line": 18,
+          "col": 14,
+          "lit": "."
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 19,
+          "col": 3,
+          "lit": "images"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 22,
+          "col": 3,
+          "lit": "configuration-file"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 25,
+          "col": 3,
+          "lit": "startup-command"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 28,
+          "col": 3,
+          "lit": "resource-group-name"
+        ***,
+        "value": ""
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": false,
+    "hasPost": false,
+    "script": "lib/main.js",
+    "pre": null,
+    "post": null,
+    "nodeVersion": "node20",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:21Z INFO ActionManager] Action node.js file: lib/main.js, no more preparation.
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManager] Load action that reference repository from 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\webapps-deploy\v2'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure WebApp",
+  "description": "Deploy Web Apps/Containerized Web Apps to Azure. github.com/Azure/Actions",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 5,
+          "col": 3,
+          "lit": "app-name"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 8,
+          "col": 3,
+          "lit": "publish-profile"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 11,
+          "col": 3,
+          "lit": "slot-name"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 3,
+          "line": 14,
+          "col": 14,
+          "lit": "production"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 15,
+          "col": 3,
+          "lit": "package"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 3,
+          "line": 18,
+          "col": 14,
+          "lit": "."
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 19,
+          "col": 3,
+          "lit": "images"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 22,
+          "col": 3,
+          "lit": "configuration-file"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 25,
+          "col": 3,
+          "lit": "startup-command"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 28,
+          "col": 3,
+          "lit": "resource-group-name"
+        ***,
+        "value": ""
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": false,
+    "hasPost": false,
+    "script": "lib/main.js",
+    "pre": null,
+    "post": null,
+    "nodeVersion": "node20",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:21Z INFO ActionManager] Action pre node.js file: N/A.
+[2025-01-01 00:10:21Z INFO ActionManager] Action node.js file: lib/main.js.
+[2025-01-01 00:10:21Z INFO ActionManager] Action post node.js file: N/A.
+[2025-01-01 00:10:21Z INFO JobExtension] Adding .
+[2025-01-01 00:10:21Z INFO JobExtension] Adding pre-.
+[2025-01-01 00:10:21Z INFO JobExtension] Adding .
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO JobExtension] Total accessible running process: 1004.
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO JobServerQueue] Try to append 1 batches web console lines for record '72291a17-062d-4131-8080-a2b494d1e01b', success rate: 1/1.
+[2025-01-01 00:10:21Z INFO JobExtension] Start checking server connectivity.
+[2025-01-01 00:10:21Z INFO JobExtension] Check server connectivity for https://acghubeus0.actions.githubusercontent.com/_apis/health.
+[2025-01-01 00:10:21Z INFO JobExtension] Check server connectivity for https://results-receiver.actions.githubusercontent.com/health.
+[2025-01-01 00:10:21Z INFO JobExtension] Check server connectivity for https://pkg.actions.githubusercontent.com.
+[2025-01-01 00:10:21Z INFO JobExtension] Check server connectivity for https://actions-results-receiver-production.githubapp.com/health.
+[2025-01-01 00:10:21Z INFO JobExtension] Check server connectivity for https://pipelinesghubeus24.actions.githubusercontent.com/_apis/health.
+[2025-01-01 00:10:21Z INFO JobExtension] Start checking service connectivity in background.
+[2025-01-01 00:10:21Z INFO ExecutionContext] Publish step telemetry for current step ***
+  "action": "setup_job",
+  "type": "runner",
+  "stage": "Pre",
+  "stepId": "72291a17-062d-4131-8080-a2b494d1e01b",
+  "result": "succeeded",
+  "errorMessages": [],
+  "executionTimeInSeconds": 33,
+  "startTime": "2025-01-01T00:09:49.3701008Z",
+  "finishTime": "2025-01-01T00:10:21.8308744Z"
+***.
+[2025-01-01 00:10:21Z INFO JobRunner] Total job steps: 3.
+[2025-01-01 00:10:21Z INFO JobRunner] Run all job steps.
+[2025-01-01 00:10:21Z INFO StepsRunner] Processing step: DisplayName='Pre Azure Login'
+[2025-01-01 00:10:21Z INFO StepsRunner] Evaluating: always()
+[2025-01-01 00:10:21Z INFO StepsRunner] Result: true
+[2025-01-01 00:10:21Z INFO StepsRunner] Starting the step.
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO StepsRunner] Which2: 'chcp'
+[2025-01-01 00:10:21Z INFO StepsRunner] Location: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   File name: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Arguments: '65001'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] Process started with process id 58932, waiting for process exit.
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] Finished process 58932 with exit code 0, and elapsed time 00:00:00.0211712.
+[2025-01-01 00:10:21Z INFO StepsRunner] Successfully returned to code page 65001 (UTF8)
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManager] Load action that reference repository from 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure Login",
+  "description": "Authenticate to Azure and run your Azure CLI or Azure PowerShell based actions or scripts.",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 5,
+          "col": 3,
+          "lit": "creds"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 8,
+          "col": 3,
+          "lit": "client-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 11,
+          "col": 3,
+          "lit": "tenant-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 14,
+          "col": 3,
+          "lit": "subscription-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 17,
+          "col": 3,
+          "lit": "enable-AzPSSession"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 20,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 21,
+          "col": 3,
+          "lit": "environment"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 24,
+          "col": 14,
+          "lit": "azurecloud"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 25,
+          "col": 3,
+          "lit": "allow-no-subscriptions"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 28,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 29,
+          "col": 3,
+          "lit": "audience"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 32,
+          "col": 14,
+          "lit": "api://AzureADTokenExchange"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 33,
+          "col": 3,
+          "lit": "auth-type"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 36,
+          "col": 14,
+          "lit": "SERVICE_PRINCIPAL"
+        ***
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": true,
+    "hasPost": true,
+    "script": "lib/main.js",
+    "pre": "lib/cleanup.js",
+    "post": "lib/cleanup.js",
+    "nodeVersion": "node16",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:21Z INFO ActionManager] Action pre node.js file: lib/cleanup.js.
+[2025-01-01 00:10:21Z INFO ActionManager] Action node.js file: lib/main.js.
+[2025-01-01 00:10:21Z INFO ActionManager] Action post node.js file: lib/cleanup.js.
+[2025-01-01 00:10:21Z INFO ExecutionContext] Reserve record order 5 to 8 for post job actions.
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:21Z INFO ExecutionContext] Write event payload to C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_github_workflow\event.json
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:21Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IFileCommandExtension'
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.AddPathFileCommand, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.SetEnvFileCommand, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.CreateStepSummaryCommand, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.SaveStateFileCommand, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.SetOutputFileCommand, Runner.Worker
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'client-id': default value evaluate result: ""
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'tenant-id': default value evaluate result: ""
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'subscription-id': default value evaluate result: ""
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'enable-AzPSSession': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 20,
+  "col": 14,
+  "lit": "false"
+***
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'environment': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 24,
+  "col": 14,
+  "lit": "azurecloud"
+***
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'allow-no-subscriptions': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 28,
+  "col": 14,
+  "lit": "false"
+***
+[2025-01-01 00:10:21Z INFO ActionManifestManager] Input 'audience': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 32,
+  "col": 14,
+  "lit": "api://AzureADTokenExchange"
+***
+[2025-01-01 00:10:21Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IActionCommandExtension'
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.InternalPluginSetRepoPathCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.SetEnvCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.SetOutputCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.SaveStateCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.AddPathCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.AddMaskCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.AddMatcherCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.RemoveMatcherCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.WarningCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.ErrorCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.NoticeCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.DebugCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.GroupCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.EndGroupCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ExtensionManager] Creating instance: GitHub.Runner.Worker.EchoCommandExtension, Runner.Worker
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command internal-set-repo-path
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command set-env
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command set-output
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command save-state
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command add-path
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command add-mask
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command add-matcher
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command remove-matcher
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command warning
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command error
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command notice
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command debug
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command group
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command endgroup
+[2025-01-01 00:10:21Z INFO ActionCommandManager] Register action command extension for command echo
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:21Z INFO HostContext] Well known directory 'Externals': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals\node20\bin\node.exe'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Arguments: '"C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0\lib/cleanup.js"'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\Chatbot20241210\Chatbot20241210'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Encoding web name: utf-8 ; code page: '65001'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:21Z INFO ProcessInvokerWrapper] Process started with process id 41124, waiting for process exit.
+[2025-01-01 00:10:22Z INFO JobServerQueue] Try to append 1 batches web console lines for record '8b3d009d-1c45-4aac-981d-fcbf3230c224', success rate: 1/1.
+[2025-01-01 00:10:22Z INFO JobServerQueue] Got a step log file to send to results service.
+[2025-01-01 00:10:22Z INFO JobServerQueue] Starting upload of step log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_72291a17-062d-4131-8080-a2b494d1e01b.1
+[2025-01-01 00:10:22Z INFO JobServerQueue] Try to upload 1 log files or attachments, success rate: 1/1.
+[2025-01-01 00:10:23Z INFO JobServerQueue] Tried to upload 1 file(s) to results, success rate: 1/1.
+[2025-01-01 00:10:24Z INFO JobServerQueue] Try to append 1 batches web console lines for record '8b3d009d-1c45-4aac-981d-fcbf3230c224', success rate: 1/1.
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] Finished process 41124 with exit code 0, and elapsed time 00:00:03.9621653.
+[2025-01-01 00:10:25Z INFO CreateStepSummaryCommand] Step Summary file (C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_runner_file_commands\step_summary_fa0eec44-c58f-46c2-b18d-f8a88742d244) is empty; skipping attachment upload
+[2025-01-01 00:10:25Z INFO StepsRunner] Step result: 
+[2025-01-01 00:10:25Z INFO ExecutionContext] Publish step telemetry for current step ***
+  "action": "azure/login",
+  "ref": "v1.6.0",
+  "type": "node20",
+  "stage": "Pre",
+  "stepId": "8b3d009d-1c45-4aac-981d-fcbf3230c224",
+  "result": "succeeded",
+  "errorMessages": [],
+  "executionTimeInSeconds": 5,
+  "startTime": "2025-01-01T00:10:21.8431521Z",
+  "finishTime": "2025-01-01T00:10:25.9002388Z"
+***.
+[2025-01-01 00:10:25Z INFO StepsRunner] No need for updating job result with current step result 'Succeeded'.
+[2025-01-01 00:10:25Z INFO StepsRunner] Current state: job state = ''
+[2025-01-01 00:10:25Z INFO StepsRunner] Processing step: DisplayName='Azure Login'
+[2025-01-01 00:10:25Z INFO StepsRunner] Evaluating: success()
+[2025-01-01 00:10:25Z INFO StepsRunner] Result: true
+[2025-01-01 00:10:25Z INFO StepsRunner] Starting the step.
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:25Z INFO StepsRunner] Which2: 'chcp'
+[2025-01-01 00:10:25Z INFO StepsRunner] Location: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   File name: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Arguments: '65001'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] Process started with process id 40976, waiting for process exit.
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] Finished process 40976 with exit code 0, and elapsed time 00:00:00.0120068.
+[2025-01-01 00:10:25Z INFO StepsRunner] Successfully returned to code page 65001 (UTF8)
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:25Z INFO ActionManager] Load action that reference repository from 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure Login",
+  "description": "Authenticate to Azure and run your Azure CLI or Azure PowerShell based actions or scripts.",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 5,
+          "col": 3,
+          "lit": "creds"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 8,
+          "col": 3,
+          "lit": "client-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 11,
+          "col": 3,
+          "lit": "tenant-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 14,
+          "col": 3,
+          "lit": "subscription-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 17,
+          "col": 3,
+          "lit": "enable-AzPSSession"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 20,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 21,
+          "col": 3,
+          "lit": "environment"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 24,
+          "col": 14,
+          "lit": "azurecloud"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 25,
+          "col": 3,
+          "lit": "allow-no-subscriptions"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 28,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 29,
+          "col": 3,
+          "lit": "audience"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 32,
+          "col": 14,
+          "lit": "api://AzureADTokenExchange"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 33,
+          "col": 3,
+          "lit": "auth-type"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 36,
+          "col": 14,
+          "lit": "SERVICE_PRINCIPAL"
+        ***
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": true,
+    "hasPost": true,
+    "script": "lib/main.js",
+    "pre": "lib/cleanup.js",
+    "post": "lib/cleanup.js",
+    "nodeVersion": "node16",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:25Z INFO ActionManager] Action pre node.js file: lib/cleanup.js.
+[2025-01-01 00:10:25Z INFO ActionManager] Action node.js file: lib/main.js.
+[2025-01-01 00:10:25Z INFO ActionManager] Action post node.js file: lib/cleanup.js.
+[2025-01-01 00:10:25Z INFO ExecutionContext] 'post' of 'Post Azure Login' already push to post step stack.
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:25Z INFO ExecutionContext] Write event payload to C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_github_workflow\event.json
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:25Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IFileCommandExtension'
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'client-id': default value evaluate result: ""
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'tenant-id': default value evaluate result: ""
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'subscription-id': default value evaluate result: ""
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'enable-AzPSSession': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 20,
+  "col": 14,
+  "lit": "false"
+***
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'environment': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 24,
+  "col": 14,
+  "lit": "azurecloud"
+***
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'allow-no-subscriptions': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 28,
+  "col": 14,
+  "lit": "false"
+***
+[2025-01-01 00:10:25Z INFO ActionManifestManager] Input 'audience': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 32,
+  "col": 14,
+  "lit": "api://AzureADTokenExchange"
+***
+[2025-01-01 00:10:25Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IActionCommandExtension'
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command internal-set-repo-path
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command set-env
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command set-output
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command save-state
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command add-path
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command add-mask
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command add-matcher
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command remove-matcher
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command warning
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command error
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command notice
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command debug
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command group
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command endgroup
+[2025-01-01 00:10:25Z INFO ActionCommandManager] Register action command extension for command echo
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:25Z INFO HostContext] Well known directory 'Externals': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals\node20\bin\node.exe'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Arguments: '"C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0\lib/main.js"'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\Chatbot20241210\Chatbot20241210'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Encoding web name: utf-8 ; code page: '65001'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:25Z INFO ProcessInvokerWrapper] Process started with process id 58352, waiting for process exit.
+[2025-01-01 00:10:26Z INFO JobServerQueue] Try to append 1 batches web console lines for record '79dfe5d2-a5db-5f7c-cf39-95ca2120f571', success rate: 1/1.
+[2025-01-01 00:10:26Z INFO AddMaskCommandExtension] Add new secret mask with length of 36
+[2025-01-01 00:10:26Z INFO AddMaskCommandExtension] Add new secret mask with length of 40
+[2025-01-01 00:10:26Z INFO JobServerQueue] Got a step log file to send to results service.
+[2025-01-01 00:10:26Z INFO JobServerQueue] Starting upload of step log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_8b3d009d-1c45-4aac-981d-fcbf3230c224.1
+[2025-01-01 00:10:26Z INFO JobServerQueue] Try to append 1 batches web console lines for record '79dfe5d2-a5db-5f7c-cf39-95ca2120f571', success rate: 1/1.
+[2025-01-01 00:10:26Z INFO JobServerQueue] Tried to upload 1 file(s) to results, success rate: 1/1.
+[2025-01-01 00:10:27Z INFO JobServerQueue] Try to upload 1 log files or attachments, success rate: 1/1.
+[2025-01-01 00:10:27Z INFO JobServerQueue] Try to append 1 batches web console lines for record '79dfe5d2-a5db-5f7c-cf39-95ca2120f571', success rate: 1/1.
+[2025-01-01 00:10:28Z INFO JobServerQueue] Try to append 1 batches web console lines for record '79dfe5d2-a5db-5f7c-cf39-95ca2120f571', success rate: 1/1.
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] Finished process 58352 with exit code 0, and elapsed time 00:00:05.9695946.
+[2025-01-01 00:10:31Z INFO CreateStepSummaryCommand] Step Summary file (C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_runner_file_commands\step_summary_36ed87ff-d56c-4a8a-9ba4-bc510d577c36) is empty; skipping attachment upload
+[2025-01-01 00:10:31Z INFO StepsRunner] Step result: 
+[2025-01-01 00:10:31Z INFO ExecutionContext] Publish step telemetry for current step ***
+  "action": "azure/login",
+  "ref": "v1.6.0",
+  "type": "node20",
+  "stage": "Main",
+  "stepId": "79dfe5d2-a5db-5f7c-cf39-95ca2120f571",
+  "stepContextName": "__azure_login",
+  "hasPreStep": true,
+  "hasPostStep": true,
+  "result": "succeeded",
+  "errorMessages": [],
+  "executionTimeInSeconds": 6,
+  "startTime": "2025-01-01T00:10:25.9015136Z",
+  "finishTime": "2025-01-01T00:10:31.899235Z"
+***.
+[2025-01-01 00:10:31Z INFO StepsRunner] No need for updating job result with current step result 'Succeeded'.
+[2025-01-01 00:10:31Z INFO StepsRunner] Current state: job state = ''
+[2025-01-01 00:10:31Z INFO StepsRunner] Processing step: DisplayName='Deploy to Azure WebApp'
+[2025-01-01 00:10:31Z INFO StepsRunner] Evaluating: success()
+[2025-01-01 00:10:31Z INFO StepsRunner] Result: true
+[2025-01-01 00:10:31Z INFO StepsRunner] Starting the step.
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO StepsRunner] Which2: 'chcp'
+[2025-01-01 00:10:31Z INFO StepsRunner] Location: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   File name: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Arguments: '65001'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] Process started with process id 54668, waiting for process exit.
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] Finished process 54668 with exit code 0, and elapsed time 00:00:00.0111769.
+[2025-01-01 00:10:31Z INFO StepsRunner] Successfully returned to code page 65001 (UTF8)
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:31Z INFO ActionManager] Load action that reference repository from 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\webapps-deploy\v2'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure WebApp",
+  "description": "Deploy Web Apps/Containerized Web Apps to Azure. github.com/Azure/Actions",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 5,
+          "col": 3,
+          "lit": "app-name"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 8,
+          "col": 3,
+          "lit": "publish-profile"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 11,
+          "col": 3,
+          "lit": "slot-name"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 3,
+          "line": 14,
+          "col": 14,
+          "lit": "production"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 15,
+          "col": 3,
+          "lit": "package"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 3,
+          "line": 18,
+          "col": 14,
+          "lit": "."
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 19,
+          "col": 3,
+          "lit": "images"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 22,
+          "col": 3,
+          "lit": "configuration-file"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 25,
+          "col": 3,
+          "lit": "startup-command"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 3,
+          "line": 28,
+          "col": 3,
+          "lit": "resource-group-name"
+        ***,
+        "value": ""
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": false,
+    "hasPost": false,
+    "script": "lib/main.js",
+    "pre": null,
+    "post": null,
+    "nodeVersion": "node20",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:31Z INFO ActionManager] Action pre node.js file: N/A.
+[2025-01-01 00:10:31Z INFO ActionManager] Action node.js file: lib/main.js.
+[2025-01-01 00:10:31Z INFO ActionManager] Action post node.js file: N/A.
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:31Z INFO ExecutionContext] Write event payload to C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_github_workflow\event.json
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:31Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IFileCommandExtension'
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Input 'publish-profile': default value evaluate result: ""
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Input 'slot-name': default value evaluate result: ***
+  "type": 0,
+  "file": 3,
+  "line": 14,
+  "col": 14,
+  "lit": "production"
+***
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Input 'package': default value evaluate result: ***
+  "type": 0,
+  "file": 3,
+  "line": 18,
+  "col": 14,
+  "lit": "."
+***
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Input 'configuration-file': default value evaluate result: ""
+[2025-01-01 00:10:31Z INFO ActionManifestManager] Input 'startup-command': default value evaluate result: ""
+[2025-01-01 00:10:31Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IActionCommandExtension'
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command internal-set-repo-path
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command set-env
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command set-output
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command save-state
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command add-path
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command add-mask
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command add-matcher
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command remove-matcher
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command warning
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command error
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command notice
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command debug
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command group
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command endgroup
+[2025-01-01 00:10:31Z INFO ActionCommandManager] Register action command extension for command echo
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:31Z INFO HostContext] Well known directory 'Externals': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals\node20\bin\node.exe'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Arguments: '"C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\webapps-deploy\v2\lib/main.js"'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\Chatbot20241210\Chatbot20241210'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Encoding web name: utf-8 ; code page: '65001'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:31Z INFO ProcessInvokerWrapper] Process started with process id 69744, waiting for process exit.
+[2025-01-01 00:10:31Z INFO JobServerQueue] Try to append 1 batches web console lines for record '79dfe5d2-a5db-5f7c-cf39-95ca2120f571', success rate: 1/1.
+[2025-01-01 00:10:31Z INFO JobServerQueue] Try to append 1 batches web console lines for record '1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59', success rate: 1/1.
+[2025-01-01 00:10:32Z INFO JobServerQueue] Try to upload 1 log files or attachments, success rate: 1/1.
+[2025-01-01 00:10:32Z INFO JobServerQueue] Got a step log file to send to results service.
+[2025-01-01 00:10:32Z INFO JobServerQueue] Starting upload of step log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_79dfe5d2-a5db-5f7c-cf39-95ca2120f571.1
+[2025-01-01 00:10:33Z INFO JobServerQueue] Tried to upload 1 file(s) to results, success rate: 1/1.
+[2025-01-01 00:10:41Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:41Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:41Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:45Z INFO AddMaskCommandExtension] Add new secret mask with length of 1630
+[2025-01-01 00:10:46Z INFO AddMaskCommandExtension] Add new secret mask with length of 1424
+[2025-01-01 00:10:46Z INFO JobServerQueue] Try to append 1 batches web console lines for record '1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59', success rate: 1/1.
+[2025-01-01 00:10:48Z INFO JobServerQueue] Try to append 1 batches web console lines for record '1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59', success rate: 1/1.
+[2025-01-01 00:10:48Z INFO JobServerQueue] Try to append 1 batches web console lines for record '1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59', success rate: 1/1.
+[2025-01-01 00:10:51Z INFO JobServerQueue] Stop aggressive process web console line queue.
+[2025-01-01 00:10:51Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:51Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:51Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] Finished process 69744 with exit code 0, and elapsed time 00:00:22.0271476.
+[2025-01-01 00:10:53Z INFO CreateStepSummaryCommand] Step Summary file (C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_runner_file_commands\step_summary_6b2a2fb3-4494-4038-9218-c79d30a4b61c) is empty; skipping attachment upload
+[2025-01-01 00:10:53Z INFO StepsRunner] Step result: 
+[2025-01-01 00:10:53Z INFO ExecutionContext] Publish step telemetry for current step ***
+  "action": "azure/webapps-deploy",
+  "ref": "v2",
+  "type": "node20",
+  "stage": "Main",
+  "stepId": "1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59",
+  "stepContextName": "__azure_webapps-deploy",
+  "hasPreStep": false,
+  "hasPostStep": false,
+  "result": "succeeded",
+  "errorMessages": [],
+  "executionTimeInSeconds": 23,
+  "startTime": "2025-01-01T00:10:31.9006556Z",
+  "finishTime": "2025-01-01T00:10:53.9539167Z"
+***.
+[2025-01-01 00:10:53Z INFO StepsRunner] No need for updating job result with current step result 'Succeeded'.
+[2025-01-01 00:10:53Z INFO StepsRunner] Current state: job state = ''
+[2025-01-01 00:10:53Z INFO StepsRunner] Processing step: DisplayName='Post Azure Login'
+[2025-01-01 00:10:53Z INFO StepsRunner] Evaluating: always()
+[2025-01-01 00:10:53Z INFO StepsRunner] Result: true
+[2025-01-01 00:10:53Z INFO StepsRunner] Starting the step.
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO StepsRunner] Which2: 'chcp'
+[2025-01-01 00:10:53Z INFO StepsRunner] Location: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   File name: 'C:\Windows\system32\chcp.COM'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Arguments: '65001'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Encoding web name:  ; code page: ''
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] Process started with process id 87676, waiting for process exit.
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] Finished process 87676 with exit code 0, and elapsed time 00:00:00.0118818.
+[2025-01-01 00:10:53Z INFO StepsRunner] Successfully returned to code page 65001 (UTF8)
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:53Z INFO ActionManager] Load action that reference repository from 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Actions': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions'
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Ignore action property branding.
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Loaded action.yml file: ***
+  "name": "Azure Login",
+  "description": "Authenticate to Azure and run your Azure CLI or Azure PowerShell based actions or scripts.",
+  "inputs": ***
+    "type": 2,
+    "map": [
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 5,
+          "col": 3,
+          "lit": "creds"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 8,
+          "col": 3,
+          "lit": "client-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 11,
+          "col": 3,
+          "lit": "tenant-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 14,
+          "col": 3,
+          "lit": "subscription-id"
+        ***,
+        "value": ""
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 17,
+          "col": 3,
+          "lit": "enable-AzPSSession"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 20,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 21,
+          "col": 3,
+          "lit": "environment"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 24,
+          "col": 14,
+          "lit": "azurecloud"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 25,
+          "col": 3,
+          "lit": "allow-no-subscriptions"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 28,
+          "col": 14,
+          "lit": "false"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 29,
+          "col": 3,
+          "lit": "audience"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 32,
+          "col": 14,
+          "lit": "api://AzureADTokenExchange"
+        ***
+      ***,
+      ***
+        "key": ***
+          "type": 0,
+          "file": 2,
+          "line": 33,
+          "col": 3,
+          "lit": "auth-type"
+        ***,
+        "value": ***
+          "type": 0,
+          "file": 2,
+          "line": 36,
+          "col": 14,
+          "lit": "SERVICE_PRINCIPAL"
+        ***
+      ***
+    ]
+  ***,
+  "execution": ***
+    "executionType": "nodeJS",
+    "hasPre": true,
+    "hasPost": true,
+    "script": "lib/main.js",
+    "pre": "lib/cleanup.js",
+    "post": "lib/cleanup.js",
+    "nodeVersion": "node16",
+    "cleanupCondition": "always()",
+    "initCondition": "always()"
+  ***,
+  "deprecated": null
+***
+[2025-01-01 00:10:53Z INFO ActionManager] Action pre node.js file: lib/cleanup.js.
+[2025-01-01 00:10:53Z INFO ActionManager] Action node.js file: lib/main.js.
+[2025-01-01 00:10:53Z INFO ActionManager] Action post node.js file: lib/cleanup.js.
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:53Z INFO ExecutionContext] Write event payload to C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_github_workflow\event.json
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Work': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Temp': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp'
+[2025-01-01 00:10:53Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IFileCommandExtension'
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'client-id': default value evaluate result: ""
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'tenant-id': default value evaluate result: ""
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'subscription-id': default value evaluate result: ""
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'enable-AzPSSession': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 20,
+  "col": 14,
+  "lit": "false"
+***
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'environment': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 24,
+  "col": 14,
+  "lit": "azurecloud"
+***
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'allow-no-subscriptions': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 28,
+  "col": 14,
+  "lit": "false"
+***
+[2025-01-01 00:10:53Z INFO ActionManifestManager] Input 'audience': default value evaluate result: ***
+  "type": 0,
+  "file": 2,
+  "line": 32,
+  "col": 14,
+  "lit": "api://AzureADTokenExchange"
+***
+[2025-01-01 00:10:53Z INFO ExtensionManager] Getting extensions for interface: 'GitHub.Runner.Worker.IActionCommandExtension'
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command internal-set-repo-path
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command set-env
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command set-output
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command save-state
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command add-path
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command add-mask
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command add-matcher
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command remove-matcher
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command warning
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command error
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command notice
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command debug
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command group
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command endgroup
+[2025-01-01 00:10:53Z INFO ActionCommandManager] Register action command extension for command echo
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:53Z INFO HostContext] Well known directory 'Externals': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] Starting process:
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   File name: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\externals\node20\bin\node.exe'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Arguments: '"C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_actions\azure\login\v1.6.0\lib/cleanup.js"'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Working directory: 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\Chatbot20241210\Chatbot20241210'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Require exit code zero: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Encoding web name: utf-8 ; code page: '65001'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Force kill process on cancellation: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Redirected STDIN: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Persist current code page: 'True'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   Keep redirected STDIN open: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper]   High priority process: 'False'
+[2025-01-01 00:10:53Z INFO ProcessInvokerWrapper] Process started with process id 83804, waiting for process exit.
+[2025-01-01 00:10:54Z INFO JobServerQueue] Try to append 1 batches web console lines for record '1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59', success rate: 1/1.
+[2025-01-01 00:10:54Z INFO JobServerQueue] Try to append 1 batches web console lines for record '457f86cc-db40-4624-a8c9-049cb876b041', success rate: 1/1.
+[2025-01-01 00:10:54Z INFO JobServerQueue] Got a step log file to send to results service.
+[2025-01-01 00:10:54Z INFO JobServerQueue] Starting upload of step log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_1485897c-8ca0-5b2f-0b8e-e4c24bf4cd59.1
+[2025-01-01 00:10:54Z INFO JobServerQueue] Tried to upload 1 file(s) to results, success rate: 1/1.
+[2025-01-01 00:10:54Z INFO JobServerQueue] Try to upload 1 log files or attachments, success rate: 1/1.
+[2025-01-01 00:10:55Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:55Z INFO ProcessInvokerWrapper] STDOUT/STDERR stream read finished.
+[2025-01-01 00:10:55Z INFO ProcessInvokerWrapper] Finished process 83804 with exit code 0, and elapsed time 00:00:01.4882614.
+[2025-01-01 00:10:55Z INFO CreateStepSummaryCommand] Step Summary file (C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp\_runner_file_commands\step_summary_88cecb3f-a6f0-486b-a53c-c86b8a5380c9) is empty; skipping attachment upload
+[2025-01-01 00:10:55Z INFO StepsRunner] Step result: 
+[2025-01-01 00:10:55Z INFO ExecutionContext] Publish step telemetry for current step ***
+  "action": "azure/login",
+  "ref": "v1.6.0",
+  "type": "node20",
+  "stage": "Post",
+  "stepId": "457f86cc-db40-4624-a8c9-049cb876b041",
+  "result": "succeeded",
+  "errorMessages": [],
+  "executionTimeInSeconds": 2,
+  "startTime": "2025-01-01T00:10:53.9557955Z",
+  "finishTime": "2025-01-01T00:10:55.4684743Z"
+***.
+[2025-01-01 00:10:55Z INFO StepsRunner] No need for updating job result with current step result 'Succeeded'.
+[2025-01-01 00:10:55Z INFO StepsRunner] Current state: job state = ''
+[2025-01-01 00:10:55Z INFO JobRunner] Finalize job.
+[2025-01-01 00:10:55Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:55Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:55Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:55Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:55Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:55Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:55Z INFO JobExtension] Initialize Env context
+[2025-01-01 00:10:55Z INFO JobExtension] Initialize steps context
+[2025-01-01 00:10:55Z INFO JobExtension] Total accessible running process: 1008.
+[2025-01-01 00:10:55Z INFO JobExtension] Inspecting process environment variables. PID: 60528 (SearchProtocolHost)
+[2025-01-01 00:10:55Z WARN JobExtension] Ignore exception during read process environment variables: Access is denied.
+[2025-01-01 00:10:55Z INFO JobExtension] Inspecting process environment variables. PID: 86280 (TrustedInstaller)
+[2025-01-01 00:10:55Z WARN JobExtension] Ignore exception during read process environment variables: Access is denied.
+[2025-01-01 00:10:55Z INFO JobExtension] Inspecting process environment variables. PID: 93424 (TiWorker)
+[2025-01-01 00:10:55Z WARN JobExtension] Ignore exception during read process environment variables: Access is denied.
+[2025-01-01 00:10:55Z INFO JobExtension] Inspecting process environment variables. PID: 116604 (python)
+[2025-01-01 00:10:55Z INFO JobExtension] Inspecting process environment variables. PID: 109696 (conhost)
+[2025-01-01 00:10:55Z INFO JobExtension] Wait for all connectivity checks to finish.
+[2025-01-01 00:10:55Z INFO JobExtension] Connectivity check result: GitHub.Runner.Worker.JobExtension+CheckResult
+[2025-01-01 00:10:55Z INFO JobExtension] Connectivity check result: GitHub.Runner.Worker.JobExtension+CheckResult
+[2025-01-01 00:10:55Z INFO JobExtension] Connectivity check result: GitHub.Runner.Worker.JobExtension+CheckResult
+[2025-01-01 00:10:55Z INFO JobExtension] Connectivity check result: GitHub.Runner.Worker.JobExtension+CheckResult
+[2025-01-01 00:10:55Z INFO JobExtension] Connectivity check result: GitHub.Runner.Worker.JobExtension+CheckResult
+[2025-01-01 00:10:55Z INFO ExecutionContext] Publish step telemetry for current step ***
+  "action": "complete_job",
+  "type": "runner",
+  "stage": "Post",
+  "stepId": "ff06535c-93b7-40b2-80ac-27591f9af977",
+  "result": "succeeded",
+  "errorMessages": [],
+  "executionTimeInSeconds": 1,
+  "startTime": "2025-01-01T00:10:55.473878Z",
+  "finishTime": "2025-01-01T00:10:55.551265Z"
+***.
+[2025-01-01 00:10:55Z INFO JobRunner] Job result after all job steps finish: Succeeded
+[2025-01-01 00:10:55Z INFO JobRunner] Completing the job execution context.
+[2025-01-01 00:10:55Z INFO JobRunner] Shutting down the job server queue.
+[2025-01-01 00:10:55Z INFO JobServerQueue] Fire signal to shutdown all queues.
+[2025-01-01 00:10:55Z INFO JobServerQueue] All queue process task stopped.
+[2025-01-01 00:10:55Z INFO JobServerQueue] Try to append 1 batches web console lines for record 'ff06535c-93b7-40b2-80ac-27591f9af977', success rate: 1/1.
+[2025-01-01 00:10:55Z INFO JobServerQueue] Web console line queue drained.
+[2025-01-01 00:10:55Z INFO JobServerQueue] Uploading 3 files in one shot.
+[2025-01-01 00:10:56Z INFO JobServerQueue] Try to upload 3 log files or attachments, success rate: 3/3.
+[2025-01-01 00:10:56Z INFO JobServerQueue] File upload queue drained.
+[2025-01-01 00:10:56Z INFO JobServerQueue] Starting results-based upload queue...
+[2025-01-01 00:10:56Z INFO JobServerQueue] Uploading 3 file(s) in one shot through results service.
+[2025-01-01 00:10:56Z INFO JobServerQueue] Got a step log file to send to results service.
+[2025-01-01 00:10:56Z INFO JobServerQueue] Starting upload of step log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_457f86cc-db40-4624-a8c9-049cb876b041.1
+[2025-01-01 00:10:56Z INFO JobServerQueue] Got a step log file to send to results service.
+[2025-01-01 00:10:56Z INFO JobServerQueue] Starting upload of step log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_ff06535c-93b7-40b2-80ac-27591f9af977.1
+[2025-01-01 00:10:57Z INFO JobServerQueue] Got a job log file to send to results service.
+[2025-01-01 00:10:57Z INFO JobServerQueue] Starting upload of job log file to results service ResultsLog, C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\blocks\559c2d1d-e23f-41e3-99e9-8e9f70269d2e_e07742bd-189a-5079-918b-43f8b2f94b89.1
+[2025-01-01 00:10:57Z INFO JobServerQueue] Tried to upload 3 file(s) to results, success rate: 3/3.
+[2025-01-01 00:10:57Z INFO JobServerQueue] Results upload queue drained.
+[2025-01-01 00:10:57Z INFO JobServerQueue] Timeline update queue drained.
+[2025-01-01 00:10:57Z INFO JobServerQueue] Disposing job server ...
+[2025-01-01 00:10:57Z INFO JobServerQueue] Disposing results server ...
+[2025-01-01 00:10:57Z INFO JobServerQueue] All queue process tasks have been stopped, and all queues are drained.
+[2025-01-01 00:10:57Z INFO JobServerQueue] Actions upload time: 1743 ms, Result upload time: 2843 ms
+[2025-01-01 00:10:57Z INFO TempDirectoryManager] Cleaning runner temp folder: C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_work\_temp
+[2025-01-01 00:10:57Z INFO HostContext] Well known directory 'Bin': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\bin'
+[2025-01-01 00:10:57Z INFO HostContext] Well known directory 'Root': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner'
+[2025-01-01 00:10:57Z INFO HostContext] Well known directory 'Diag': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag'
+[2025-01-01 00:10:57Z INFO HostContext] Well known config file 'Telemetry': 'C:\Users\colter.mahlum\Documents\GitHub\Chatbot20241210\actions-runner\_diag\.telemetry'
+[2025-01-01 00:10:57Z INFO JobRunner] Raising job completed event
+[2025-01-01 00:10:57Z INFO Worker] Job completed.
