@@ -6,7 +6,7 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { FaFilePdf, FaFileWord, FaFileImage } from 'react-icons/fa';
 import { AiFillFileUnknown } from 'react-icons/ai';
-import './MessageBubble.css'; // Import the CSS file
+import './styles/MessageBubble.css'; // Import the CSS file
 
 export default function MessageBubble({
     role,

@@ -6,7 +6,7 @@ import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
-import './ChatInterface.css'; // Import the CSS file
+import './styles/ChatInterface.css'; // Import the CSS file
 
 /**
  * Helper to generate a short, descriptive title from the user’s first message.
