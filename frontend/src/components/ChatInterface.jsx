@@ -6,6 +6,7 @@ import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import ThinkingBubble from './ThinkingBubble';
 import { ThemeContext } from '../ThemeContext';
+import './ChatInterface.css'; // Import the CSS file
 
 /**
  * Helper to generate a short, descriptive title from the user’s first message.
@@ -49,12 +50,15 @@ export default function ChatInterface({
     const [userInput, setUserInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    // Multiple attachments
+    // For attachments
     const [files, setFiles] = useState([]);
     const [fileNames, setFileNames] = useState([]);
 
-    // Title generation
+    // For auto-titling
     const [hasGeneratedTitle, setHasGeneratedTitle] = useState(false);
+
+    // For "stop" functionality
+    const [stopRequested, setStopRequested] = useState(false);
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
@@ -86,7 +90,6 @@ export default function ChatInterface({
      * Send the user's message (and files, if any) to the server.
      */
     const sendMessage = async () => {
-        // if no text and no files => do nothing
         if (!userInput.trim() && files.length === 0) return;
 
         // 1) Add user’s message to local
@@ -102,6 +105,7 @@ export default function ChatInterface({
         setMessages((prev) => [...prev, userMsg]);
         setUserInput('');
         setIsLoading(true);
+        setStopRequested(false); // Reset stop each time we send a new message
 
         try {
             let res;
@@ -126,10 +130,10 @@ export default function ChatInterface({
                 });
             }
 
-            // 2) Bot’s reply
+            // 2) Bot’s reply placeholder
             const botMsg = {
                 role: 'assistant',
-                content: res.data.reply,
+                content: '',
                 references: res.data.references,
                 downloadUrl: res.data.downloadUrl,
                 reportContent: res.data.reportContent,
@@ -137,7 +141,35 @@ export default function ChatInterface({
             };
             setMessages((prev) => [...prev, botMsg]);
 
-            // 2a) If the server returns a brand-new chatId (for instance, if it’s auto-generating it),
+            // Typing effect for bot's reply
+            const typingSpeed = 50; // ms per character
+            const fullContent = res.data.reply;
+            let currentIndex = 0;
+
+            const typeNextCharacter = () => {
+                // If user pressed Stop
+                if (stopRequested) {
+                    // finalize the content immediately
+                    botMsg.content = fullContent;
+                    setMessages((prev) => [...prev.slice(0, -1), botMsg]);
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Otherwise continue typing
+                if (currentIndex < fullContent.length) {
+                    botMsg.content += fullContent[currentIndex];
+                    setMessages((prev) => [...prev.slice(0, -1), botMsg]);
+                    currentIndex++;
+                    setTimeout(typeNextCharacter, typingSpeed);
+                } else {
+                    setIsLoading(false);
+                }
+            };
+
+            typeNextCharacter();
+
+            // 2a) If the server returns a brand-new chatId (for instance, auto-generated),
             // notify parent if onChatIdUpdate is provided.
             if (res.data.chatId && res.data.chatId !== chatId) {
                 console.log('Server returned a new chatId:', res.data.chatId);
@@ -156,11 +188,16 @@ export default function ChatInterface({
                 ...prev,
                 { role: 'assistant', content: 'Error: ' + err.message }
             ]);
-        } finally {
             setIsLoading(false);
+        } finally {
             setFiles([]);
             setFileNames([]);
         }
+    };
+
+    // Handle "Stop" clicked
+    const handleStop = () => {
+        setStopRequested(true);
     };
 
     // Press Enter => send
@@ -192,20 +229,17 @@ export default function ChatInterface({
 
     /**
      * Let user rename the chat manually.
-     * This updates the server doc first, then sets local state to re-render.
      */
     const handleTitleEdit = async () => {
         const newTitle = prompt('Enter new chat title:', chatTitle || '');
         if (newTitle && newTitle.trim() !== '') {
             try {
-                // 1) rename doc in the backend
                 await axios.post('/renameChat', {
                     userKey,
                     chatId,
                     newTitle: newTitle.trim()
                 });
 
-                // 2) update local state
                 if (setChatTitle) {
                     setChatTitle(newTitle.trim());
                 }
@@ -312,12 +346,25 @@ export default function ChatInterface({
                         } resize-none overflow-y-auto whitespace-pre-wrap`}
                     placeholder="I'm here to help! Ask me anything..."
                 />
-                <button
-                    onClick={sendMessage}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                    Send
-                </button>
+                {!isLoading && (
+                    <button
+                        onClick={sendMessage}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                        title="Send message"
+                    >
+                        <i className="fa-light fa-paper-plane"></i>
+                    </button>
+                )}
+
+                {isLoading && (
+                    <button
+                        onClick={handleStop}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                        title="Stop generating response"
+                    >
+                        <i class="fa-light fa-stop"></i>
+                    </button>
+                )}
             </div>
         </div>
     );

@@ -77,14 +77,7 @@ function AppContent({ onLogout }) {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [shareUrlPopupOpen, setShareUrlPopupOpen] = useState(false);
     const menuRef = useRef(null);
-
     const [manageChatsOpen, setManageChatsOpen] = useState(false);
-
-    // -------------------------------------------------------------------------
-    // >>> KEY NEW STATE #1: We hold chatTitle here in the parent so 
-    // >>> ChatInterface can always display the correct "blue text" title.
-    // -------------------------------------------------------------------------
-    const [chatTitle, setChatTitle] = useState('');
 
     // #### 3c) Chat messages & currentChatId
     const [messages, setMessages] = useState([]);
@@ -112,30 +105,34 @@ function AppContent({ onLogout }) {
     }, []);
 
     // -------------------------------------------------------------------------
-    // >>> THIS is your createNewChat function.  It sets a fresh ID, resets
-    // >>> messages to just the system message, and sets chatTitle to "" as well.
+    // >>> KEY NEW STATE #1: Chat Title in the parent so the ChatInterface
+    // >>> can display the correct "blue text" title.
     // -------------------------------------------------------------------------
+    const [chatTitle, setChatTitle] = useState('');
+
+    // ------------
+    // STOP / STREAM
+    // ------------
+    // If you do streaming, you'd typically do it in ChatInterface. 
+    // But we'll show a simple approach here:
+    const [isStreaming, setIsStreaming] = useState(false);
+
+    // #### 3f) createNewChat
     const [archivedChats, setArchivedChats] = useState([]); // store local archived copies
 
     async function createNewChat() {
         try {
-            // If the old conversation had real user content, optionally generate a title for it
             if (messages.length > 1) {
                 const chatTitleFromOld = await generateChatTitle(messages);
-                console.log('Archived old chat with title:', chatTitleFromOld);
-
-                // store it in local state (archivedChats) if you want a local copy
                 setArchivedChats((prev) => [
                     ...prev,
                     { id: currentChatId, userKey, messages, title: chatTitleFromOld }
                 ]);
             }
-
-            // Generate a unique chat ID for the new conversation => No conflict with server
             const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
             setMessages([systemMessage]);
             setCurrentChatId(newId);
-            setChatTitle('');  // reset to blank (or "Untitled Chat") for the new chat
+            setChatTitle('');
             console.log('Created new chat:', newId);
         } catch (err) {
             console.error('Error creating new chat:', err);
@@ -230,13 +227,9 @@ function AppContent({ onLogout }) {
 
     // #### 3l) Load a chat from server or local
     const loadArchivedChat = (chat) => {
-        // load the messages
         setMessages(chat.messages);
-        // set the chat id
         setCurrentChatId(chat.id);
-        // set the chat title from doc
         setChatTitle(chat.title || '');
-        // close side panel
         setManageChatsOpen(false);
     };
 
@@ -324,6 +317,14 @@ function AppContent({ onLogout }) {
         overflow: 'auto'
     };
 
+    // We pass props to ChatInterface to handle "isStreaming" and "setIsStreaming",
+    // and a stop function (or abort function).
+    const handleStop = () => {
+        console.log('Stop button pressed');
+        // In a real scenario, you'd have an AbortController to cancel the AI request.
+        setIsStreaming(false);
+    };
+
     const pages = [
         {
             title: 'Training & Document Control',
@@ -345,10 +346,12 @@ function AppContent({ onLogout }) {
                         chatId={currentChatId}
                         messages={messages}
                         setMessages={setMessages}
-                        // Now we pass chatTitle & setChatTitle => 
-                        // so the child can do "blue text" changes
                         chatTitle={chatTitle}
                         setChatTitle={setChatTitle}
+                        // The streaming + stop button props:
+                        isStreaming={isStreaming}
+                        setIsStreaming={setIsStreaming}
+                        onStop={handleStop}
                     />
                 </div>
             )
@@ -515,7 +518,7 @@ function AppContent({ onLogout }) {
                     </div>
                 );
 
-            case 'ContactUs': // "Contact Us"
+            case 'ContactUs':
                 return (
                     <div className="flex flex-col space-y-4">
                         <h2 className="text-xl font-bold">Contact Us</h2>
@@ -624,7 +627,17 @@ function AppContent({ onLogout }) {
                 </div>
 
                 {/* Middle portion: the 3-page nav */}
-                <div style={topBarTitlesStyle}>{topBarPages}</div>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '1rem'
+                    }}
+                >
+                    {topBarPages}
+                </div>
 
                 {/* Right side: Chat History + hamburger */}
                 <div ref={menuRef} className="flex items-center space-x-2">
@@ -726,8 +739,8 @@ function AppContent({ onLogout }) {
                                             messages
                                                 .map(
                                                     (m) =>
-                                                        `${m.role === 'user' ? 'You:' : 'Bot:'} ${m.content
-                                                        }`
+                                                        `${m.role === 'user' ? 'You:' : 'Bot:'
+                                                        } ${m.content}`
                                                 )
                                                 .join('\n\n')
                                         )}`}
@@ -768,7 +781,9 @@ function AppContent({ onLogout }) {
             <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                 <div
                     style={{
-                        ...horizontalSliderStyle,
+                        width: '300vw',
+                        display: 'flex',
+                        transition: 'transform 0.4s ease-in-out',
                         transform: `translateX(-${activePageIndex * 100}vw)`
                     }}
                 >
@@ -801,9 +816,14 @@ function AppContent({ onLogout }) {
                     border: `1px solid ${limeGreen}`
                 }}
             >
-                <img src={bottomLogoUrl} alt="Mahlum Innovations, LLC" className="h-6 w-auto" />
+                <img
+                    src={bottomLogoUrl}
+                    alt="Mahlum Innovations, LLC"
+                    className="h-6 w-auto"
+                />
                 <span
-                    className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'}`}
+                    className={`text-sm ${theme === 'dark' ? 'text-white' : 'text-black'
+                        }`}
                 >
                     Powered by Mahlum Innovations, LLC
                 </span>
@@ -984,9 +1004,9 @@ function AppContent({ onLogout }) {
                                     onClick={() => {
                                         // load from server
                                         setMessages(chat.messages);
+                                        setCurrentChatId(chat.id);
                                         setChatTitle(chat.title || '');
                                         setManageChatsOpen(false);
-                                        setCurrentChatId(chat.id);
                                     }}
                                 >
                                     <p className="font-bold">{chat.title || 'Untitled Chat'}</p>

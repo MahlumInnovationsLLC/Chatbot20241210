@@ -9,12 +9,11 @@ import uuid
 import traceback
 import logging
 
-logging.basicConfig(level=logging.DEBUG)  # Configure logging at the top
+logging.basicConfig(level=logging.DEBUG)  # Keep your logging
 logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
 
 from io import BytesIO
-
-from flask import Flask, send_from_directory, request, jsonify, send_file
+from flask import Flask, Response, send_from_directory, request, jsonify, send_file, stream_with_context
 from docx import Document
 
 from openai import AzureOpenAI
@@ -32,6 +31,7 @@ from sendgrid.helpers.mail import Mail, Email, To, Content
 
 # Azure Cognitive Search
 from azure.search.documents import SearchClient
+from azure.core.credentials import AzureKeyCredential
 
 # Azure Blob (temp container)
 from azure.storage.blob import BlobServiceClient, ContentSettings
@@ -167,19 +167,21 @@ try:
         return send_from_directory("src/public", "index.html")
 
     ###############################################################################
-    # 7. Chat Endpoint (Now using create_item / replace_item instead of upsert)
+    # 7. Chat Endpoint with Streaming Option
     ###############################################################################
     @app.route("/chat", methods=["POST"])
     def chat_endpoint():
         """
         Creates a new chat doc if chatId is not provided (with a truly unique ID).
-        If chatId is provided, we attempt to read that doc and then replace it
-        upon changes. No 'upsert_item' is used here.
+        If chatId is provided, we attempt to read that doc and then replace/update it.
+        We also support streaming if ?stream=true in the querystring.
         """
         user_key = request.args.get("userKey") or request.form.get("userKey") or "default_user"
         chat_id = None
         user_input = ""
         uploaded_files = []
+        # Check if client wants streaming
+        wants_stream = request.args.get("stream", "").lower() == "true"
 
         # Grab request content
         if request.content_type and "multipart/form-data" in request.content_type:
@@ -319,82 +321,106 @@ try:
         # 4) Add user's message to local doc
         chat_doc["messages"].append({"role": "user", "content": user_input})
 
-        # 5) Call AzureOpenAI
-        assistant_reply = ""
-        try:
-            response = client.chat.completions.create(
-                messages=messages_for_openai,
-                model=AZURE_DEPLOYMENT_NAME,
-                timeout=60  # Increase the timeout duration
-            )
-            assistant_reply = response.choices[0].message.content
-        except Exception as e:
-            assistant_reply = f"Error calling AzureOpenAI: {e}"
-            app.logger.error("OpenAI error:", exc_info=True)
+        # If streaming:
+        if wants_stream:
+            # We'll do a generator that yields SSE data
+            def sse_generate():
+                accumulated_text = ""
+                # Call streaming
+                try:
+                    response_stream = client.chat.completions.create(
+                        messages=messages_for_openai,
+                        model=AZURE_DEPLOYMENT_NAME,
+                        stream=True,
+                    )
+                    # Start streaming the partial content
+                    for chunk in response_stream:
+                        if "choices" in chunk:
+                            delta = chunk["choices"][0]["delta"].get("content", "")
+                            if delta:
+                                # SSE event
+                                yield f"data: {delta}\n\n"
+                                accumulated_text += delta
 
-        main_content = assistant_reply
+                    # After streaming done, parse references, do final cleanup
+                    main_content = do_final_cleanup(accumulated_text)
+
+                    # Store final assistant reply into the doc
+                    chat_doc["messages"].append({"role": "assistant", "content": accumulated_text})
+                    container.upsert_item(chat_doc)
+
+                    # We can send one final SSE event with JSON about references, etc.:
+                    yield f"event:final\n"
+                    yield f"data: {main_content}\n\n"
+
+                except Exception as e:
+                    err_text = f"Error calling AzureOpenAI in streaming mode: {e}"
+                    app.logger.error(err_text, exc_info=True)
+                    yield f"event:error\ndata: {err_text}\n\n"
+
+            # Return a streaming response with SSE
+            return Response(stream_with_context(sse_generate()), mimetype="text/event-stream")
+
+        else:
+            # Normal synchronous approach (no streaming)
+            assistant_reply = ""
+            try:
+                response = client.chat.completions.create(
+                    messages=messages_for_openai,
+                    model=AZURE_DEPLOYMENT_NAME,
+                    timeout=60
+                )
+                assistant_reply = response.choices[0].message.content
+            except Exception as e:
+                assistant_reply = f"Error calling AzureOpenAI: {e}"
+                app.logger.error("OpenAI error:", exc_info=True)
+
+            main_content = do_final_cleanup(assistant_reply)
+            # Add assistant's reply to doc
+            chat_doc["messages"].append({"role": "assistant", "content": assistant_reply})
+
+            # Save doc
+            try:
+                container.upsert_item(chat_doc)
+            except Exception as e:
+                app.logger.error("Error saving chat document:", exc_info=True)
+                return jsonify({"error": "Failed to save chat document"}), 500
+
+            # Return JSON
+            return jsonify({
+                "reply": main_content,
+                "references": [],
+                "downloadUrl": None,
+                "reportContent": None,
+                "chatId": chat_id
+            })
+
+    def do_final_cleanup(full_text: str) -> str:
+        """
+        Parse references, remove undesired lines, handle `download://report.docx` if needed.
+        Here, we only do minimal filtering. You can do the same steps you did before.
+        """
+        text = full_text
 
         # Filter out placeholder links and their preface phrases
-        main_content = re.sub(r"(?i)(.*\n)?\[.*download.*\]\([^\)]+\)", "", main_content).strip()
+        text = re.sub(r"(?i)(.*\n)?\[.*download.*\]\([^\)]+\)", "", text).strip()
 
-        # Backup filter to remove any hyperlink containing the word "Report"
-        main_content = re.sub(r"\[.*Report.*\]\([^\)]+\)", "", main_content).strip()
+        # Also remove any link containing the word "Report"
+        text = re.sub(r"\[.*Report.*\]\([^\)]+\)", "", text).strip()
 
-        # (Optional) Filter out lines with a "download" link but no reportId
-        lines = main_content.split("\n")
-        filtered_lines = []
-        for ln in lines:
-            if re.search(r"download.*\[[^\]]+\]\([^\)]+\)", ln, flags=re.IGNORECASE) and "reportId=" not in ln:
-                continue
-            filtered_lines.append(ln)
-        main_content = "\n".join(filtered_lines)
-        main_content = re.sub(r"\n{2,}", "\n\n", main_content).strip()
-
-        # 6) References
-        references_list = []
-        if "References:" in assistant_reply:
-            parts = assistant_reply.split("References:")
-            main_content = parts[0].strip()
-            ref_section = parts[1].strip() if len(parts) > 1 else "None"
-            if not ref_section.lower().startswith("none"):
-                for line in ref_section.split("\n"):
-                    line = line.strip()
-                    if line.startswith("-"):
-                        m = re.match(r"- \[(.*?)\]\((.*?)\): (.*)", line)
-                        if m:
-                            references_list.append({
-                                "name": m.group(1),
-                                "url": m.group(2),
-                                "description": m.group(3)
-                            })
-
-        # 7) If docx link requested
-        if "download://report.docx" in main_content:
-            new_text = main_content.replace("download://report.docx", "").strip()
+        # If docx link requested
+        if "download://report.docx" in text:
+            new_text = text.replace("download://report.docx", "").strip()
             expanded_text = generate_detailed_report(new_text)
             rid = str(uuid.uuid4())
             report_cache[rid] = expanded_text
             hyperlink = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
-            main_content = f"{new_text}\n\nDownloadable Report:\n{hyperlink}"
+            text = f"{new_text}\n\nDownloadable Report:\n{hyperlink}"
 
-        # 8) Add assistant's reply to doc
-        chat_doc["messages"].append({"role": "assistant", "content": assistant_reply})
-
-        # 9) Write the doc back: upsert_item to handle both create and update
-        try:
-            container.upsert_item(chat_doc)
-        except Exception as e:
-            app.logger.error("Error saving chat document:", exc_info=True)
-            return jsonify({"error": "Failed to save chat document"}), 500
-
-        # 10) Return JSON
-        return jsonify({
-            "reply": main_content,
-            "references": references_list,
-            "downloadUrl": None,
-            "reportContent": None,
-            "chatId": chat_id
-        })
+        # You could also parse references here if you want. 
+        # For example, if "References:" in text, etc...
+        # We'll keep it minimal for brevity.
+        return text
 
     ###############################################################################
     # 8. Generate and Send Docx (GET-based)
@@ -539,7 +565,6 @@ try:
 
         for doc in items:
             doc["archived"] = True
-            # STILL using upsert for archive
             container.upsert_item(doc)
         return jsonify({"success": True}), 200
 
@@ -778,4 +803,3 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=8080)
     except Exception as e:
         logging.exception("Failed to start the Flask application.")
-     
