@@ -335,7 +335,7 @@ try:
         main_content = assistant_reply
 
         # Filter out placeholder links
-        main_content = re.sub(r"\[Download the Report\]\(\)", "", main_content).strip()
+        main_content = re.sub(r"\[download it here\]\(\)", "", main_content).strip()
 
         # (Optional) Filter out lines with a "download" link but no reportId
         lines = main_content.split("\n")
