@@ -176,7 +176,6 @@ try:
         If chatId is provided, we attempt to read that doc and then replace it
         upon changes. No 'upsert_item' is used here.
         """
- 
         user_key = request.args.get("userKey") or request.form.get("userKey") or "default_user"
         chat_id = None
         user_input = ""
@@ -374,16 +373,13 @@ try:
         # 8) Add assistant's reply to doc
         chat_doc["messages"].append({"role": "assistant", "content": assistant_reply})
 
-        # 9) Write the doc back: create_item if new, otherwise replace_item
+        # 9) Write the doc back: upsert_item to handle both create and update
         try:
-            if is_new_doc:
-                container.create_item(chat_doc)
-            else:
-                container.replace_item(item=chat_doc['id'], body=chat_doc)
+            container.upsert_item(chat_doc)
         except Exception as e:
             app.logger.error("Error saving chat document:", exc_info=True)
             return jsonify({"error": "Failed to save chat document"}), 500
-   
+
         # 10) Return JSON
         return jsonify({
             "reply": main_content,
