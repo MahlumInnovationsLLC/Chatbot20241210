@@ -1,7 +1,7 @@
 ﻿// LoadingCircle.jsx
 import React from 'react';
 import { useContext } from 'react';
-import { ThemeContext } from './ThemeContext';
+import { ThemeContext } from '../ThemeContext';
 
 const LoadingCircle = () => {
     const { theme } = useContext(ThemeContext);
