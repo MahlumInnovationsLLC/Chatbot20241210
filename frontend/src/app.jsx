@@ -130,12 +130,13 @@ function AppContent({ onLogout }) {
                 ]);
             }
             const newId = `chat_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
-            setMessages([systemMessage]);
+            setMessages([systemMessage]); // Ensure at least the system message is present
             setCurrentChatId(newId);
-            setChatTitle('');
+            setChatTitle('Untitled Chat');
             console.log('Created new chat:', newId);
         } catch (err) {
             console.error('Error creating new chat:', err);
+            alert('Failed to create a new chat. Please try again.');
         }
     }
 
@@ -1064,7 +1065,7 @@ function AppContent({ onLogout }) {
                                     >
                                         <p className="font-bold">{chat.title || 'Untitled chat'}</p>
                                         <p className="text-xs text-gray-300">
-                                            {c.userKey} | {chat.messages.length} msgs
+                                            {chat.userKey} | {chat.messages.length} msgs
                                         </p>
                                     </div>
                                     <button

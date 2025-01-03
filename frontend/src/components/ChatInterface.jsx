@@ -57,7 +57,7 @@ export default function ChatInterface({
     const [hasGeneratedTitle, setHasGeneratedTitle] = useState(false);
 
     // For "stop" functionality
-    const [stopRequested, setStopRequested] = useState(false);
+    const abortControllerRef = useRef(null);
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
@@ -104,7 +104,7 @@ export default function ChatInterface({
         setMessages((prev) => [...prev, userMsg]);
         setUserInput('');
         setIsLoading(true);
-        setStopRequested(false); // Reset stop each time we send a new message
+        abortControllerRef.current = new AbortController();
 
         try {
             let res;
@@ -118,7 +118,8 @@ export default function ChatInterface({
                 });
 
                 res = await axios.post('/chat', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    signal: abortControllerRef.current.signal
                 });
             } else {
                 // JSON approach
@@ -126,6 +127,8 @@ export default function ChatInterface({
                     userMessage: userInput,
                     userKey,
                     chatId
+                }, {
+                    signal: abortControllerRef.current.signal
                 });
             }
 
@@ -141,13 +144,13 @@ export default function ChatInterface({
             setMessages((prev) => [...prev, botMsg]);
 
             // Typing effect for bot's reply
-            const typingSpeed = 50; // ms per character
+            const typingSpeed = 5; // ms per character
             const fullContent = res.data.reply;
             let currentIndex = 0;
 
             const typeNextCharacter = () => {
                 // If user pressed Stop
-                if (stopRequested) {
+                if (abortControllerRef.current.signal.aborted) {
                     // finalize the content immediately
                     botMsg.content = fullContent;
                     setMessages((prev) => [...prev.slice(0, -1), botMsg]);
@@ -182,11 +185,15 @@ export default function ChatInterface({
             await maybeGenerateTitle(updatedConversation);
 
         } catch (err) {
-            console.error('Error sending message:', err);
-            setMessages((prev) => [
-                ...prev,
-                { role: 'assistant', content: 'Error: ' + err.message }
-            ]);
+            if (axios.isCancel(err)) {
+                console.log('Request canceled:', err.message);
+            } else {
+                console.error('Error sending message:', err);
+                setMessages((prev) => [
+                    ...prev,
+                    { role: 'assistant', content: 'Error: ' + err.message }
+                ]);
+            }
             setIsLoading(false);
         } finally {
             setFiles([]);
@@ -196,7 +203,9 @@ export default function ChatInterface({
 
     // Handle "Stop" clicked
     const handleStop = () => {
-        setStopRequested(true);
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
     };
 
     // Press Enter => send
@@ -257,7 +266,7 @@ export default function ChatInterface({
             {(filteredMessages.length > 0 || isLoading) && (
                 <div className="px-4 py-2 mb-2 flex items-center space-x-2">
                     <h2 className="text-xl font-bold text-blue-400">
-                        Chat Title: {chatTitle || 'Untitled Chat'}
+                        {chatTitle || 'Untitled Chat'}
                     </h2>
                     <button onClick={handleTitleEdit} title="Edit Title">
                         <i className="fa-light fa-pen-to-square text-gray-300 hover:text-gray-100"></i>
@@ -360,7 +369,7 @@ export default function ChatInterface({
                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                         title="Stop generating response"
                     >
-                        <i class="fa-light fa-stop"></i>
+                        <i className="fa-light fa-stop"></i>
                     </button>
                 )}
             </div>
