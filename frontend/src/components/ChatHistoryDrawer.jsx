@@ -1,12 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-/**
- * A ChatHistoryDrawer that:
- *  - fetches chat docs from the server for the given userKey
- *  - displays each chat's .title
- *  - animates sliding in from the right over 0.2s (200ms)
- */
 export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectChat }) {
     const [recentChats, setRecentChats] = useState([]);
 
@@ -25,10 +19,7 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
 
     const handleDeleteChat = async (chatId) => {
         try {
-            // Remove chat from server
             await axios.post('/deleteChat', { userKey, chatId });
-
-            // Update local state
             setRecentChats((prevChats) => prevChats.filter((chat) => chat.id !== chatId));
         } catch (err) {
             console.error('Error deleting chat:', err);
@@ -36,14 +27,12 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
         }
     };
 
-    // If closed, render nothing
     if (!isOpen) return null;
 
     return (
         <div
-            // The parent div is positioned at the right side, with an animation
             className="
-                fixed top-0 right-0 h-full w-[30%]  // Adjusted width from 20% to 30%
+                fixed top-0 right-0 h-full w-[30%]
                 bg-gray-800 text-white shadow-lg z-50 
                 overflow-y-auto
                 transform transition-transform duration-200 ease-out 
@@ -55,7 +44,7 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
             <div className="flex items-center justify-between p-4 border-b border-gray-600">
                 <h3 className="text-xl font-bold">Manage Chats</h3>
                 <button onClick={onClose} className="text-sm font-bold">
-                    <i className="fa-light fa-xmark-large"></i>
+                    <i className="fal fa-times"></i>
                 </button>
             </div>
 
@@ -69,9 +58,10 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                 {recentChats.map((chat, idx) => (
                     <div
                         key={chat.id || idx}
-                        className="flex justify-between items-center p-2 border-b border-gray-700 cursor-pointer hover:bg-gray-700"
+                        className="flex justify-between items-center p-2 border-b border-gray-700 hover:bg-gray-700"
                     >
                         <div
+                            className="flex-grow cursor-pointer"
                             onClick={() => {
                                 if (onSelectChat) {
                                     onSelectChat(chat);
@@ -80,13 +70,9 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                                 }
                             }}
                         >
-                            {/* 1) Show chat.title if it exists, else fallback */}
                             <p className="text-sm font-semibold">
                                 {chat.title || `Chat #${idx + 1}`}
                             </p>
-
-                            {/* 2) You can also show a date or the # of messages if you like */}
-                            {/* Example: The doc might not have createdAt, so we skip if missing */}
                             {chat.createdAt ? (
                                 <p className="text-xs text-gray-400">{chat.createdAt}</p>
                             ) : (
@@ -97,10 +83,10 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                         </div>
                         <button
                             onClick={() => handleDeleteChat(chat.id)}
-                            className="text-red-600 hover:text-red-800 p-2 border border-red-600 rounded"
+                            className="flex-shrink-0 text-red-600 hover:text-red-800 p-2 border border-red-600 rounded"
                             title="Delete chat"
                         >
-                            <i className="fa-light fa-trash-alt"></i>
+                            <i className="fal fa-trash-can"></i>
                         </button>
                     </div>
                 ))}
