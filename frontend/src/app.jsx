@@ -1000,22 +1000,33 @@ function AppContent({ onLogout }) {
                             serverUserChats.map((chat, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
-                                    onClick={() => {
-                                        // load from server
-                                        setMessages(chat.messages);
-                                        setCurrentChatId(chat.id);
-                                        setChatTitle(chat.title || '');
-                                        setManageChatsOpen(false);
-                                    }}
+                                    className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600 flex justify-between items-center"
                                 >
-                                    <p className="font-bold">{chat.title || 'Untitled Chat'}</p>
-                                    <p className="text-xs text-gray-300">
-                                        {chat.userKey} |{' '}
-                                        {chat.messages
-                                            ? `${chat.messages.length} msgs`
-                                            : '0 msgs'}
-                                    </p>
+                                    <div
+                                        onClick={() => {
+                                            // load from server
+                                            setMessages(chat.messages);
+                                            setCurrentChatId(chat.id);
+                                            setChatTitle(chat.title || '');
+                                            setManageChatsOpen(false);
+                                        }}
+                                        className="flex-grow"
+                                    >
+                                        <p className="font-bold">{chat.title || 'Untitled Chat'}</p>
+                                        <p className="text-xs text-gray-300">
+                                            {chat.userKey} |{' '}
+                                            {chat.messages
+                                                ? `${chat.messages.length} msgs`
+                                                : '0 msgs'}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDeleteChat(chat.id)}
+                                        className="text-red-600 hover:text-red-500 p-2"
+                                        title="Delete chat"
+                                    >
+                                        <i className="fa-light fa-trash"></i>
+                                    </button>
                                 </div>
                             ))
                         ) : (
@@ -1030,13 +1041,24 @@ function AppContent({ onLogout }) {
                             archivedChats.map((c, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600"
-                                    onClick={() => loadArchivedChat(c)}
+                                    className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600 flex justify-between items-center"
                                 >
-                                    <p className="font-bold">{c.title || 'Untitled chat'}</p>
-                                    <p className="text-xs text-gray-300">
-                                        {c.userKey} | {c.messages.length} msgs
-                                    </p>
+                                    <div
+                                        onClick={() => loadArchivedChat(c)}
+                                        className="flex-grow"
+                                    >
+                                        <p className="font-bold">{c.title || 'Untitled chat'}</p>
+                                        <p className="text-xs text-gray-300">
+                                            {c.userKey} | {c.messages.length} msgs
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDeleteChat(c.id)}
+                                        className="text-red-600 hover:text-red-500 p-2"
+                                        title="Delete chat"
+                                    >
+                                        <i className="fa-light fa-trash"></i>
+                                    </button>
                                 </div>
                             ))
                         ) : (

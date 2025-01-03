@@ -39,12 +39,12 @@ export default function ChatHistoryDrawer({
     return (
         <div
             className="
-        fixed top-0 right-0 h-full w-[30%]
-        bg-gray-800 text-white shadow-lg z-50
-        overflow-y-auto
-        transform transition-transform duration-200 ease-out
-        animate-slideInFromRight
-      "
+                fixed top-0 right-0 h-full w-[30%]
+                bg-gray-800 text-white shadow-lg z-50
+                overflow-y-auto
+                transform transition-transform duration-200 ease-out
+                animate-slideInFromRight
+            "
             style={{ borderLeft: '1px solid #444' }}
         >
             {/* Header area with “Manage Chats” and X button */}
@@ -62,7 +62,7 @@ export default function ChatHistoryDrawer({
                             className="p-2 text-sm font-bold hover:text-gray-300"
                             title="Create New Chat"
                         >
-                            <i className="fa-light fa-plus"></i>
+                            <i className="fa fa-plus"></i>
                         </button>
                     )}
 
@@ -72,7 +72,7 @@ export default function ChatHistoryDrawer({
                         title="Close Drawer"
                     >
                         {/* Updated icon */}
-                        <i className="fa-light fa-xmark"></i>
+                        <i className="fa fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -118,7 +118,7 @@ export default function ChatHistoryDrawer({
                             title="Delete chat"
                         >
                             {/* Updated icon */}
-                            <i className="fa-light fa-trash"></i>
+                            <i className="fa fa-trash"></i>
                         </button>
                     </div>
                 ))}
