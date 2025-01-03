@@ -620,13 +620,19 @@ try:
 
     @app.route("/deleteChat", methods=["POST"])
     def delete_chat():
+        """
+        DELETE a single chat by ID for the given userKey partition.
+        Removes its Cosmos doc (if found) and any associated blob files.
+        """
         data = request.get_json(force=True)
         user_key = data.get("userKey", "")
         chat_id = data.get("chatId", "")
-    
+
         if not user_key or not chat_id:
             return jsonify({"error": "userKey and chatId are required"}), 400
 
+        # Try to connect to blob container, if config is present
+        container_client = None
         if AZURE_STORAGE_CONNECTION_STRING:
             try:
                 bsc = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
@@ -635,28 +641,41 @@ try:
                 app.logger.error("Could not connect to Azure storage container:", exc_info=True)
                 container_client = None
         else:
-            app.logger.error("AZURE_STORAGE_CONNECTION_STRING not set; can't remove blobs.")
-            container_client = None
+            app.logger.warning("AZURE_STORAGE_CONNECTION_STRING not set; blobs may not be removed.")
 
+        # Attempt to read the Cosmos doc from THIS userKey partition
         try:
             chat_doc = container.read_item(item=chat_id, partition_key=user_key)
-            file_list = chat_doc.get("files", [])
-        
-            if container_client and file_list:
-                for f in file_list:
-                    try:
-                        container_client.delete_blob(f["filename"])
-                        app.logger.info(f"Deleted blob '{f['filename']}' from {AZURE_TEMP_CONTAINER}.")
-                    except Exception as ex:
-                        app.logger.error(f"Error deleting blob '{f['filename']}': {ex}", exc_info=True)
-
-            container.delete_item(chat_id, user_key)
-            return jsonify({"success": True, "message": "Chat deleted successfully."}), 200
         except exceptions.CosmosResourceNotFoundError:
             return jsonify({"error": "Chat not found."}), 404
         except Exception as e:
+            app.logger.error("Error reading chat doc:", exc_info=True)
+            return jsonify({"error": str(e)}), 500
+
+        # If found, optionally remove any uploaded blobs
+        file_list = chat_doc.get("files", [])
+        if container_client and file_list:
+            for f in file_list:
+                blob_name = f.get("filename")
+                if blob_name:
+                    try:
+                        container_client.delete_blob(blob_name)
+                        app.logger.info(f"Deleted blob '{blob_name}' from container '{AZURE_TEMP_CONTAINER}'.")
+                    except Exception as ex:
+                        app.logger.error(f"Error deleting blob '{blob_name}': {ex}", exc_info=True)
+
+        # Now delete the doc from Cosmos
+        try:
+            container.delete_item(item=chat_id, partition_key=user_key)
+            return jsonify({"success": True, "message": "Chat deleted successfully."}), 200
+        except exceptions.CosmosResourceNotFoundError:
+            # Rarely, if we fail to find it at this point, we can just treat it as 404
+            return jsonify({"error": "Chat not found at deletion time."}), 404
+        except Exception as e:
             app.logger.error("Error deleting chat:", exc_info=True)
             return jsonify({"error": str(e)}), 500
+
+
     @app.route("/renameChat", methods=["POST"])
     def rename_chat():
         data = request.get_json(force=True)
