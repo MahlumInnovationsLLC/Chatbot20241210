@@ -133,6 +133,7 @@ try:
             raise RuntimeError(f"Error extracting PDF text: {ex}")
 
     def generate_detailed_report(base_content):
+        short_title = generate_short_title(base_content)
         detail_messages = [
             {
                 "role": "system",
@@ -154,10 +155,40 @@ try:
                 messages=detail_messages,
                 model=AZURE_DEPLOYMENT_NAME
             )
-            return response.choices[0].message.content
+            detailed_report = response.choices[0].message.content
+
+            # Clean up the generated content
+            cleaned_report = re.sub(r'\n{2,}', '\n\n', detailed_report)  # Remove large paragraph breaks
+            cleaned_report = cleaned_report.replace('---', '')  # Remove "---" symbols
+
+            def handle_bold(par, text):
+            segments = text.split("**")
+            for i, seg in enumerate(segments):
+                run = par.add_run(seg)
+                if i % 2 == 1:
+                    run.bold = True
+
+            # Format headers and bullet points
+            formatted_report = []
+            for line in cleaned_report.split('\n'):
+                stripped = line.strip()
+                if stripped.startswith("### "):
+                    formatted_report.append(f"### {stripped[4:].strip()}")
+                elif stripped.startswith("## "):
+                    formatted_report.append(f"## {stripped[3:].strip()}")
+                elif stripped.startswith("# "):
+                    formatted_report.append(f"# {stripped[2:].strip()}")
+                elif re.match(r"^-\s", stripped):
+                    formatted_report.append(f"- {stripped[2:].strip()}")
+                elif re.match(r"^\d+\.\s", stripped):
+                    formatted_report.append(f"{stripped}")
+                else:
+                    formatted_report.append(stripped)
+
+            return f"# {short_title}\n\n" + "\n".join(formatted_report)
         except Exception as e:
             app.logger.error("Error calling Azure OpenAI for detailed report:", exc_info=True)
-            return base_content + "\n\n(Additional detail could not be generated.)"
+            return f"# {short_title}\n\n{base_content}\n\n(Additional detail could not be generated.)"
 
     ###############################################################################
     # 6. Serve Frontend
@@ -455,13 +486,6 @@ try:
         doc = Document()
         doc.add_heading(doc_title, 0)
 
-        def handle_bold(par, text):
-            segments = text.split("**")
-            for i, seg in enumerate(segments):
-                run = par.add_run(seg)
-                if i % 2 == 1:
-                    run.bold = True
-
         for line in lines:
             stripped = line.strip()
             if not stripped:
@@ -498,6 +522,33 @@ try:
             download_name=filename,
             mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
+
+    def generate_short_title(base_content):
+        title_messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are an assistant that creates short, descriptive titles for documents. "
+                    "The title should be 3-6 words long and summarize the main content."
+                )
+            },
+            {
+                "role": "user",
+                "content": (
+                    "Here is the content: " + base_content + "\n\n"
+                    "Please generate a short, descriptive title for this document."
+                )
+            }
+        ]
+        try:
+            response = client.chat.completions.create(
+                messages=title_messages,
+                model=AZURE_DEPLOYMENT_NAME
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            app.logger.error("Error calling Azure OpenAI for short title:", exc_info=True)
+            return "Untitled Document"
 
     ###############################################################################
     # 9. Contact, Chats, Archive, Delete
