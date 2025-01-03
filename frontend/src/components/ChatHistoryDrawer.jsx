@@ -1,7 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashAlt } from '@fortawesome/pro-light-svg-icons'; // Import the light trash can icon from Font Awesome Pro
 
 /**
  * A ChatHistoryDrawer that:
@@ -45,7 +43,7 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
         <div
             // The parent div is positioned at the right side, with an animation
             className="
-                fixed top-0 right-0 h-full w-[20%] 
+                fixed top-0 right-0 h-full w-[30%]  // Adjusted width from 20% to 30%
                 bg-gray-800 text-white shadow-lg z-50 
                 overflow-y-auto
                 transform transition-transform duration-200 ease-out 
@@ -57,7 +55,7 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
             <div className="flex items-center justify-between p-4 border-b border-gray-600">
                 <h3 className="text-xl font-bold">Manage Chats</h3>
                 <button onClick={onClose} className="text-sm font-bold">
-                    <FontAwesomeIcon icon={faTimes} />
+                    <i className="fa-light fa-xmark-large"></i>
                 </button>
             </div>
 
@@ -99,10 +97,10 @@ export default function ChatHistoryDrawer({ isOpen, onClose, userKey, onSelectCh
                         </div>
                         <button
                             onClick={() => handleDeleteChat(chat.id)}
-                            className="text-red-600 hover:text-red-800"
+                            className="text-red-600 hover:text-red-800 p-2 border border-red-600 rounded"
                             title="Delete chat"
                         >
-                            <FontAwesomeIcon icon={faTrashAlt} />
+                            <i className="fa-light fa-trash-alt"></i>
                         </button>
                     </div>
                 ))}

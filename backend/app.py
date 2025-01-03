@@ -382,6 +382,19 @@ try:
             # Save doc
             try:
                 container.upsert_item(chat_doc)
+            except exceptions.CosmosResourceExistsError:
+                # Handle conflict by generating a new unique ID and retrying
+                while True:
+                    new_chat_id = f"chat_{int(time.time()*1000)}_{random.randint(1000,9999)}_{user_key}"
+                    existing = list(container.query_items(
+                        query="SELECT * FROM c WHERE c.id=@id",
+                        parameters=[{"name": "@id", "value": new_chat_id}],
+                        enable_cross_partition_query=True
+                    ))
+                    if len(existing) == 0:
+                        chat_doc["id"] = new_chat_id
+                        container.upsert_item(chat_doc)
+                        break
             except Exception as e:
                 app.logger.error("Error saving chat document:", exc_info=True)
                 return jsonify({"error": "Failed to save chat document"}), 500
@@ -392,7 +405,7 @@ try:
                 "references": [],
                 "downloadUrl": None,
                 "reportContent": None,
-                "chatId": chat_id
+                "chatId": chat_doc["id"]
             })
 
     def do_final_cleanup(full_text: str) -> str:
