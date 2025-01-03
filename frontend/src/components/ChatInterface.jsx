@@ -6,6 +6,7 @@ import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import { ThemeContext } from '../ThemeContext';
 import '../styles/ChatInterface.css'; // Update the path to the styles folder
+import LoadingCircle from './LoadingCircle'; // Import LoadingCircle
 
 /**
  * Helper to generate a short, descriptive title from the user’s first message.
@@ -306,7 +307,7 @@ export default function ChatInterface({
                         ))}
                         {isLoading && (
                             <div className="flex justify-center items-center mt-4">
-                                <div className="loading-icon"></div>
+                                <LoadingCircle /> {/* Render LoadingCircle when isLoading is true */}
                             </div>
                         )}
                     </>

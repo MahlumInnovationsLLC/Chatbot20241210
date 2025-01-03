@@ -433,8 +433,14 @@ try:
     def do_final_cleanup(full_text: str) -> str:
         text = full_text
 
-        # Remove any existing hyperlinks
-        text = re.sub(r'\[.*?\]\(.*?\)', '', text).strip()
+        # Remove hyperlinks with generic text like "here"
+        text = re.sub(r'\[here\]\(.*?\)', '', text, flags=re.IGNORECASE)
+
+        # Remove hyperlinks with generic text like "download the report"
+        text = re.sub(r'\[Download the report\]\(.*?\)', '', text, flags=re.IGNORECASE)
+
+        # Remove hyperlinks that do not match "Click here to download the document"
+        text = re.sub(r'\[(?!Click here to download the document\]).*?\]\(.*?\)', '', text, flags=re.IGNORECASE)
 
         # If docx link requested
         if "download://report.docx" in text:
