@@ -233,7 +233,22 @@ function AppContent({ onLogout }) {
         setManageChatsOpen(false);
     };
 
-    // #### 3m) Close menus on outside click
+    // #### 3m) Delete a chat
+    const handleDeleteChat = async (chatId) => {
+        try {
+            await axios.post('/deleteChat', { userKey, chatId });
+            setServerUserChats((prev) => prev.filter((chat) => chat.id !== chatId));
+            setArchivedChats((prev) => prev.filter((chat) => chat.id !== chatId));
+            if (currentChatId === chatId) {
+                createNewChat();
+            }
+        } catch (err) {
+            console.error('Error deleting chat:', err);
+            alert('Failed to delete chat. Please try again.');
+        }
+    };
+
+    // #### 3n) Close menus on outside click
     useEffect(() => {
         function handleClickOutside(e) {
             if (menuOpen || shareMenuOpen || settingsOpen || shareUrlPopupOpen) {
@@ -258,7 +273,7 @@ function AppContent({ onLogout }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [menuOpen, shareMenuOpen, settingsOpen, shareUrlPopupOpen]);
 
-    // #### 3n) Share menu
+    // #### 3o) Share menu
     const openShareMenu = () => setShareMenuOpen(!shareMenuOpen);
     const copyTranscriptToClipboard = () => {
         const allText = messages
@@ -285,7 +300,7 @@ function AppContent({ onLogout }) {
         URL.revokeObjectURL(url);
     };
 
-    // #### 3o) Settings
+    // #### 3p) Settings
     const openSettings = () => {
         setMenuOpen(false);
         setSelectedTheme(theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'system');
@@ -300,7 +315,7 @@ function AppContent({ onLogout }) {
         closeSettings();
     };
 
-    // #### 3p) 3-page horizontal slider
+    // #### 3) 3-page horizontal slider
     const [activePageIndex, setActivePageIndex] = useState(1);
     const horizontalSliderStyle = {
         width: '300vw',
@@ -976,7 +991,7 @@ function AppContent({ onLogout }) {
             {/* #### 3r.vi RIGHT-SIDE Manage Chats SIDEBAR */}
             {manageChatsOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex justify-end"
+                    className={`fixed inset-0 z-50 flex justify-end transition-transform duration-200 ease-in-out ${manageChatsOpen ? 'translate-x-0' : 'translate-x-full'}`}
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             setManageChatsOpen(false);
@@ -1038,22 +1053,22 @@ function AppContent({ onLogout }) {
                         {/* #### 3r.vi.b Locally archived chats */}
                         <p className="text-lg mb-2">Locally archived chats:</p>
                         {archivedChats && archivedChats.length > 0 ? (
-                            archivedChats.map((c, idx) => (
+                            archivedChats.map((chat, idx) => (
                                 <div
                                     key={idx}
                                     className="bg-gray-700 p-2 rounded mb-2 cursor-pointer hover:bg-gray-600 flex justify-between items-center"
                                 >
                                     <div
-                                        onClick={() => loadArchivedChat(c)}
+                                        onClick={() => loadArchivedChat(chat)}
                                         className="flex-grow"
                                     >
-                                        <p className="font-bold">{c.title || 'Untitled chat'}</p>
+                                        <p className="font-bold">{chat.title || 'Untitled chat'}</p>
                                         <p className="text-xs text-gray-300">
-                                            {c.userKey} | {c.messages.length} msgs
+                                            {c.userKey} | {chat.messages.length} msgs
                                         </p>
                                     </div>
                                     <button
-                                        onClick={() => handleDeleteChat(c.id)}
+                                        onClick={() => handleDeleteChat(chat.id)}
                                         className="text-red-600 hover:text-red-500 p-2"
                                         title="Delete chat"
                                     >
