@@ -161,13 +161,6 @@ try:
             cleaned_report = re.sub(r'\n{2,}', '\n\n', detailed_report)  # Remove large paragraph breaks
             cleaned_report = cleaned_report.replace('---', '')  # Remove "---" symbols
 
-            def handle_bold(par, text):
-            segments = text.split("**")
-            for i, seg in enumerate(segments):
-                run = par.add_run(seg)
-                if i % 2 == 1:
-                    run.bold = True
-
             # Format headers and bullet points
             formatted_report = []
             for line in cleaned_report.split('\n'):
@@ -485,6 +478,13 @@ try:
 
         doc = Document()
         doc.add_heading(doc_title, 0)
+
+        def handle_bold(par, text):
+            segments = text.split("**")
+            for i, seg in enumerate(segments):
+                run = par.add_run(seg)
+                if i % 2 == 1:
+                    run.bold = True
 
         for line in lines:
             stripped = line.strip()
