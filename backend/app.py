@@ -210,19 +210,6 @@ try:
                     is_new_doc = True
                     break
 
-        # Prepare base messages for AzureOpenAI
-        messages_for_openai = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant. Use Markdown. "
-                    "If user requests a downloadable report, MUST provide `download://report.docx`. "
-                    "If references, show them, else `References: None`."
-                )
-            },
-            {"role": "user", "content": user_input}
-        ]
-
         # 2) Either read existing doc or create from scratch
         chat_doc = None
         if not is_new_doc:
@@ -318,7 +305,11 @@ try:
                     "extractedText": extracted_text or ""
                 })
 
-        # 4) Add user's message to local doc
+        # 4) Prepare the full chat history for OpenAI
+        messages_for_openai = chat_doc["messages"].copy()
+        messages_for_openai.append({"role": "user", "content": user_input})
+
+        # 5) Add user's message to local doc
         chat_doc["messages"].append({"role": "user", "content": user_input})
 
         # If streaming:
