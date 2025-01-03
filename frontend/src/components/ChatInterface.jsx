@@ -169,6 +169,8 @@ export default function ChatInterface({
                 }
             };
 
+            // Hide the loading icon and start typing
+            setIsLoading(false);
             typeNextCharacter();
 
             // 2a) If the server returns a brand-new chatId (for instance, auto-generated),
@@ -302,6 +304,11 @@ export default function ChatInterface({
                                 files={m.attachedFiles || []}
                             />
                         ))}
+                        {isLoading && (
+                            <div className="flex justify-center items-center mt-4">
+                                <div className="loading-icon"></div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

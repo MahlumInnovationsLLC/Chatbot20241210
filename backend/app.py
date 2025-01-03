@@ -305,10 +305,17 @@ try:
                     "extractedText": extracted_text or ""
                 })
 
-        # 4) Prepare the full chat history for OpenAI
-        messages_for_openai = chat_doc["messages"].copy()
+        # Prepare the full chat history for OpenAI
+        system_message = {
+            "role": "system",
+            "content": (
+                "You are an AI assistant that can produce downloadable reports in Markdown link format. "
+                "If asked for a report, produce `download://report.docx`. Use Markdown formatting."
+            )
+        }
+        messages_for_openai = [system_message] + chat_doc["messages"].copy()
         messages_for_openai.append({"role": "user", "content": user_input})
-
+        
         # 5) Add user's message to local doc
         chat_doc["messages"].append({"role": "user", "content": user_input})
 
