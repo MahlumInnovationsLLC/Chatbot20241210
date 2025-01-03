@@ -409,11 +409,8 @@ try:
     def do_final_cleanup(full_text: str) -> str:
         text = full_text
 
-        # Filter out placeholder links and their preface phrases
-        text = re.sub(r"(?i)(.*\n)?\[.*download.*\]\([^\)]+\)", "", text).strip()
-
-        # Also remove any link containing the word "Report"
-        text = re.sub(r"\[.*Report.*\]\([^\)]+\)", "", text).strip()
+        # Remove any existing hyperlinks
+        text = re.sub(r'\[.*?\]\(.*?\)', '', text).strip()
 
         # If docx link requested
         if "download://report.docx" in text:

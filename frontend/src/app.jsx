@@ -9,6 +9,9 @@ import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
 import axios from 'axios';
 
+import './styles/ChatInterface.css'; // Import ChatInterface.css
+import './index.css'; // Import index.css
+
 ///////////////////////////////////////////////////////////////////////////////
 // 1. Helper function for auto-title (optional)
 ///////////////////////////////////////////////////////////////////////////////
