@@ -3,6 +3,7 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import ChatInterface from './components/ChatInterface';
 import TrainDocTool from './components/TrainDocTool';
 import FacilityTool from './components/FacilityTool';
+import LoadingCircle from './components/LoadingCircle';
 
 import { ThemeProvider, ThemeContext } from './ThemeContext';
 import { useMsal } from '@azure/msal-react';
@@ -145,6 +146,7 @@ function AppContent({ onLogout }) {
     const [selectedTheme, setSelectedTheme] = useState('dark');
     const [aiMood, setAiMood] = useState('');
     const [aiInstructions, setAiInstructions] = useState('');
+    const [downloadUrl, setDownloadUrl] = useState(null); // Add state for download URL
 
     // #### 3h) Server-based user chats
     const [serverUserChats, setServerUserChats] = useState([]);
@@ -368,7 +370,16 @@ function AppContent({ onLogout }) {
                         isStreaming={isStreaming}
                         setIsStreaming={setIsStreaming}
                         onStop={handleStop}
+                        setDownloadUrl={setDownloadUrl}
                     />
+                    {isStreaming && <LoadingCircle />} {/* Add LoadingCircle here */}
+                    {downloadUrl && (
+                        <div className="download-link">
+                            <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
+                                Click here to download the document
+                            </a>
+                        </div>
+                    )}
                 </div>
             )
         },
@@ -992,14 +1003,14 @@ function AppContent({ onLogout }) {
             {/* #### 3r.vi RIGHT-SIDE Manage Chats SIDEBAR */}
             {manageChatsOpen && (
                 <div
-                    className={`fixed inset-0 z-50 flex justify-end transition-transform duration-700 ease-in-out ${manageChatsOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                    className={`fixed inset-0 z-50 flex justify-end transition-transform origin-right transition-transform duration-200 ease-out animate-slideLeft ${manageChatsOpen ? 'translate-x-0' : 'translate-x-full'}`}
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             setManageChatsOpen(false);
                         }
                     }}
                 >
-                    <div className="bg-gray-900 text-white w-1/5 h-full p-4 transform transition-transform duration-700 ease-in-out overflow-y-auto">
+                    <div className="bg-gray-900 text-white w-1/5 h-full p-4 transform transition-transform duration-200 ease-in-out overflow-y-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-xl font-bold">Your Chats</h3>
                             <button

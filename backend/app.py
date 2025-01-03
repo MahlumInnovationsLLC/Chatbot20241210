@@ -407,10 +407,6 @@ try:
             })
 
     def do_final_cleanup(full_text: str) -> str:
-        """
-        Parse references, remove undesired lines, handle `download://report.docx` if needed.
-        Here, we only do minimal filtering. You can do the same steps you did before.
-        """
         text = full_text
 
         # Filter out placeholder links and their preface phrases
@@ -425,12 +421,9 @@ try:
             expanded_text = generate_detailed_report(new_text)
             rid = str(uuid.uuid4())
             report_cache[rid] = expanded_text
-            hyperlink = f"[Click here to download the doc](/api/generateReport?reportId={rid})"
+            hyperlink = f"[Click here to download the document](/api/generateReport?reportId={rid})"
             text = f"{new_text}\n\nDownloadable Report:\n{hyperlink}"
 
-        # You could also parse references here if you want. 
-        # For example, if "References:" in text, etc...
-        # We'll keep it minimal for brevity.
         return text
 
     ###############################################################################
