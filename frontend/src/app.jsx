@@ -1003,7 +1003,7 @@ function AppContent({ onLogout }) {
             {/* #### 3r.vi RIGHT-SIDE Manage Chats SIDEBAR */}
             {manageChatsOpen && (
                 <div
-                    className={`fixed inset-0 z-50 flex justify-end transition-transform origin-right transition-transform duration-200 ease-out animate-slideLeft ${manageChatsOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                    className={`fixed inset-0 z-50 flex justify-end transition-transform origin-right duration-200 ease-out animate-slideLeft ${manageChatsOpen ? 'translate-x-0' : 'translate-x-full'}`}
                     onClick={(e) => {
                         if (e.target === e.currentTarget) {
                             setManageChatsOpen(false);
