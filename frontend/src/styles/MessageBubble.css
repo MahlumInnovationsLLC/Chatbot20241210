@@ -22,3 +22,19 @@
 	white-space: pre-wrap;
 	word-wrap: break-word;
 }
+
+/* download link styling */
+.download-link {
+	margin-top: 1rem;
+	text-align: center;
+}
+
+	.download-link a {
+		color: #007bff;
+		text-decoration: none;
+		font-weight: bold;
+	}
+
+		.download-link a:hover {
+			text-decoration: underline;
+		}

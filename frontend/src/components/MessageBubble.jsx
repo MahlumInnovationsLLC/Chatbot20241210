@@ -23,7 +23,7 @@ export default function MessageBubble({
     useEffect(() => {
         if (isTyping) {
             let currentIndex = 0;
-            const typingSpeed = 15; // Adjust typing speed (ms per character)
+            const typingSpeed = 10; // Adjust typing speed (ms per character)
 
             const typeNextCharacter = () => {
                 if (currentIndex < content.length) {
@@ -59,19 +59,6 @@ export default function MessageBubble({
         mainContent = mainContent.substring(0, referencesIndex).trim();
     }
 
-    // Remove `download://report.docx`
-    if (mainContent.includes('download://report.docx')) {
-        mainContent = mainContent.replace('download://report.docx', '').trim();
-    }
-
-    // Remove unwanted links pointing to the webapp URL
-    const webAppUrlPattern = /\[([^\]]+)\]\((https?:\/\/gymaiengine\.com[^\)]*)\)/gi;
-    mainContent = mainContent.replace(webAppUrlPattern, '');
-
-    // Remove redundant phrase/link about "For a downloadable version of this report"
-    const redundantPhrasePattern = /For a downloadable version of this report[\s\S]*Download Report[\s\S]*?\n?/gi;
-    mainContent = mainContent.replace(redundantPhrasePattern, '').trim();
-
     const [showReferences, setShowReferences] = useState(false);
 
     // Code block syntax highlighting
@@ -106,34 +93,6 @@ export default function MessageBubble({
                     {children}
                 </a>
             );
-        }
-    };
-
-    // Handle the "Download report" button
-    const handleDownload = async () => {
-        if (!downloadUrl || !reportContent) return;
-        try {
-            const res = await fetch(downloadUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: 'report.docx', reportContent })
-            });
-            if (!res.ok) {
-                alert('Failed to download the report.');
-                return;
-            }
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'report.docx';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch (e) {
-            console.error('Download error:', e);
-            alert('Error occurred while downloading the file.');
         }
     };
 
@@ -267,14 +226,11 @@ export default function MessageBubble({
             )}
 
             {/* If there's a downloadable docx link */}
-            {downloadUrl && reportContent && (
-                <div className="mt-4">
-                    <button
-                        onClick={handleDownload}
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    >
-                        Download the Report
-                    </button>
+            {downloadUrl && (
+                <div className="download-link mt-4">
+                    <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
+                        Click here to download the document
+                    </a>
                 </div>
             )}
         </div>

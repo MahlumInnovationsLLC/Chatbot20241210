@@ -5,7 +5,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 import { ThemeContext } from '../ThemeContext';
-import '../styles/ChatInterface.css'; // Update the path to the styles folder
+import '../styles/ChatInterface.css'; // Ensure the path to the styles folder is correct
 import LoadingCircle from './LoadingCircle'; // Import LoadingCircle
 
 /**
@@ -62,6 +62,9 @@ export default function ChatInterface({
 
     const { theme } = useContext(ThemeContext);
     const fileInputRef = useRef(null);
+
+    // Reference for the chat window
+    const chatWindowRef = useRef(null);
 
     /**
      * Possibly rename chat once we receive the first user message & bot reply.
@@ -260,6 +263,18 @@ export default function ChatInterface({
         }
     };
 
+    // Scroll to the bottom of the chat window
+    const scrollToBottom = () => {
+        if (chatWindowRef.current) {
+            chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+        }
+    };
+
+    // Scroll to the bottom whenever messages change
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
     /**************************************************************************
      * Render
      **************************************************************************/
@@ -278,7 +293,7 @@ export default function ChatInterface({
             )}
 
             {/* Scrollable chat window */}
-            <div className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
+            <div ref={chatWindowRef} className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
                 {showStartContent && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <img
