@@ -17,8 +17,8 @@ import './index.css'; // Import index.css
 ///////////////////////////////////////////////////////////////////////////////
 async function generateChatTitle(messages) {
     try {
-        // Taking up to last 10 messages from this conversation to guess a short title
-        const snippet = messages.slice(-10);
+        // Taking up to last 1 messages from this conversation to guess a short title
+        const snippet = messages.slice(-1);
         const requestBody = {
             messages: [
                 {

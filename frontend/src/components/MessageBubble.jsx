@@ -23,7 +23,7 @@ export default function MessageBubble({
     useEffect(() => {
         if (isTyping) {
             let currentIndex = 0;
-            const typingSpeed = 2.5; // Adjust typing speed (ms per character)
+            const typingSpeed = 1; // Adjust typing speed (ms per character)
 
             const typeNextCharacter = () => {
                 if (currentIndex < content.length) {
