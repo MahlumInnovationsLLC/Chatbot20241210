@@ -374,6 +374,7 @@ function AppContent({ onLogout }) {
                         setIsStreaming={setIsStreaming}
                         onStop={handleStop}
                         setDownloadUrl={setDownloadUrl}
+                        downloadUrl={downloadUrl}
                     />
                     {isStreaming && <LoadingCircle />} {/* Add LoadingCircle here */}
                     {downloadUrl && (
