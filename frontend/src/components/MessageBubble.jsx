@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useContext, useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
@@ -6,6 +6,7 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { github } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { FaFilePdf, FaFileWord, FaFileImage } from 'react-icons/fa';
 import { AiFillFileUnknown } from 'react-icons/ai';
+import { ThemeContext } from '../ThemeContext'; // Import ThemeContext
 import '../styles/MessageBubble.css'; // Import the CSS file
 
 export default function MessageBubble({
@@ -16,6 +17,7 @@ export default function MessageBubble({
     reportContent,
     files = [] // keep default empty array if none
 }) {
+    const { theme } = useContext(ThemeContext); // Get the current theme
     const isUser = role === 'user';
     const [displayedContent, setDisplayedContent] = useState('');
     const [isTyping, setIsTyping] = useState(role === 'assistant');
@@ -23,7 +25,7 @@ export default function MessageBubble({
     useEffect(() => {
         if (isTyping) {
             let currentIndex = 0;
-            const typingSpeed = 1; // Adjust typing speed (ms per character)
+            const typingSpeed = 0.01; // Adjust typing speed (ms per character)
 
             const typeNextCharacter = () => {
                 if (currentIndex < content.length) {
@@ -181,7 +183,7 @@ export default function MessageBubble({
 
     return (
         <div
-            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'bg-blue-700 text-white self-end user' : 'bg-gray-700 text-white self-start assistant'}`}
+            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'user' : 'assistant'} ${theme === 'dark' ? '' : 'light-mode'}`}
         >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
 

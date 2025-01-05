@@ -58,3 +58,29 @@
         .download-link a:hover {
             text-decoration: underline;
         }
+
+/* Dark mode styles */
+.message-bubble.user {
+    background-color: #1e3a8a; /* Blue background */
+    color: white;
+}
+
+.message-bubble.assistant {
+    background-color: #374151; /* Gray background */
+    color: white;
+}
+
+/* Light mode styles */
+.light-mode .message-bubble.user {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .message-bubble.assistant {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
