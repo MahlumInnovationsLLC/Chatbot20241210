@@ -61,15 +61,15 @@
 
 /* Dark mode styles */
 .message-bubble.user {
-    background-color: white; /* White background */
-    color: black; /* Black text */
+    background-color: #1e3a8a; /* Blue background */
+    color: white;
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .message-bubble.assistant {
     background-color: #374151; /* Gray background */
-    color: white; /* White text */
+    color: white;
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -87,4 +87,13 @@
     color: white; /* White text */
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Light mode styles */
+.light-mode .message-bubble.user,
+.light-mode .message-bubble.assistant {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
