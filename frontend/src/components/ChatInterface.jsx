@@ -7,6 +7,7 @@ import MessageBubble from './MessageBubble';
 import { ThemeContext } from '../ThemeContext';
 import '../styles/ChatInterface.css'; // Ensure the path to the styles folder is correct
 import LoadingCircle from './LoadingCircle'; // Import LoadingCircle
+import '../styles/MessageBubble.css'; // Import the CSS file'
 
 /**
  * Helper to generate a short, descriptive title from the user’s first message.
@@ -279,7 +280,7 @@ export default function ChatInterface({
      * Render
      **************************************************************************/
     return (
-        <div className="w-full h-full flex flex-col relative overflow-visible">
+        <div className={`w-full h-full flex flex-col relative overflow-visible ${theme === 'dark' ? 'dark-mode' : 'light-mode'}`}>
             {/* Title row if there's a conversation beyond system or if loading */}
             {(filteredMessages.length > 0 || isLoading) && (
                 <div className="px-4 py-2 mb-2 flex items-center space-x-2">
@@ -293,7 +294,7 @@ export default function ChatInterface({
             )}
 
             {/* Scrollable chat window */}
-            <div ref={chatWindowRef} className="flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
+            <div ref={chatWindowRef} className="chat-window flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
                 {showStartContent && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <img
