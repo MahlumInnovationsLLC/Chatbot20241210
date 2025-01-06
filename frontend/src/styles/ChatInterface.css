@@ -1,6 +1,6 @@
 ﻿/* ChatInterface.css */
 
-/* Loading Icon Spinner*/
+/* Loading Icon Spinner */
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -61,26 +61,30 @@
 
 /* Dark mode styles */
 .message-bubble.user {
-    background-color: #1e3a8a; /* Blue background */
-    color: white;
+    background-color: white; /* White background */
+    color: black; /* Black text */
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .message-bubble.assistant {
     background-color: #374151; /* Gray background */
-    color: white;
+    color: white; /* White text */
+    border: 1px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Light mode styles */
 .light-mode .message-bubble.user {
-    background-color: white;
-    color: black;
+    background-color: white; /* White background */
+    color: black; /* Black text */
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .light-mode .message-bubble.assistant {
-    background-color: white;
-    color: black;
+    background-color: #d3d3d3; /* Light grey background */
+    color: white; /* White text */
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
