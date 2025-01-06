@@ -17,7 +17,7 @@ export default function MessageBubble({
     reportContent,
     files = [] // keep default empty array if none
 }) {
-    const { theme } = useContext(ThemeContext); // Get the current theme
+    const { theme } = useContext(ThemeContext);
     const isUser = role === 'user';
     const [displayedContent, setDisplayedContent] = useState('');
     const [isTyping, setIsTyping] = useState(role === 'assistant');
@@ -109,7 +109,13 @@ export default function MessageBubble({
     const isImageFile = (fileObj) => {
         if (fileObj.fileExt === 'image') return true;
         const fname = (fileObj.filename || '').toLowerCase();
-        return fname.endsWith('.png') || fname.endsWith('.jpg') || fname.endsWith('.jpeg') || fname.endsWith('.gif') || fname.endsWith('.webp');
+        return (
+            fname.endsWith('.png') ||
+            fname.endsWith('.jpg') ||
+            fname.endsWith('.jpeg') ||
+            fname.endsWith('.gif') ||
+            fname.endsWith('.webp')
+        );
     };
 
     // Renders a mini preview or icon link for a single file
@@ -183,7 +189,8 @@ export default function MessageBubble({
 
     return (
         <div
-            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'user' : 'assistant'} ${theme === 'dark' ? '' : 'light-mode'}`}
+            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'user' : 'assistant'
+                } ${theme === 'dark' ? '' : 'light-mode'}`}
         >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
 
@@ -194,15 +201,17 @@ export default function MessageBubble({
                 </div>
             )}
 
-            {/* The main text/markdown of the message */}
-            <ReactMarkdown
-                className="prose prose-invert max-w-none"
-                remarkPlugins={[remarkGfm, remarkBreaks]}
-                transformLinkUri={null}
-                components={components}
-            >
-                {mainContent}
-            </ReactMarkdown>
+            {/* Wrap the markdown content in a .message-content div so the CSS can apply */}
+            <div className="message-content">
+                <ReactMarkdown
+                    className="prose prose-invert max-w-none"
+                    remarkPlugins={[remarkGfm, remarkBreaks]}
+                    transformLinkUri={null}
+                    components={components}
+                >
+                    {mainContent}
+                </ReactMarkdown>
+            </div>
 
             {/* If references are present, show/hide them with a button */}
             {hasRelevantReferences && (

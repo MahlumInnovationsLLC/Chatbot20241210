@@ -17,7 +17,7 @@
 	}
 }
 
-/* Typing effect for AI response */
+/* Typing effect for AI response (scoped to .message-content now) */
 .message-bubble.assistant .message-content {
 	white-space: pre-wrap;
 	word-wrap: break-word;
@@ -39,16 +39,64 @@
 			text-decoration: underline;
 		}
 
+/* Additional sections (references, files) 
+   (You can remove these if you are not using them at all.)
+*/
+.references {
+	margin-top: 0.5rem;
+	font-size: 0.9rem;
+	color: #d1d5db; /* slight grey text in dark mode */
+}
+
+	.references h4 {
+		margin: 0.25rem 0;
+		color: #ffffff; /* white text for headings in dark mode */
+	}
+
+	.references ul {
+		padding-left: 1.2rem;
+		margin: 0;
+	}
+
+	.references li {
+		list-style: disc;
+		margin-bottom: 0.3rem;
+	}
+
+.attached-files {
+	margin-top: 0.5rem;
+	font-size: 0.9rem;
+	color: #d1d5db;
+}
+
+	.attached-files h4 {
+		margin: 0.25rem 0;
+		color: #ffffff;
+	}
+
+.file-item {
+	margin-bottom: 0.3rem;
+}
+
+	.file-item a {
+		color: #52b5f0;
+		text-decoration: none;
+	}
+
+		.file-item a:hover {
+			text-decoration: underline;
+		}
+
 /* Dark mode styles */
 .message-bubble.user {
-	background-color: #1e3a8a; /* Blue background */
+	background-color: #1e3a8a; /* Blue background for user in dark mode */
 	color: white;
 	border: 1px solid black;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .message-bubble.assistant {
-	background-color: #374151; /* Gray background */
+	background-color: #374151; /* Gray background for assistant in dark mode */
 	color: white;
 	border: 1px solid black;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -56,24 +104,32 @@
 
 /* Light mode styles */
 .light-mode .message-bubble.user {
-	background-color: white; /* White background */
+	background-color: white; /* White background for user */
 	color: black; /* Black text */
 	border: 1px solid black;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .light-mode .message-bubble.assistant {
-	background-color: #808080; /* Light grey background */
+	background-color: #808080; /* Light grey background for assistant */
 	color: black; /* Black text */
 	border: 1px solid black;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Light mode styles */
+/* Alternatively, if you want a uniform approach for all in light mode: */
 .light-mode .message-bubble.user,
 .light-mode .message-bubble.assistant {
 	background-color: white;
 	color: black;
 	border: 1px solid black;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* For the main rendered content area */
+.rendered-content {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	line-height: 1.4;
+	font-size: 0.95rem;
 }
