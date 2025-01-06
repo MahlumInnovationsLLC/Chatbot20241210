@@ -153,7 +153,7 @@ export default function ChatInterface({
             setMessages((prev) => [...prev, botMsg]);
 
             // Typing effect for bot's reply
-            const typingSpeed = 15; // ms per character
+            const typingSpeed = 0.5; // ms per character
             const fullContent = res.data.reply;
             let currentIndex = 0;
 
