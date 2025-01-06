@@ -24,10 +24,10 @@
     .loading-circle::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 50%;
-        height: 50%;
+        top: -2px; /* Adjust position to make it more pronounced */
+        left: -2px; /* Adjust position to make it more pronounced */
+        width: 60%; /* Increase size to make it more pronounced */
+        height: 60%; /* Increase size to make it more pronounced */
         background-color: white; /* Default quarter circle color */
         border-top-left-radius: 50%;
         transform-origin: bottom right;
@@ -106,7 +106,7 @@
 }
 
 .light-mode .message-bubble.assistant {
-    background-color: #a9a9a9; /* Light grey background */
+    background-color: #808080; /* Light grey background */
     color: black; /* Black text */
     border: 1px solid black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);

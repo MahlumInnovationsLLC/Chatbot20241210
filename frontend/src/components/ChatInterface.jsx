@@ -7,7 +7,7 @@ import MessageBubble from './MessageBubble';
 import { ThemeContext } from '../ThemeContext';
 import '../styles/ChatInterface.css'; // Ensure the path to the styles folder is correct
 import LoadingCircle from './LoadingCircle'; // Import LoadingCircle
-import '../styles/MessageBubble.css'; // Import the CSS file'
+import '../styles/MessageBubble.css'; // Import the CSS file
 
 /**
  * Helper to generate a short, descriptive title from the user’s first message.
@@ -128,13 +128,17 @@ export default function ChatInterface({
                 });
             } else {
                 // JSON approach
-                res = await axios.post('/chat', {
-                    userMessage: userInput,
-                    userKey,
-                    chatId
-                }, {
-                    signal: abortControllerRef.current.signal
-                });
+                res = await axios.post(
+                    '/chat',
+                    {
+                        userMessage: userInput,
+                        userKey,
+                        chatId
+                    },
+                    {
+                        signal: abortControllerRef.current.signal
+                    }
+                );
             }
 
             // 2) Bot’s reply placeholder
@@ -159,7 +163,7 @@ export default function ChatInterface({
                     // finalize the content immediately
                     botMsg.content = fullContent;
                     setMessages((prev) => [...prev.slice(0, -1), botMsg]);
-                    setIsLoading(false);
+                    setIsLoading(false); // done
                     return;
                 }
 
@@ -170,12 +174,14 @@ export default function ChatInterface({
                     currentIndex++;
                     setTimeout(typeNextCharacter, typingSpeed);
                 } else {
+                    // Once the bot finishes typing everything, hide the stop button
                     setIsLoading(false);
                 }
             };
 
-            // Hide the loading icon and start typing
-            setIsLoading(false);
+            // IMPORTANT: we do NOT set isLoading(false) here. We remain "loading"
+            // so that the "Stop" button is shown during the entire typing sequence.
+            // Start the typing animation:
             typeNextCharacter();
 
             // 2a) If the server returns a brand-new chatId (for instance, auto-generated),
@@ -294,7 +300,10 @@ export default function ChatInterface({
             )}
 
             {/* Scrollable chat window */}
-            <div ref={chatWindowRef} className="chat-window flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative">
+            <div
+                ref={chatWindowRef}
+                className="chat-window flex-grow overflow-y-auto mb-4 scrollbar-thin scrollbar-thumb-gray-700 p-4 rounded-md border border-gray-500 relative"
+            >
                 {showStartContent && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <img
@@ -323,7 +332,7 @@ export default function ChatInterface({
                         ))}
                         {isLoading && (
                             <div className="flex justify-center items-center mt-4">
-                                <LoadingCircle /> {/* Render LoadingCircle when isLoading is true */}
+                                <LoadingCircle />
                             </div>
                         )}
                     </>
