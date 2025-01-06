@@ -189,8 +189,8 @@ export default function MessageBubble({
 
     return (
         <div
-            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'user' : 'assistant'
-                } ${theme === 'dark' ? '' : 'light-mode'}`}
+            className={`message-bubble mb-2 p-3 rounded-md ${isUser ? 'user' : 'assistant'} ${theme === 'dark' ? '' : 'light-mode'
+                }`}
         >
             <p className="text-sm font-bold mb-2">{isUser ? 'You' : 'AI Engine'}:</p>
 

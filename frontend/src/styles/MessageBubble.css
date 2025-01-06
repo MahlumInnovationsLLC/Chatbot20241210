@@ -111,7 +111,7 @@
 }
 
 .light-mode .message-bubble.assistant {
-	background-color: #808080; /* Light grey background for assistant */
+	background-color: #374151; /* Darker grey background for assistant */
 	color: black; /* Black text */
 	border: 1px solid black;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
