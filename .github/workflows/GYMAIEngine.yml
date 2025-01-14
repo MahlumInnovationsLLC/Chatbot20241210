@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Ensure we can read contents (source code) and write packages (to GHCR).
 permissions:
   contents: read
   packages: write
@@ -26,6 +27,7 @@ jobs:
       AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
       FORM_RECOGNIZER_KEY: ${{ secrets.FORM_RECOGNIZER_KEY }}
       FORM_RECOGNIZER_ENDPOINT: ${{ secrets.FORM_RECOGNIZER_ENDPOINT }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -43,22 +45,6 @@ jobs:
         working-directory: ./backend
         run: npm install
 
-      - name: Make vitest executable
-        working-directory: ./backend
-        run: chmod +x node_modules/.bin/vitest
-
-      - name: List bin folder
-        working-directory: ./backend
-        run: ls -la node_modules/.bin
-
-      - name: List binaries
-        working-directory: ./backend
-        run: ls -la node_modules/.bin
-
-      - name: Print env
-        working-directory: ./backend
-        run: env
-
       - name: Test backend
         working-directory: ./backend
         run: npm test
@@ -68,14 +54,10 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
-      - name: Make vite executable
-        working-directory: ./frontend
-        run: chmod +x node_modules/.bin/vite
-
       - name: Build frontend
         working-directory: ./frontend
         run: npm run build
-        # (We build here just to verify it builds; final build happens in Docker)
+        # We build here just to verify it compiles successfully.
 
   dockerize:
     needs: build-test
@@ -92,6 +74,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Build single image that contains both frontend and backend
+      # (Adjust your Dockerfile or context as needed)
       - name: Build combined image
         run: docker build -t ghcr.io/mahluminnovationsllc/chatbot-app:latest .
 
@@ -113,4 +96,4 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           resource-group-name: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          images: "ghcr.io/mahluminnovationsllc/chatbot-app:latest"
+          images: 'ghcr.io/mahluminnovationsllc/chatbot-app:latest'
